@@ -25,6 +25,41 @@ function stillOnCoach() {
 
 const FIT_GAP_PX = 2;
 
+const COVER_RE = /,?\s*viewport-fit\s*=\s*cover/i;
+
+/* Edge-to-edge Chrome on Android (viewport-fit=cover) draws the page behind
+   the system navigation bar, but reports the keyboard as if the page ended
+   above it: navigator.virtualKeyboard.boundingRect.top = innerHeight -
+   height, while the real keyboard top sits the nav bar's height higher.
+   Seth's Nov 9 kbdebug shot (Android Chrome, Gboard, dpr 2.625, 411 wide):
+   innerHeight 801, rect 0,461 411x340, composer placed at 459, real
+   keyboard top ~425 - the ~36 px miss is the nav strip under the keyboard
+   (vv.height over-reported the same way on Oct 10). On /coach in
+   Chromium (the only engine with navigator.virtualKeyboard - iOS keeps
+   cover and its notch insets), drop viewport-fit=cover so the viewport
+   ends above the nav bar and Chrome's keyboard numbers match the screen.
+   Restored on leaving /coach. Fail-safe: a browser that ignores the change
+   behaves exactly as before. */
+function useCoachViewportFit(pathname) {
+  useEffect(() => {
+    if (!stillOnCoach()) return undefined;
+    if (typeof navigator === "undefined" || !navigator.virtualKeyboard) return undefined;
+    const meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) return undefined;
+    const prev = meta.getAttribute("content") || "";
+    if (!COVER_RE.test(prev)) return undefined;
+    meta.setAttribute("content", prev.replace(COVER_RE, ""));
+    return () => {
+      meta.setAttribute("content", prev);
+    };
+  }, [pathname]);
+}
+
+function viewportFitLabel() {
+  const meta = document.querySelector('meta[name="viewport"]');
+  return meta && COVER_RE.test(meta.getAttribute("content") || "") ? "cover" : "auto";
+}
+
 function fieldInside(page, el) {
   if (!page || !el || !page.contains(el)) return false;
   return el.matches("input, textarea, select, [contenteditable='true']");
@@ -40,6 +75,8 @@ export function CoachPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const resumeConversationId = parseConversationParam(searchParams.get("c"));
   const kbdebug = searchParams.get("kbdebug") === "1";
+
+  useCoachViewportFit(location.pathname);
 
   /* Reload and a return to /coach with no ?c= reopen the active conversation.
      A ?c= already in the URL wins, so History can open a different thread. */
@@ -170,7 +207,7 @@ export function CoachPage() {
         : "none";
       const safe = safeRef.current ? safeRef.current.getBoundingClientRect().height : 0;
       const lines = [
-        `dpr ${window.devicePixelRatio} innerWidth ${window.innerWidth}`,
+        `dpr ${window.devicePixelRatio} innerWidth ${window.innerWidth} fit ${viewportFitLabel()}`,
         `innerHeight ${reading.innerHeight}`,
         `vv.height ${reading.vvHeight}`,
         `vv.offsetTop ${reading.vvOffsetTop}`,
