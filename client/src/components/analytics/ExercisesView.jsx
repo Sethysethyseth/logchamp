@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import * as analyticsApi from "../../api/analyticsApi.js";
 import { ErrorMessage } from "../ErrorMessage.jsx";
@@ -10,8 +10,27 @@ import { formatEffort } from "../../lib/effortDisplay.js";
 import { formatRepsValue } from "../../lib/repsDisplay.js";
 import { loadWeightUnit } from "../../lib/weightUnitPref.js";
 import { formatEstimate, formatWeight, roundToPlate } from "../../lib/weightDisplay.js";
+import { useReducedMotion } from "../../lib/useReducedMotion.js";
 import { ExercisesEmptyGhost } from "./EmptyStateGhosts.jsx";
 import { SparklinePlot } from "./StrengthTrendChart.jsx";
+
+/** Bottom edge of the sticky top chrome the Analytics page sits under
+    (desktop `.nav`; phone bottom-nav hides it so this returns 0). */
+function stickyHeaderBottom() {
+  if (typeof document === "undefined") return 0;
+  const nav = document.querySelector(".nav");
+  if (!nav) return 0;
+  const style = window.getComputedStyle(nav);
+  if (style.display === "none" || style.visibility === "hidden") return 0;
+  if (style.position !== "sticky" && style.position !== "fixed") return 0;
+  const rect = nav.getBoundingClientRect();
+  if (rect.height <= 0 || rect.bottom <= 0) return 0;
+  return rect.bottom;
+}
+
+function panelDomId(identityKey) {
+  return `ex-detail-${String(identityKey).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+}
 
 /** Trailing window for the Active roster lens (most recent session). */
 const ACTIVE_WINDOW_WEEKS = 8;
@@ -362,10 +381,10 @@ function RepTargetsCard({ repTargets }) {
   );
 }
 
-function ExerciseDetailPanel({ detail, weeks, loading, error, onClose }) {
+function ExerciseDetailPanel({ id, detail, weeks, loading, error, onClose }) {
   if (loading) {
     return (
-      <section className="card ex-detail-panel">
+      <section id={id} className="card ex-detail-panel ex-detail-panel--inline" aria-busy="true">
         <LoadingState tone="skeleton" variant="session" rows={2} slowLabel="Loading exercise detail…" />
       </section>
     );
@@ -373,7 +392,7 @@ function ExerciseDetailPanel({ detail, weeks, loading, error, onClose }) {
 
   if (error) {
     return (
-      <section className="card ex-detail-panel stack">
+      <section id={id} className="card ex-detail-panel ex-detail-panel--inline stack">
         <ErrorMessage error={error} />
         <button type="button" className="btn-secondary ex-detail-close" onClick={onClose}>
           Back to list
@@ -387,7 +406,11 @@ function ExerciseDetailPanel({ detail, weeks, loading, error, onClose }) {
   const { totals, topSets, matchedEffortTrend, e1rmHistory, weeklyVolume, repTargets } = detail;
 
   return (
-    <section className="card stack ex-detail-panel" aria-label={`${detail.name} detail`}>
+    <section
+      id={id}
+      className="card stack ex-detail-panel ex-detail-panel--inline"
+      aria-label={`${detail.name} detail`}
+    >
       <div className="row ex-detail-title-row">
         <h2 className="ex-detail-title">{detail.name}</h2>
         <button type="button" className="btn-secondary ex-detail-close" onClick={onClose}>
@@ -496,8 +519,9 @@ function rangeStatsFor(row, stats) {
 /** One row = the name plus ONE hero number (the top set in range) with its
     range delta under it; best e1RM and session counts live in the meta line;
     everything else is on demand in the detail panel. The sparkline column
-    appears on wide screens only (analytics-motion.css). */
-function RosterRow({ row, stats, selected, weeks, onSelect }) {
+    appears on wide screens only (analytics-motion.css). Returns the row
+    button only - the parent `<li>` owns the inline detail panel. */
+function RosterRow({ row, stats, selected, weeks, panelId, onSelect }) {
   const ago = daysAgo(row.lastPerformed);
   const agoLabel =
     ago === 0 ? "today" : ago === 1 ? "yesterday" : `${ago} days ago`;
@@ -508,54 +532,54 @@ function RosterRow({ row, stats, selected, weeks, onSelect }) {
   const best = stats?.e1rmTrend?.best ?? null;
   const heroLabel = top ? "top set" : inRange ? "top set" : "no sets in range";
   return (
-    <li>
-      <button
-        type="button"
-        className={`exercise-roster-row${selected ? " is-selected" : ""}${inRange ? "" : " exercise-roster-row--idle"}`}
-        aria-pressed={selected}
-        onClick={onSelect}
-      >
-        <span className="exercise-roster-main">
-          <span className="exercise-roster-name">{row.name}</span>
-          <span className="exercise-roster-meta muted small">
-            last trained {agoLabel}
-            <span aria-hidden="true"> · </span>
-            {row.sessionCount} session{row.sessionCount === 1 ? "" : "s"}
-            {inRange ? (
-              <>
-                <span aria-hidden="true"> · </span>
-                {inRange} in {weeks}w
-              </>
-            ) : null}
-            {best != null ? (
-              <>
-                <span aria-hidden="true"> · </span>
-                best e1RM {formatEstimate(best)}
-              </>
-            ) : null}
-          </span>
+    <button
+      type="button"
+      className={`exercise-roster-row${selected ? " is-selected" : ""}${inRange ? "" : " exercise-roster-row--idle"}`}
+      aria-pressed={selected}
+      aria-expanded={selected}
+      aria-controls={selected ? panelId : undefined}
+      onClick={onSelect}
+    >
+      <span className="exercise-roster-main">
+        <span className="exercise-roster-name">{row.name}</span>
+        <span className="exercise-roster-meta muted small">
+          last trained {agoLabel}
+          <span aria-hidden="true"> · </span>
+          {row.sessionCount} session{row.sessionCount === 1 ? "" : "s"}
+          {inRange ? (
+            <>
+              <span aria-hidden="true"> · </span>
+              {inRange} in {weeks}w
+            </>
+          ) : null}
+          {best != null ? (
+            <>
+              <span aria-hidden="true"> · </span>
+              best e1RM {formatEstimate(best)}
+            </>
+          ) : null}
         </span>
-        <span className="exercise-roster-spark" aria-hidden="true">
-          {series.length > 1 ? <SparklinePlot series={series} compact /> : null}
+      </span>
+      <span className="exercise-roster-spark" aria-hidden="true">
+        {series.length > 1 ? <SparklinePlot series={series} compact /> : null}
+      </span>
+      <span className="exercise-roster-hero">
+        <span className="exercise-roster-hero__value">
+          {top
+            ? `${formatWeight(top.weight)}${top.reps != null ? ` × ${formatRepsValue(top.reps)}` : ""}`
+            : "-"}
         </span>
-        <span className="exercise-roster-hero">
-          <span className="exercise-roster-hero__value">
-            {top
-              ? `${formatWeight(top.weight)}${top.reps != null ? ` × ${formatRepsValue(top.reps)}` : ""}`
-              : "-"}
-          </span>
-          <span
-            className={`exercise-roster-hero__delta${delta > 0 ? " is-up" : ""}${delta < 0 ? " is-down" : ""}`}
-          >
-            {delta == null
-              ? heroLabel
-              : delta === 0
-                ? `no change, ${weeks}w`
-                : `${delta > 0 ? "+" : "−"}${formatWeight(Math.abs(delta))}, ${weeks}w`}
-          </span>
+        <span
+          className={`exercise-roster-hero__delta${delta > 0 ? " is-up" : ""}${delta < 0 ? " is-down" : ""}`}
+        >
+          {delta == null
+            ? heroLabel
+            : delta === 0
+              ? `no change, ${weeks}w`
+              : `${delta > 0 ? "+" : "−"}${formatWeight(Math.abs(delta))}, ${weeks}w`}
         </span>
-      </button>
-    </li>
+      </span>
+    </button>
   );
 }
 
@@ -569,6 +593,12 @@ export function ExercisesView({ weeks, range, perExercise = [], exerciseParam, o
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
+  /* Which ?exercise= the loaded detail belongs to, so a row switch never
+     paints the previous exercise's numbers under the new row. */
+  const [detailFor, setDetailFor] = useState(null);
+
+  const reducedMotion = useReducedMotion();
+  const selectedRowRef = useRef(null);
 
   const parsedExercise = useMemo(() => parseExerciseParam(exerciseParam), [exerciseParam]);
 
@@ -614,7 +644,10 @@ export function ExercisesView({ weeks, range, perExercise = [], exerciseParam, o
           from: range.from,
           to: range.to,
         });
-        if (!cancelled) setDetail(data);
+        if (!cancelled) {
+          setDetail(data);
+          setDetailFor(serializeExerciseParam(parsedExercise));
+        }
       } catch (err) {
         if (!cancelled) {
           setDetail(null);
@@ -677,6 +710,46 @@ export function ExercisesView({ weeks, range, perExercise = [], exerciseParam, o
   function closeDetail() {
     onExerciseParamChange(null);
   }
+
+  const selectedVisible = useMemo(() => {
+    if (!exerciseParam) return false;
+    return ordered.some(
+      ({ row }) => serializeExerciseParam(row.identity) === exerciseParam
+    );
+  }, [ordered, exerciseParam]);
+
+  /* Keep the open row's top below sticky chrome. Scroll only when the row
+     would sit above the sticky header or low enough that its panel would
+     open mostly off-screen (below ~45% of the viewport - the fixed workout
+     bar and bottom nav eat the rest on a phone). Double rAF waits for a
+     panel ABOVE to unmount so the list shift settles first. Closing is a
+     no-op (param null). */
+  useEffect(() => {
+    if (!exerciseParam || !selectedVisible) return undefined;
+
+    let cancelled = false;
+    const behavior = reducedMotion ? "auto" : "smooth";
+    const outer = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        const el = selectedRowRef.current;
+        if (!el) return;
+        const stickyBottom = stickyHeaderBottom();
+        const pad = 8;
+        const top = el.getBoundingClientRect().top;
+        const minTop = stickyBottom + pad;
+        const maxTop = Math.max(minTop, window.innerHeight * 0.45);
+        if (top >= minTop && top <= maxTop) return;
+        const targetY = window.scrollY + (top - minTop);
+        window.scrollTo({ top: Math.max(0, targetY), behavior });
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(outer);
+    };
+  }, [exerciseParam, selectedVisible, reducedMotion]);
 
   if (indexLoading) {
     return <LoadingState tone="skeleton" variant="list" rows={4} slowLabel="Loading your exercises…" />;
@@ -746,30 +819,38 @@ export function ExercisesView({ weeks, range, perExercise = [], exerciseParam, o
         <ul className="exercise-roster" role="list">
           {ordered.map(({ row, st }) => {
             const key = identityKey(row.identity);
-            const selected = exerciseParam === serializeExerciseParam(row.identity);
+            const param = serializeExerciseParam(row.identity);
+            const selected = exerciseParam === param;
+            const panelId = panelDomId(key);
             return (
-              <RosterRow
+              <li
                 key={key}
-                row={row}
-                stats={st}
-                selected={selected}
-                weeks={weeks}
-                onSelect={() => selectRow(row)}
-              />
+                ref={selected ? selectedRowRef : undefined}
+                className={`exercise-roster-item${selected ? " is-open" : ""}`}
+              >
+                <RosterRow
+                  row={row}
+                  stats={st}
+                  selected={selected}
+                  weeks={weeks}
+                  panelId={panelId}
+                  onSelect={() => selectRow(row)}
+                />
+                {selected ? (
+                  <ExerciseDetailPanel
+                    id={panelId}
+                    detail={detailFor === param ? detail : null}
+                    weeks={weeks}
+                    loading={detailLoading || ((detailFor !== param || !detail) && !detailError)}
+                    error={detailError}
+                    onClose={closeDetail}
+                  />
+                ) : null}
+              </li>
             );
           })}
         </ul>
       )}
-
-      {parsedExercise ? (
-        <ExerciseDetailPanel
-          detail={detail}
-          weeks={weeks}
-          loading={detailLoading}
-          error={detailError}
-          onClose={closeDetail}
-        />
-      ) : null}
     </div>
   );
 }

@@ -8040,6 +8040,12 @@ html[data-theme="dark"][data-palette="iron"] .analytics-page {
   gap: 6px;
 }
 
+.exercise-roster-item {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
 .exercise-roster-row {
   display: flex;
   flex-direction: column;
@@ -8071,6 +8077,24 @@ html[data-theme="dark"][data-palette="iron"] .analytics-page {
   box-shadow: var(--shadow-ring-accent);
 }
 
+/* Open row + panel share one outer edge: square the join, keep the
+   selected look on the row, continue the interactive border on the panel. */
+.exercise-roster-item.is-open .exercise-roster-row.is-selected {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
+
+.exercise-roster-item.is-open .ex-detail-panel--inline {
+  width: 100%;
+  margin: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-color: var(--color-interactive);
+  box-shadow: var(--shadow-ring-accent);
+}
+
 .exercise-roster-row:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--color-interactive) 55%, transparent);
   outline-offset: 2px;
@@ -8094,6 +8118,11 @@ html[data-theme="dark"][data-palette="iron"] .analytics-page {
   padding: 14px;
 }
 
+.ex-detail-panel--inline {
+  gap: 16px;
+  padding: 16px 14px 18px;
+}
+
 .ex-detail-title-row {
   align-items: flex-start;
   gap: 10px;
@@ -8103,6 +8132,8 @@ html[data-theme="dark"][data-palette="iron"] .analytics-page {
   margin: 0;
   flex: 1;
   line-height: 1.25;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .ex-detail-close {
@@ -8113,10 +8144,11 @@ html[data-theme="dark"][data-palette="iron"] .analytics-page {
 .ex-totals-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
-@media (min-width: 400px) {
+/* 4-across only when there is real room - 390px phones stay 2x2. */
+@media (min-width: 560px) {
   .ex-totals-row {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -8125,16 +8157,33 @@ html[data-theme="dark"][data-palette="iron"] .analytics-page {
 .ex-total {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-height: 44px;
+  gap: 4px;
+  min-height: 52px;
   justify-content: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-surface-2) 55%, transparent);
 }
 
 .ex-total-val {
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+@media (min-width: 720px) {
+  .ex-detail-panel--inline.stack {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+  }
+
+  .ex-detail-panel--inline > .ex-detail-title-row,
+  .ex-detail-panel--inline > .ex-totals-row,
+  .ex-detail-panel--inline > .ex-rep-targets-card {
+    grid-column: 1 / -1;
+  }
 }
 
 .ex-rep-targets-card {

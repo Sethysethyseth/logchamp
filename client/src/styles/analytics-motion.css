@@ -25,7 +25,17 @@
 }
 
 .analytics-page .ex-detail-title {
-  font-size: 20px;
+  font-size: 22px;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.analytics-page .ex-detail-panel--inline .ex-total-val {
+  font-size: 1.4rem;
+}
+
+.analytics-page .ex-detail-panel--inline .ex-top-set-row--headline .ex-top-set-val {
+  font-size: 1.2rem;
 }
 
 .analytics-page .ex-detail-support h3,
@@ -376,6 +386,27 @@
   }
 }
 
+/* Inline exercise detail: short height/opacity open (MX reveal tokens).
+   Closing unmounts instantly. Reduced-motion kills the reveal below. */
+@keyframes ax-ex-detail-open {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .analytics-page .ex-detail-panel--inline {
+    /* backwards, not both: a held clip-path would keep clipping the ring
+       shadow and any popover inside the panel after the reveal ends. */
+    animation: ax-ex-detail-open var(--mx-reveal) var(--mx-ease-out-expo) backwards;
+  }
+}
+
 .analytics-page .st-row-copy {
   display: grid;
   gap: 2px;
@@ -430,7 +461,8 @@
   .analytics-page .st-sparkline-dot-ring,
   .analytics-page .st-row .st-delta,
   .analytics-page .st-row .st-matched,
-  .analytics-page .st-sparkline-val {
+  .analytics-page .st-sparkline-val,
+  .analytics-page .ex-detail-panel--inline {
     animation: none;
     transition: none;
   }
