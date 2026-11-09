@@ -4,6 +4,23 @@
 .persistent-workout-bar {
   flex-wrap: nowrap;
   min-width: 0;
+  /* MXF11: swipe sideways to hide (useSwipeDismiss). pan-y hands vertical
+     drags to the page scroll; the hook owns horizontal. The hook writes
+     transform/opacity inline and times them with the --mx-* tokens. */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.persistent-workout-bar[data-swipe="drag"] {
+  cursor: grabbing;
+  will-change: transform, opacity;
+}
+
+/* Thrown out and waiting to unmount: nothing under the finger. */
+.persistent-workout-bar[data-swipe="dismiss"],
+.persistent-workout-bar[data-swipe="gone"] {
+  pointer-events: none;
 }
 
 .persistent-workout-bar__left {

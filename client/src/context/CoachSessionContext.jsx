@@ -204,9 +204,12 @@ export function CoachSessionProvider({ children }) {
     }));
   }, []);
 
+  /* Hides the bar in ANY phase, "working" included (MXF11 swipe). The ask
+     keeps running; noteAskFinished resets `dismissed`, so a bar hidden while
+     working comes back once as finished/errored. Hiding that one sticks. */
   const dismissBar = useCallback(() => {
     setBar((prev) => {
-      if (prev.phase !== "finished" && prev.phase !== "error") return prev;
+      if (!prev.phase || prev.dismissed) return prev;
       return { ...prev, dismissed: true };
     });
   }, []);

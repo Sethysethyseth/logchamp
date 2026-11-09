@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCoachSession } from "../../context/CoachSessionContext.jsx";
 import { GlyphIcon } from "../GlyphIcon.jsx";
+import { useSwipeDismiss } from "../motion/useSwipeDismiss.js";
 import "../../styles/coach-working-bar.css";
 
 function fieldIsFocused(root) {
@@ -155,6 +156,18 @@ export function CoachWorkingBar() {
   if (visible) frozenBarRef.current = bar;
   const viewBar = visible ? bar : frozenBarRef.current;
 
+  /* MXF11: swipe sideways = the X, in every phase (dismissBar accepts
+     "working" too). The finish/error path resets `dismissed`, so a bar hidden
+     while working comes back once as "Coach answered". Keyed by phase+beat:
+     if the answer lands before the close animation unmounted this element,
+     the thrown-out styling is cleared and the bar re-enters clean. (The live
+     `bar`, not the frozen view: a dismiss keeps phase+beat, a finish bumps
+     them.) */
+  const { ref: swipeRef, handlers: swipeHandlers } = useSwipeDismiss({
+    onDismiss: dismissBar,
+    resetKey: `${bar.phase}:${bar.beat}`,
+  });
+
   if (!present) return null;
 
   const finished = viewBar.phase === "finished";
@@ -171,6 +184,8 @@ export function CoachWorkingBar() {
   return (
     <div className="coach-working-bar-wrap container" data-place={place}>
       <div
+        ref={swipeRef}
+        {...swipeHandlers}
         className={`coach-working-bar card${finished && viewBar.beat > 0 ? " coach-working-bar--beat" : ""}${place === "top" ? " coach-working-bar--chip" : ""}`}
         data-coach-bar={viewBar.phase}
         data-motion={motion}

@@ -28,6 +28,23 @@
   transition:
     opacity var(--motion-slow) var(--ease-standard),
     transform var(--motion-slow) var(--ease-standard);
+  /* MXF11: swipe sideways to hide (useSwipeDismiss) - same gesture as the
+     workout bar, in both placements. pan-y keeps vertical drags on the page;
+     the hook writes transform/opacity inline, timed by the --mx-* tokens. */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.coach-working-bar[data-swipe="drag"] {
+  cursor: grabbing;
+  will-change: transform, opacity;
+}
+
+/* Thrown out and waiting to unmount: nothing under the finger. */
+.coach-working-bar[data-swipe="dismiss"],
+.coach-working-bar[data-swipe="gone"] {
+  pointer-events: none;
 }
 
 .coach-working-bar[data-motion="closed"] {

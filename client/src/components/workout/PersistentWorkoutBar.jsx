@@ -5,9 +5,34 @@ import { useActiveSession } from "../../context/ActiveSessionContext.jsx";
 import { sessionDisplayTitle, sessionQuickExerciseLabel } from "../../lib/sessionDisplay.js";
 import { ConfirmPanel } from "../ConfirmPanel.jsx";
 import { GlyphIcon } from "../GlyphIcon.jsx";
+import { useSwipeDismiss } from "../motion/useSwipeDismiss.js";
 import "../../styles/workout-bar.css";
 
 const DISCARD_ERROR = "Couldn't discard. Check your connection and try again.";
+
+/* MXF11: a sideways swipe HIDES the bar for this browsing session (the
+   workout itself is untouched - Home's resume card still has it). Keyed by
+   the session id, so a different workout brings the bar back. sessionStorage
+   ends with the tab / app, which is "until the next app open". A storage
+   throw means "not hidden". */
+const HIDDEN_KEY = "workoutdb-workout-bar-hidden";
+
+function readHiddenSessionId() {
+  try {
+    const raw = sessionStorage.getItem(HIDDEN_KEY);
+    return raw ? String(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeHiddenSessionId(id) {
+  try {
+    sessionStorage.setItem(HIDDEN_KEY, String(id));
+  } catch {
+    /* ignore - the in-memory state still hides it for this page */
+  }
+}
 
 function canOfferDiscard(session) {
   return Boolean(session) && !session.completedAt && session.reopenedAt == null;
@@ -64,6 +89,16 @@ export function PersistentWorkoutBar() {
   const [discardOpen, setDiscardOpen] = useState(false);
   const [discardBusy, setDiscardBusy] = useState(false);
   const [discardError, setDiscardError] = useState(null);
+  const [hiddenSessionId, setHiddenSessionId] = useState(readHiddenSessionId);
+  const activeId = activeSession ? String(activeSession.id) : null;
+  const { ref: swipeRef, handlers: swipeHandlers } = useSwipeDismiss({
+    onDismiss: () => {
+      if (activeId == null) return;
+      writeHiddenSessionId(activeId);
+      setHiddenSessionId(activeId);
+    },
+    resetKey: activeId,
+  });
 
   useEffect(() => {
     if (!activeSession) return;
@@ -96,6 +131,10 @@ export function PersistentWorkoutBar() {
     return null;
   }
   if (!activeSession) return null;
+  // Swiped away this session: no bar, no reserved space (the index.css
+  // `.app:has(.persistent-workout-bar)` padding and the wrap's
+  // `:not(:has(...))` collapse follow the element).
+  if (hiddenSessionId != null && hiddenSessionId === activeId) return null;
 
   // Column the bar floats over. Default is the shared .container. Library and
   // Training are narrower columns inside that container.
@@ -125,7 +164,11 @@ export function PersistentWorkoutBar() {
 
   return (
     <>
-      <div className={`persistent-workout-bar persistent-workout-bar--${column} card card--live`}>
+      <div
+        ref={swipeRef}
+        {...swipeHandlers}
+        className={`persistent-workout-bar persistent-workout-bar--${column} card card--live`}
+      >
         <button
           type="button"
           className="persistent-workout-bar__main"
