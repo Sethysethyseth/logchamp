@@ -214,5 +214,7 @@ Fields: idea, why it's cool for a lifter, what it needs, rough size, status.
   discard data, and honour reduced motion (no drag-follow, a plain dismiss
   control instead).
 - **Size:** S-M.
-- **Status:** HELD by Seth - decide after this wave closes whether it joins
-  the wave or the next one.
+- **Status:** PROMOTED Nov 9, 2026 -> MXF11 (`docs/tasks/mxf11-swipe-away-bars.md`),
+  joins the motion wave. Seth's rulings: sideways only; the workout bar
+  hides until the next app open (X stays discard); a coach bar hidden
+  while working returns once as "answered".
