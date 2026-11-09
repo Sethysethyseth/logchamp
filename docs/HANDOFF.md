@@ -39,9 +39,10 @@
 > - `main` = `b82ad8c` (QOL wave, live on prod). `quality-of-life-updates`
 >   = main + docs; `motion-wave` was cut from it.
 
-**Next action (human):** on the staging deploy, open `/coach?kbdebug=1`, tap the
-question box so the keyboard is up, and drop one screenshot (readout and
-keyboard both in view) into `claudefiledrop/`.
+**Next action (human):** on the staging deploy, open `/coach?kbdebug=1` (the
+`?kbdebug=1` part matters - Seth's Nov 9 shot was plain `/coach`, no readout),
+tap the question box so the keyboard is up, and drop one screenshot (readout
+and keyboard both in view) into `claudefiledrop/`; also smoke MXF9 below.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
@@ -51,11 +52,14 @@ mid-wave smoke findings are in the archive (ARCHIVED Oct 11).
 still cut off under the keyboard (OPEN, needs the kbdebug screenshot), and
 Analytics bars slid only on the first visit (FIXED `9a500e8` - slow the first
 time, faster every return; re-check that one).
-Still open from that list (carry forward):
+Nov 9: Seth re-smoked - Analytics replay (MXF8) PASSES; coach box still
+half under Gboard (screenshot, no readout). Still open (carry forward):
 - 13. Coach box sits right above the keyboard, send fully visible - FAILS
   on Seth's phone (see PICK UP HERE 0).
-- Analytics (MXF8 `9a500e8`): first visit in a session = full slow
-  entrance; leave and come back = the same bars/lines/numbers, quicker.
+- MXF9 `78a4cd6`: Analytics > Exercises, tap a row -> its detail opens
+  right under it (big title, 2x2 totals); tap another row -> that one
+  opens, the first closes; tap the open row or Close -> it closes; tap a
+  row near the bottom -> the page scrolls it up so the detail is visible.
 Open questions for Seth: keep the crown on coach answers + the Analytics
 coach card, or the bubble everywhere? `/coach/status` and `/coach/stop`
 count against the coach limit - OK? Tapping outside the "still answering"
@@ -274,6 +278,12 @@ part before a mid-session /clear is rebuilt from QUEUE and the commits):
   replay. MXF8 `9a500e8` (direct): returns replay at ~0.55x instead of
   fading - his ruling, recorded in MOTION-DIRECTION; checked 1000 ms
   first visit vs 550 ms on returns. kbdebug readout prints dpr + width.
+- Nov 9 (Opus seat): Seth's smoke - MXF8 passes; coach box still cut off
+  (shot without the readout; asked again for `/coach?kbdebug=1`, no third
+  guess shipped). His ask: exercise detail inline under the tapped row ->
+  MXF9 authored (`9757e26`), dispatched auto rung (run 1 reaped by low
+  memory, resumed same chat), landed `78a4cd6` with 3 reviewer fixes +
+  real-app check (QUEUE has the audit). What's New mxf9 added.
 
 **Rule:** rewritten in place at the end of every working session; kept CAPPED
 (~300 lines). Aged session logs move VERBATIM - never summarized - to
