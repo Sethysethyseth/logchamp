@@ -39,10 +39,10 @@
 > - `main` = `b82ad8c` (QOL wave, live on prod). `quality-of-life-updates`
 >   = main + docs; `motion-wave` was cut from it.
 
-**Next action (human):** on the staging deploy, open `/coach?kbdebug=1` (the
-`?kbdebug=1` part matters - Seth's Nov 9 shot was plain `/coach`, no readout),
-tap the question box so the keyboard is up, and drop one screenshot (readout
-and keyboard both in view) into `claudefiledrop/`; also smoke MXF9 below.
+**Next action (human):** on the staging deploy (`f5826af` or later), open
+`/coach?kbdebug=1`, tap the question box, and check the whole box sits above
+the keyboard (readout line 1 should end `fit auto`) - screenshot either way;
+also smoke MXF9 below.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
@@ -54,8 +54,9 @@ Analytics bars slid only on the first visit (FIXED `9a500e8` - slow the first
 time, faster every return; re-check that one).
 Nov 9: Seth re-smoked - Analytics replay (MXF8) PASSES; coach box still
 half under Gboard (screenshot, no readout). Still open (carry forward):
-- 13. Coach box sits right above the keyboard, send fully visible - FAILS
-  on Seth's phone (see PICK UP HERE 0).
+- 13. Coach box sits right above the keyboard, send fully visible - FAILED
+  through Nov 9; MXF10 `f5826af` is the data-backed fix (QUEUE has the
+  readout math). Re-smoke with `?kbdebug=1`.
 - MXF9 `78a4cd6`: Analytics > Exercises, tap a row -> its detail opens
   right under it (big title, 2x2 totals); tap another row -> that one
   opens, the first closes; tap the open row or Close -> it closes; tap a
@@ -284,6 +285,10 @@ part before a mid-session /clear is rebuilt from QUEUE and the commits):
   MXF9 authored (`9757e26`), dispatched auto rung (run 1 reaped by low
   memory, resumed same chat), landed `78a4cd6` with 3 reviewer fixes +
   real-app check (QUEUE has the audit). What's New mxf9 added.
+- Nov 9: Seth sent the kbdebug shot. Chrome's virtualKeyboard rect is off
+  by the nav strip under edge-to-edge (461 vs ~425). MXF10 `f5826af`
+  (direct): /coach drops viewport-fit=cover in Chromium. PICK UP HERE 0
+  is superseded by this unless his re-smoke still misses.
 
 **Rule:** rewritten in place at the end of every working session; kept CAPPED
 (~300 lines). Aged session logs move VERBATIM - never summarized - to
