@@ -1,3 +1,90 @@
+## ARCHIVED November 9, 2026 (Opus session, end of the Nov 9 session) - the
+## Oct 10-11 session log, the Oct 11 / Nov 9 smoke-status paragraphs, the
+## top block as it stood, and PICK UP HERE item 0 (coach keyboard - CLOSED by
+## MXF10 `f5826af`, smoked Nov 9); moved verbatim.
+
+Top block as it stood (Oct 11):
+
+> **WHERE WE ARE (Oct 11): MOTION WAVE (MX) OPEN on
+> `motion-wave` - critic loop DONE, Seth's smoke next.** Seth's direction:
+> "wicked" motion and graphics, analytics first; Fable 5.1 in Cursor
+> (`claude-fable-5-1-thinking-high`, Cursor Pro) is the designer and its
+> suggestions win; the Claude Code seat writes broad briefs and audits.
+> The old restraint anti-goal is replaced by the motion stance in AGENTS.md.
+> - Design of record: `docs/design/mocks/motion/MOTION-DIRECTION.md`
+>   (Seth's rulings at the top win: PR celebration RARE, milestones at
+>   100/1,000/10,000 workouts, per-palette scenes) + `ROADMAP.md` (the
+>   wave's state: MX1-MX16 + MX-S + SRV-1/2, "Last checkpoint" line) +
+>   `IDEAS.md` (15 PARKED ideas + IDEAS 16 HELD by Seth: fling-away bars).
+> - LANDED: MX0 `f651c21` (direction + previews), MX1-4 `2cdeee0`, MX5-6
+>   `d309919`, MXF1 `97d028d` (critic round 1), MXF2 `20daef5` + MXC1
+>   `266554f` (Seth's Oct 10 smoke fixes), MXF3 `ff2c4e0` (coach field
+>   above the keyboard, test keyboard `scripts/virtual-keyboard-shim.js`),
+>   MXF4 `d6ae69b` (critic R1 typing), MXF5 `3378250` (critic R2 visual),
+>   MXF6 `f14762d` (critic R3 coach reliability, SERVER-touching: finish +
+>   save on disconnect, user-scoped `POST /coach/stop`), MXF7 `fec6d06`
+>   (critic R3 app fixes: no native dialog leaving a live workout).
+>   Critic R1 3/10, R2 5/10, R3 5/10 - all fixed; findings in
+>   `docs/tasks/mxf3-critic-round-{1,2,3}-FINDINGS.md`. After Seth's
+>   smoke: MX7 (logger floor) per ROADMAP. Fable + Opus are capped in
+>   Cursor until Oct 18 - Seth chose Cursor auto + a harder Opus-seat
+>   audit meanwhile.
+
+Smoke-status paragraphs as they stood:
+
+Items 1-11 (MXF2 + MXC1) were smoked Oct 10; that list and the Oct 10
+mid-wave smoke findings are in the archive (ARCHIVED Oct 11).
+**Oct 11: Seth smoked 12-39 - all PASSED except two:** the coach box is
+still cut off under the keyboard (OPEN, needs the kbdebug screenshot), and
+Analytics bars slid only on the first visit (FIXED `9a500e8` - slow the first
+time, faster every return; re-check that one).
+Nov 9: Seth re-smoked - Analytics replay (MXF8) PASSES; coach box still
+half under Gboard (screenshot, no readout). Still open (carry forward):
+Nov 9 re-smoke: MXF9 (inline exercise detail) and MXF10 (coach box above
+the keyboard) PASS - every carried item is now closed.
+
+PICK UP HERE item 0 as it stood:
+
+0. **Coach box under the keyboard, third pass - diagnose from data.**
+   Seth's smoke (Oct 11) says it is still cut off. MXF3's fit
+   (`CoachPage.jsx` + `lib/coachKeyboardFit.js`) sets
+   `virtualKeyboard.overlaysContent` on /coach and trusts
+   `boundingRect.top` when it has a height, else `vv.offsetTop +
+   vv.height` vs a no-keyboard baseline; one rAF correction lands the
+   composer bottom on that top. If the chosen top is wrong, the
+   correction lands on the wrong line. The ~20-25 CSS px miss matches the
+   gesture-bar inset, and `index.html` opts into edge-to-edge
+   (`viewport-fit=cover`), but which reading lies is unproven. With his
+   screenshot: keyboard top in CSS px = screenshot px / dpr; compare it
+   with `keyboardTop` / `source` / `virtualKeyboard` in the readout, fix
+   the wrong reading (likely a bottom-inset term), and only then re-smoke.
+   Do not ship a third guess without that screenshot.
+
+Session log (Oct 10-11):
+
+**Updated:** October 11, 2026 (Opus seat). Session log (Oct 10-11; the
+part before a mid-session /clear is rebuilt from QUEUE and the commits):
+- MXF3 authored from Seth's second smoke, landed `ff2c4e0` (QUEUE has the
+  audit). Three critic rounds by failure type (Seth): R1 typing 3/10 ->
+  MXF4 `d6ae69b`; R2 visual 5/10 -> MXF5 `3378250`; R3 coach flow + app
+  sweep 5/10 (2 P1 / 7 P2 / 11 P3) -> MXF6 + MXF7 authored (`cf3046b`),
+  dispatched in parallel on the auto rung (lanes 1 + 2).
+- Landed MXF6 `f14762d` and MXF7 `fec6d06` after harder audits and a
+  real-app check of every R3 repro (detail in QUEUE). Reviewer fixes:
+  MXF6 - Open anyway pulled you back to the chat you left (reload marker
+  poll); a Stop that beat the ask's registration still saved (registry
+  now holds early stops, +3 tests, 587); + after Stop claimed an answer
+  was live. MXF7 - Analytics lost its range-pref import (runtime crash,
+  build green).
+- ROADMAP (MXF6/7 DONE + checkpoint), What's New (mxf6, mxf7), staging
+  Render probed on `motion-wave`. Test chats and workout 524 removed.
+- Critic loop complete; handed Seth smoke items 12-39 and stopped.
+- Seth's smoke (same day): 12-39 pass except the coach box under the
+  keyboard (open, asked for the kbdebug screenshot) and Analytics
+  replay. MXF8 `9a500e8` (direct): returns replay at ~0.55x instead of
+  fading - his ruling, recorded in MOTION-DIRECTION; checked 1000 ms
+  first visit vs 550 ms on returns. kbdebug readout prints dpr + width.
+
 ## ARCHIVED October 11, 2026 (Opus session, after Seth's Oct 11 smoke) - smoke
 ## items 12-39 (MXF3-MXF7), smoked by Seth Oct 11: all passed except 13 (coach
 ## box under the keyboard) and the Analytics replay; moved verbatim.

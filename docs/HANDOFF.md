@@ -1,61 +1,56 @@
 # HANDOFF — current state
 
-> **WHERE WE ARE (Oct 11): MOTION WAVE (MX) OPEN on
-> `motion-wave` - critic loop DONE, Seth's smoke next.** Seth's direction:
-> "wicked" motion and graphics, analytics first; Fable 5.1 in Cursor
-> (`claude-fable-5-1-thinking-high`, Cursor Pro) is the designer and its
-> suggestions win; the Claude Code seat writes broad briefs and audits.
-> The old restraint anti-goal is replaced by the motion stance in AGENTS.md.
+> **WHERE WE ARE (Nov 9): MOTION WAVE (MX) OPEN on `motion-wave` - mid-wave,
+> MX7-MX16 still TODO in ROADMAP.** Every smoke item through MXF10 PASSED
+> (Nov 9). MXF11 (swipe the bars away) landed and "definitely works in the
+> barest sense" (Seth, Nov 9) - the FEEL needs a pass; see PICK UP HERE 0.
+> Seth's direction: "wicked" motion and graphics, analytics first; Fable in
+> Cursor is the designer and its suggestions win; the Claude Code seat
+> writes briefs and audits. Motion stance: AGENTS.md.
 > - Design of record: `docs/design/mocks/motion/MOTION-DIRECTION.md`
 >   (Seth's rulings at the top win: PR celebration RARE, milestones at
 >   100/1,000/10,000 workouts, per-palette scenes) + `ROADMAP.md` (the
 >   wave's state: MX1-MX16 + MX-S + SRV-1/2, "Last checkpoint" line) +
->   `IDEAS.md` (15 PARKED ideas + IDEAS 16 HELD by Seth: fling-away bars).
-> - LANDED: MX0 `f651c21` (direction + previews), MX1-4 `2cdeee0`, MX5-6
->   `d309919`, MXF1 `97d028d` (critic round 1), MXF2 `20daef5` + MXC1
->   `266554f` (Seth's Oct 10 smoke fixes), MXF3 `ff2c4e0` (coach field
->   above the keyboard, test keyboard `scripts/virtual-keyboard-shim.js`),
->   MXF4 `d6ae69b` (critic R1 typing), MXF5 `3378250` (critic R2 visual),
->   MXF6 `f14762d` (critic R3 coach reliability, SERVER-touching: finish +
->   save on disconnect, user-scoped `POST /coach/stop`), MXF7 `fec6d06`
->   (critic R3 app fixes: no native dialog leaving a live workout).
->   Critic R1 3/10, R2 5/10, R3 5/10 - all fixed; findings in
->   `docs/tasks/mxf3-critic-round-{1,2,3}-FINDINGS.md`. After Seth's
->   smoke: MX7 (logger floor) per ROADMAP. Fable + Opus are capped in
->   Cursor until Oct 18 - Seth chose Cursor auto + a harder Opus-seat
->   audit meanwhile.
+>   `IDEAS.md` (15 PARKED ideas; IDEAS 16 PROMOTED -> MXF11).
+> - LANDED: MX0 `f651c21`, MX1-4 `2cdeee0`, MX5-6 `d309919`, MXF1
+>   `97d028d`, MXF2 `20daef5`, MXC1 `266554f`, MXF3 `ff2c4e0`, MXF4
+>   `d6ae69b`, MXF5 `3378250`, MXF6 `f14762d` (SERVER-touching: coach
+>   finish + save on disconnect, `POST /coach/stop`), MXF7 `fec6d06`,
+>   MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6`
+>   (exercise detail inline under the tapped row), MXF10 `f5826af` (coach
+>   box above the Android keyboard), MXF11 `1bf3ee7` (swipe bars away).
+>   QUEUE.md holds every audit.
+> - **Cursor models (Nov 9):** Fable 5.2 is live on the CLI
+>   (`claude-fable-5-2-low|medium|high|xhigh|max`); 5.1 still listed.
+>   Use 5.2 for the next design-heavy block (Seth: "a useful option").
 > - Previews (private Artifacts): analytics X52VRgnoGLer3gGgphQnBU, PR
 >   2kWaZboR6dtMGXgwJqhPSN, navigation T5WpDyvFkAX5rdex1Y5k67, session
 >   flow 7dk9zTUhc2nxAbjDLS9i2S, scenes PTk4q9Gww5xhBy5cHkgQBx
 >   (claude.ai/artifact/<id>).
-> - Cursor usage is capped this month: every Fable run must leave
->   ROADMAP.md current. Fable runs RESUME chat
->   `eb56cfff-dfbb-4abc-99f2-6d794c36b307` (`run-lane.ps1 -Resume`) to
->   keep its context. Seth: never dispatch the next unit until the
->   current Fable run has fully delivered; never stop a run mid-flight.
+> - Cursor caps are monthly per model (reset on the 18th): every Fable run
+>   must leave ROADMAP.md current. The MX 5.1 chat is
+>   `eb56cfff-dfbb-4abc-99f2-6d794c36b307` (`run-lane.ps1 -Resume`). Seth:
+>   never dispatch the next unit until the current Fable run has fully
+>   delivered; never stop a run mid-flight. Claude Code's low-memory
+>   reaper can kill a background lane run - resume the same chat with a
+>   salvage `-Note` (MXF9 precedent), don't ask.
 > - Staging Render serves `motion-wave` (probed Oct 11: `POST
 >   /coach/stop` -> 401, a bogus path -> 404). No migrations on this
 >   branch, so the deploy does not migrate.
 > - `main` = `b82ad8c` (QOL wave, live on prod). `quality-of-life-updates`
 >   = main + docs; `motion-wave` was cut from it.
 
-**Next action (human):** smoke MXF11 on the staging deploy (`1bf3ee7` or
-later) - swipe the workout bar and the coach bar sideways (items below) -
-then pick the next unit: MX7 logger floor (recommended) or MX5b / MX10 scenes.
+**Next action (human):** tell the next session what feels missing in the
+bar swipe ("works in the barest sense") - or say "your call" and let the
+Fable 5.2 feel pass decide; then pick MX7 (recommended) or MX5b / MX10 next.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
-Items 1-11 (MXF2 + MXC1) were smoked Oct 10; that list and the Oct 10
-mid-wave smoke findings are in the archive (ARCHIVED Oct 11).
-**Oct 11: Seth smoked 12-39 - all PASSED except two:** the coach box is
-still cut off under the keyboard (OPEN, needs the kbdebug screenshot), and
-Analytics bars slid only on the first visit (FIXED `9a500e8` - slow the first
-time, faster every return; re-check that one).
-Nov 9: Seth re-smoked - Analytics replay (MXF8) PASSES; coach box still
-half under Gboard (screenshot, no readout). Still open (carry forward):
-Nov 9 re-smoke: MXF9 (inline exercise detail) and MXF10 (coach box above
-the keyboard) PASS - every carried item is now closed. Open (MXF11
-`1bf3ee7`, start a workout so the bar shows, then go to Analytics):
+Everything through MXF10 is smoked and PASSED (Nov 9; history in the
+archive). MXF11 `1bf3ee7` - functionally passes per Seth ("definitely
+works in the barest sense"), feel NOT signed off. Its items, to re-run
+after the feel pass (start a workout so the bar shows, then go to
+Analytics):
 - Drag the workout bar left or right: it follows your finger and fades;
   let go early -> springs back; past about a third, or a quick flick ->
   flies off. Reopen the app (close it fully) -> the bar is back.
@@ -72,24 +67,29 @@ sheet counts as Open anyway (the answer still saves) - fine?
 
 ## PICK UP HERE (next session)
 
-0. **Coach box under the keyboard, third pass - diagnose from data.**
-   Seth's smoke (Oct 11) says it is still cut off. MXF3's fit
-   (`CoachPage.jsx` + `lib/coachKeyboardFit.js`) sets
-   `virtualKeyboard.overlaysContent` on /coach and trusts
-   `boundingRect.top` when it has a height, else `vv.offsetTop +
-   vv.height` vs a no-keyboard baseline; one rAF correction lands the
-   composer bottom on that top. If the chosen top is wrong, the
-   correction lands on the wrong line. The ~20-25 CSS px miss matches the
-   gesture-bar inset, and `index.html` opts into edge-to-edge
-   (`viewport-fit=cover`), but which reading lies is unproven. With his
-   screenshot: keyboard top in CSS px = screenshot px / dpr; compare it
-   with `keyboardTop` / `source` / `virtualKeyboard` in the readout, fix
-   the wrong reading (likely a bottom-inset term), and only then re-smoke.
-   Do not ship a third guess without that screenshot.
+0. **MXF11 feel pass - "works in the barest sense" (Seth, Nov 9).** The
+   mechanics are verified (QUEUE MXF11 real-app check); what is NOT signed
+   off is how it feels. First ask Seth what is missing - he gave no
+   specifics before handing off. Candidate gaps to offer him (the delivery
+   chose these, `useSwipeDismiss.js`): 1:1 follow with NO rubber-band
+   resistance; opacity-only fade (no scale/tilt/shadow lift on grab); no
+   haptic (`navigator.vibrate` on the dismiss threshold, Android only); no
+   visual hint that the bar is swipeable at all; throw-out 0.6x reveal
+   (~250 ms); a dismissed workout bar gives no "hidden - it's on Home"
+   acknowledgement or undo. Then author a feel block (MXF12) contract-first
+   on `claude-fable-5-2-high` (design work - it designs, its suggestions
+   win), keep MXF11's rulings fixed (sideways only, hide until next app
+   open, X = discard, coach returns once as answered), and keep the pure
+   `swipeDismiss.js` one-liner criterion so the thresholds stay checkable.
+   The run's report is preserved in session scratch only; the block is
+   `docs/tasks/mxf11-swipe-away-bars.md`.
 1. **Continue the MX wave** (opened Oct 9, see the top block):
-   - next unit = the first non-DONE unit in `ROADMAP.md` (MX7 logger
-     floor); write a broad brief (MX0/MX1-4/MX5-6 briefs are the
-     pattern), dispatch as a RESUME of Fable's chat, land via `land-unit`.
+   - next unit after 0 = the first non-DONE unit in `ROADMAP.md` (MX7
+     logger floor, recommended to Seth Nov 9 - or MX5b / MX10 scenes if
+     he picks those); write a broad brief (MX0/MX1-4/MX5-6 briefs are the
+     pattern), dispatch on Fable 5.2 (named rung), land via `land-unit`.
+     The old Fable 5.1 chat `eb56cfff...` can still be resumed for MX
+     context, but a fresh 5.2 chat is fine - ROADMAP carries the state.
    - every wave ends with a What's New unit (`_WHATS_NEW.md`); release
      bullets stay at 25 words or fewer. The ledger has the MX section.
    - known lint noise from MX1-4 (lint is not in CI): Cascade.jsx `Tag`
@@ -216,16 +216,25 @@ Covers the F-wave AND the still-open E-wave prod smoke. Staging passed Aug 4.
 - Stable topology (prod env, WorkOS, verify-from-services, branch-deletion
   cautions): REFERENCE -> "Deploy topology".
 
-## Lanes + verification (Oct 11)
+## Lanes + verification (Nov 9)
 
-- `cursor-lane` on `cursor/mxf6` @ `f14762d`, `-2` on `cursor/mxf7` @
-  `fec6d06` (Oct 11), `-3` on `cursor/qol-gate-r3` @ `ac40874`; all
+- `cursor-lane` on `cursor/mxf11` @ `1bf3ee7` (Nov 9), `-2` on
+  `cursor/mxf7` @ `fec6d06`, `-3` on `cursor/qol-gate-r3` @ `ac40874`; all
   porcelain clean, no DELIVERY.md (moved to session scratch).
   Before a dispatch: `git checkout -B cursor/<unit> <wave-branch>`. Lane 2's
   `server` has its own install WITH `@cursor/sdk` (live coach calls); lane
   3's `node_modules` are junctions into lane 1; lane 3 holds three
   untracked mock PNGs in `client/src/assets/scenes/` - never stage them.
   Lessons: REFERENCE.
+- **Simpler recipe used Nov 9** (MXF9-11): the MAIN tree's API from
+  `server/` with `COACH_PROVIDER=mock PORT=3001 CLIENT_ORIGIN=
+  http://localhost:5174` set in the PowerShell session, then `Start-Process
+  node src/server.js` (child inherits env; passing `$env:` inside a
+  `-Command` string broke and the client fell back to PROD - kill it at
+  once if that happens); lane client `VITE_API_URL=http://localhost:3001`
+  via `Start-Process npx.cmd vite --port 5174`. Log in with a fetch to
+  `/auth/login` from the page. CORS refuses any origin not in
+  CLIENT_ORIGIN. Synthetic touch `PointerEvent`s drive swipe checks.
 - **Real-app check recipe** (MXF6/7): the LANE's API on the STAGING DB -
   from the lane's `server/`: `DOTENV_CONFIG_PATH=<main tree>/server/.env
   COACH_PROVIDER=mock PORT=3001 CLIENT_ORIGIN=http://localhost:5174,
@@ -261,28 +270,8 @@ Covers the F-wave AND the still-open E-wave prod smoke. Staging passed Aug 4.
 > explicitly. Dogfoods the shell repo's decision-10 no-dangling-next-
 > action requirement; `land-unit` section 5 keeps it maintained.
 
-**Updated:** October 11, 2026 (Opus seat). Session log (Oct 10-11; the
-part before a mid-session /clear is rebuilt from QUEUE and the commits):
-- MXF3 authored from Seth's second smoke, landed `ff2c4e0` (QUEUE has the
-  audit). Three critic rounds by failure type (Seth): R1 typing 3/10 ->
-  MXF4 `d6ae69b`; R2 visual 5/10 -> MXF5 `3378250`; R3 coach flow + app
-  sweep 5/10 (2 P1 / 7 P2 / 11 P3) -> MXF6 + MXF7 authored (`cf3046b`),
-  dispatched in parallel on the auto rung (lanes 1 + 2).
-- Landed MXF6 `f14762d` and MXF7 `fec6d06` after harder audits and a
-  real-app check of every R3 repro (detail in QUEUE). Reviewer fixes:
-  MXF6 - Open anyway pulled you back to the chat you left (reload marker
-  poll); a Stop that beat the ask's registration still saved (registry
-  now holds early stops, +3 tests, 587); + after Stop claimed an answer
-  was live. MXF7 - Analytics lost its range-pref import (runtime crash,
-  build green).
-- ROADMAP (MXF6/7 DONE + checkpoint), What's New (mxf6, mxf7), staging
-  Render probed on `motion-wave`. Test chats and workout 524 removed.
-- Critic loop complete; handed Seth smoke items 12-39 and stopped.
-- Seth's smoke (same day): 12-39 pass except the coach box under the
-  keyboard (open, asked for the kbdebug screenshot) and Analytics
-  replay. MXF8 `9a500e8` (direct): returns replay at ~0.55x instead of
-  fading - his ruling, recorded in MOTION-DIRECTION; checked 1000 ms
-  first visit vs 550 ms on returns. kbdebug readout prints dpr + width.
+**Updated:** November 9, 2026 (Opus seat). Session log (Nov 9; the Oct
+10-11 log is in the archive):
 - Nov 9 (Opus seat): Seth's smoke - MXF8 passes; coach box still cut off
   (shot without the readout; asked again for `/coach?kbdebug=1`, no third
   guess shipped). His ask: exercise detail inline under the tapped row ->
@@ -300,6 +289,10 @@ part before a mid-session /clear is rebuilt from QUEUE and the commits):
   reviewer fixes; real-app check in QUEUE). Fable 5.2 appeared on the
   CLI mid-run. Corrected in chat: the wave is NOT near its end - ROADMAP
   MX7-MX16 remain; next unit is Seth's pick.
+- Nov 9, end: Seth on MXF11 - "it definitely works in the barest sense";
+  asked to update HANDOFF and hand off to another agent. No feel
+  specifics given -> PICK UP HERE 0 asks him first. Aged log + closed
+  coach-keyboard item archived verbatim; lane DELIVERY.md to scratch.
 
 **Rule:** rewritten in place at the end of every working session; kept CAPPED
 (~300 lines). Aged session logs move VERBATIM - never summarized - to
