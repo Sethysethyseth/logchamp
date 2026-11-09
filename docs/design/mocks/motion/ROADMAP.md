@@ -1,6 +1,6 @@
 # MX wave roadmap - motion + visuals for LogChamp
 
-**Last checkpoint:** MXF8 (Oct 11, 2026): Seth smoked items 12-39 - all passed but two. Analytics now replays faster on every return (DONE, `9a500e8`). The coach box is still cut off under his keyboard: waiting on his `/coach?kbdebug=1` screenshot, then a fix. Next code unit after that: MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. IDEAS 16 (fling-away bars) is HELD for Seth after the wave. MX1-MX6, MX-S, MXF1-MXF7 and MXC1 stay DONE.
+**Last checkpoint:** MXF11 (Nov 9, 2026): Seth's Nov 9 smoke passed everything. DONE since Oct 11: MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6` (exercise detail inline under the tapped row), MXF10 `f5826af` (coach box above the Android keyboard - edge-to-edge Chrome's keyboard rect ignored the nav bar; /coach drops viewport-fit=cover in Chromium), MXF11 `1bf3ee7` (IDEAS 16 promoted: swipe the workout bar and coach bar away sideways). Next: Seth smokes MXF11's feel on his phone, then the next code unit is MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. Fable 5.2 is now on the Cursor CLI (`claude-fable-5-2-high` etc.). MX1-MX6, MX-S, MXF1-MXF11 and MXC1 stay DONE.
 
 This file is the wave's state. It stands on its own next to
 `MOTION-DIRECTION.md` (the design) and needs no chat history. Whoever picks

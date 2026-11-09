@@ -39,10 +39,9 @@
 > - `main` = `b82ad8c` (QOL wave, live on prod). `quality-of-life-updates`
 >   = main + docs; `motion-wave` was cut from it.
 
-**Next action (human):** on the staging deploy (`f5826af` or later), open
-`/coach?kbdebug=1`, tap the question box, and check the whole box sits above
-the keyboard (readout line 1 should end `fit auto`) - screenshot either way;
-also smoke MXF9 below.
+**Next action (human):** smoke MXF11 on the staging deploy (`1bf3ee7` or
+later) - swipe the workout bar and the coach bar sideways (items below) -
+then pick the next unit: MX7 logger floor (recommended) or MX5b / MX10 scenes.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
@@ -54,13 +53,18 @@ Analytics bars slid only on the first visit (FIXED `9a500e8` - slow the first
 time, faster every return; re-check that one).
 Nov 9: Seth re-smoked - Analytics replay (MXF8) PASSES; coach box still
 half under Gboard (screenshot, no readout). Still open (carry forward):
-- 13. Coach box sits right above the keyboard, send fully visible - FAILED
-  through Nov 9; MXF10 `f5826af` is the data-backed fix (QUEUE has the
-  readout math). Re-smoke with `?kbdebug=1`.
-- MXF9 `78a4cd6`: Analytics > Exercises, tap a row -> its detail opens
-  right under it (big title, 2x2 totals); tap another row -> that one
-  opens, the first closes; tap the open row or Close -> it closes; tap a
-  row near the bottom -> the page scrolls it up so the detail is visible.
+Nov 9 re-smoke: MXF9 (inline exercise detail) and MXF10 (coach box above
+the keyboard) PASS - every carried item is now closed. Open (MXF11
+`1bf3ee7`, start a workout so the bar shows, then go to Analytics):
+- Drag the workout bar left or right: it follows your finger and fades;
+  let go early -> springs back; past about a third, or a quick flick ->
+  flies off. Reopen the app (close it fully) -> the bar is back.
+- Scrolling the page with your thumb on the bar never moves it.
+- Swipe starting on the bar's X -> it hides; it does NOT ask to discard.
+  A plain tap on the X still asks.
+- Ask the coach something, leave, swipe the "working" bar away -> when
+  the answer is ready the bar returns once as "Coach answered"; swipe it
+  again -> gone for good. The answer is in History > Coach either way.
 Open questions for Seth: keep the crown on coach answers + the Analytics
 coach card, or the bubble everywhere? `/coach/status` and `/coach/stop`
 count against the coach limit - OK? Tapping outside the "still answering"
@@ -289,6 +293,13 @@ part before a mid-session /clear is rebuilt from QUEUE and the commits):
   by the nav strip under edge-to-edge (461 vs ~425). MXF10 `f5826af`
   (direct): /coach drops viewport-fit=cover in Chromium. PICK UP HERE 0
   is superseded by this unless his re-smoke still misses.
+- Nov 9: Seth re-smoked - MXF9 + MXF10 pass. IDEAS 16 promoted with his
+  rulings (asked: sideways only, hide until next app open with X staying
+  discard, coach bar returns once as answered, this wave) -> MXF11
+  authored `cbace35`, Fable 5.1 named rung, landed `1bf3ee7` clean (no
+  reviewer fixes; real-app check in QUEUE). Fable 5.2 appeared on the
+  CLI mid-run. Corrected in chat: the wave is NOT near its end - ROADMAP
+  MX7-MX16 remain; next unit is Seth's pick.
 
 **Rule:** rewritten in place at the end of every working session; kept CAPPED
 (~300 lines). Aged session logs move VERBATIM - never summarized - to
