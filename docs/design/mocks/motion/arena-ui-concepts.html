@@ -1,0 +1,397 @@
+<title>Arena UI Concepts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: a working phone on the right, the three concepts as a switch
+     plus their case on the left; stacks on a phone with the phone first.
+     One deliberate dark world - it previews a dark scene. */
+  :root {
+    color-scheme: dark;
+    --night: #05071a;
+    --panel: #0d1230;
+    --panel-2: #141b4d;
+    --line: #26306b;
+    --ink: #eef1ff;
+    --ink-2: #9aa5d6;
+    --accent: #8b9bff;
+    --btn: #5b6ee8;
+    --display: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+    --body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  [hidden] { display: none !important; }
+  body {
+    background: var(--night);
+    color: var(--ink);
+    font: 15px/1.55 var(--body);
+    padding-block: 28px 44px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 40px;
+    align-items: start;
+  }
+  .words { display: grid; gap: 16px; min-width: 0; }
+  .eyebrow { margin: 0; font: 600 11px/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  h1 { margin: 0; font: 700 clamp(1.9rem, 6vw, 2.7rem)/1.05 var(--display); letter-spacing: -0.01em; text-wrap: balance; }
+  h2 { margin: 0; font: 700 1.25rem/1.2 var(--display); }
+  p { margin: 0; max-width: 58ch; color: var(--ink-2); }
+  p strong, li strong { color: var(--ink); font-weight: 600; }
+  ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; color: var(--ink-2); max-width: 58ch; }
+
+  .switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .switch button {
+    display: grid; gap: 4px; text-align: left;
+    padding: 10px 12px; min-height: 58px;
+    font: 600 14px/1.15 var(--display); color: var(--ink);
+    background: var(--panel); border: 1px solid var(--line); cursor: pointer;
+  }
+  .switch button small { font: 500 11px/1 var(--body); color: var(--ink-2); letter-spacing: 0.04em; text-transform: uppercase; }
+  .switch button[aria-pressed="true"] { border-color: var(--accent); background: var(--panel-2); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .case { display: grid; gap: 12px; min-height: 250px; align-content: start; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+  .meta b { color: var(--ink); font-weight: 600; }
+  .note { font-size: 13px; }
+
+  /* --- the phone --- */
+  .phone {
+    position: relative; width: 100%; max-width: 320px; aspect-ratio: 100 / 178;
+    justify-self: center; overflow: hidden; background: var(--night); border: 1px solid var(--line);
+    font-size: 12px; line-height: 1.3; user-select: none; -webkit-user-select: none;
+  }
+  .phone canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; cursor: pointer; }
+  .mast { position: absolute; left: 12px; top: 10px; right: 12px; display: flex; justify-content: space-between; align-items: baseline; pointer-events: none; }
+  .mast b { font: 700 16px/1 var(--display); }
+  .mast span { font: 600 10px/1 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .phone button { font: 600 12px/1 var(--body); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); min-height: 34px; padding: 0 10px; cursor: pointer; }
+  .phone button.go { background: var(--btn); border-color: transparent; font-weight: 700; min-height: 42px; width: 100%; border-radius: 8px; font-size: 13px; }
+
+  /* concept 1: today's stack, in dither glass */
+  .classic { position: absolute; inset: 0; padding: 40px 12px 0; display: grid; gap: 9px; align-content: start; transition: opacity 220ms ease; }
+  .glass {
+    padding: 11px; border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--line));
+    background: repeating-conic-gradient(color-mix(in srgb, var(--panel) 90%, transparent) 0% 25%, color-mix(in srgb, var(--panel) 8%, transparent) 0% 50%) 0 0 / 6px 6px;
+    display: grid; gap: 6px;
+  }
+  .glass > * { text-shadow: 0 0 6px var(--night), 0 0 2px var(--night); }
+  .glass small { font: 700 9px/1 var(--body); letter-spacing: 0.06em; color: var(--ink-2); }
+  .glass b { font: 700 18px/1.1 var(--display); }
+  .glass .rowline { display: flex; justify-content: space-between; color: var(--ink-2); font-size: 11px; }
+  .glass .rowline b { font: 600 12px/1.2 var(--body); color: var(--ink); }
+  .peek { position: absolute; right: 12px; bottom: 54px; border-radius: 999px; }
+
+  /* concepts 2 + 3: the stage and its sheet */
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 34%;
+    background: var(--panel); border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+    display: grid; grid-template-rows: minmax(0, 1fr) auto; transition: height 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .sheet-body { padding: 10px 12px 6px; display: grid; gap: 7px; align-content: start; overflow: hidden; min-height: 0; }
+  .sheet-body h3 { margin: 0; font: 700 15px/1.1 var(--display); }
+  .sheet-body p { font-size: 11px; color: var(--ink-2); max-width: none; }
+  .list { display: grid; gap: 4px; }
+  .list button { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; background: transparent; border-color: var(--line); min-height: 30px; }
+  .list button[aria-pressed="true"] { border-color: var(--accent); background: var(--panel-2); }
+  .list button span { color: var(--ink-2); font-weight: 500; }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .tiles div { border: 1px solid var(--line); padding: 6px; display: grid; gap: 2px; }
+  .tiles small { font-size: 9px; letter-spacing: 0.06em; color: var(--ink-2); text-transform: uppercase; }
+  .tiles b { font: 700 14px/1 var(--display); font-variant-numeric: tabular-nums; }
+  .setrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+  .setrow b { font: 700 15px/1 var(--display); }
+  .nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+  .nav button { border: 0; background: transparent; min-height: 40px; padding: 0; font: 600 10px/1 var(--body); color: var(--ink-2); }
+  .nav button[aria-pressed="true"] { color: var(--accent); box-shadow: inset 0 2px 0 var(--accent); }
+
+  @media (max-width: 760px) {
+    .wrap { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+    .phone { order: -1; }
+    .case { min-height: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sheet, .classic { transition: none; } }
+</style>
+
+<div class="wrap">
+  <div class="words">
+    <p class="eyebrow">LogChamp UI overhaul, three ways</p>
+    <h1>Stop covering the arena</h1>
+    <p>Today the arena is wallpaper under a stack of cards. These are three ways to bring it forward, from a light touch to a full rethink. The phone is live: pick a concept, then tap around in it.</p>
+
+    <div class="switch" role="group" aria-label="Concept">
+      <button type="button" id="c1" aria-pressed="false"><small>Light touch</small>Dither glass</button>
+      <button type="button" id="c2" aria-pressed="false"><small>Middle</small>Stage and sheet</button>
+      <button type="button" id="c3" aria-pressed="true"><small>Full rethink</small>One arena, five places</button>
+    </div>
+
+    <div class="case" id="case"></div>
+
+    <p class="note">Prototype only, drawn in code with made-up numbers. Nothing here is in the app. Logging itself stays ordinary fields in every concept, so typing a set is never slower.</p>
+  </div>
+
+  <div class="phone" id="phone">
+    <canvas id="scene" width="100" height="178" aria-label="The arena scene. Tap it to hide or show the panel."></canvas>
+    <div class="mast"><b>LogChamp</b><span id="place-label">The platform</span></div>
+
+    <div class="classic" id="classic" hidden>
+      <div class="glass">
+        <small>LOG A WORKOUT</small><b>Start a workout</b>
+        <button class="go" type="button" data-act="start">Start empty workout</button>
+      </div>
+      <div class="glass">
+        <small>LAST 7 DAYS</small>
+        <div class="rowline"><b>2 workouts</b><span>23 sets</span></div>
+        <div class="rowline"><b>Top set 185 x 8</b><span>Bench Press</span></div>
+      </div>
+      <div class="glass">
+        <small>RECENT</small>
+        <div class="rowline"><b>Arm Day</b><span>today</span></div>
+        <div class="rowline"><b>Leg Day</b><span>Sunday</span></div>
+      </div>
+      <button class="peek" type="button" id="peek">Hold to look</button>
+    </div>
+
+    <div class="sheet" id="sheet">
+      <div class="sheet-body" id="sheet-body"></div>
+      <div class="nav" id="nav">
+        <button type="button" data-place="home">Home</button>
+        <button type="button" data-place="analytics">Analytics</button>
+        <button type="button" data-place="history">History</button>
+        <button type="button" data-place="library">Library</button>
+        <button type="button" data-place="profile">Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const cv = $("scene"), g = cv.getContext("2d");
+  const W = 100, H = 178, FLOOR = 150;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const RAMP = ["#05071a", "#080c26", "#0d1236", "#141b4d", "#1e2870", "#2f3c9c", "#4f5fd0", "#8b9bff", "#dfe4ff"];
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+  const CROWN = ["....#....", "#...#...#", "##.###.##", "#########", "#########", ".#######."];
+  const FONT = {
+    0: "111101101101111", 1: "010110010010111", 2: "111001111100111", 3: "111001111001111", 4: "101101111001001",
+    5: "111100111001111", 6: "111100111101111", 7: "111001001001001", 8: "111101111101111", 9: "111101111001111",
+    A: "111101111101101", B: "110101110101110", C: "111100100100111", D: "110101101101110", E: "111100111100111",
+    F: "111100111100100", G: "111100101101111", H: "101101111101101", I: "111010010010111", K: "101101110101101",
+    L: "100100100100111", M: "101111111101101", N: "111101101101101", O: "111101101101111", P: "111101111100100",
+    R: "111101110101101", S: "111100111001111", T: "111010010010010", U: "101101101101111", V: "101101101101010",
+    W: "101101111111101", X: "101101010101101", Y: "101101010010010", ":": "000010000010000",
+  };
+
+  /* ---------- state ---------- */
+  const PLACES = {
+    home: { x: 100, sheet: 0.34, label: "The platform" },
+    analytics: { x: 100, sheet: 0.3, label: "The scoreboard" },
+    history: { x: 0, sheet: 0.44, label: "The stands" },
+    library: { x: 200, sheet: 0.44, label: "The rack" },
+    profile: { x: 200, sheet: 0.36, label: "The rafters" },
+  };
+  const WORKOUTS = [["Arm Day", "today"], ["Leg Day", "Sun"], ["Push Day", "Fri"], ["Pull Day", "Wed"]];
+  const s = {
+    concept: 3, place: "home", live: false, sets: 0, startedAt: 0, saved: 0,
+    collapsed: false, seat: 0, flashUntil: 0, power: 0.5, board: 0, cam: { x: 100, y: 0 },
+  };
+  const hash = (x, y) => { const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); };
+
+  function target() {
+    const p = PLACES[s.place];
+    const frac = s.concept === 1 ? 0.1 : s.collapsed ? 0.11 : s.live && s.place === "home" ? 0.42 : p.sheet;
+    return { x: s.concept === 3 ? p.x : 100, y: FLOOR - (H * (1 - frac) - 7), frac };
+  }
+
+  /* ---------- drawing ---------- */
+  let cx = 0, cy = 0;
+  const px = (x, y, c, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(Math.round(x - cx), Math.round(y - cy), w, h); };
+  function text(str, x, y, c) {
+    [...str].forEach((ch, i) => {
+      const gl = FONT[ch]; if (!gl) return;
+      for (let k = 0; k < 15; k++) if (gl[k] === "1") px(x + i * 4 + (k % 3), y + ((k / 3) | 0), c);
+    });
+  }
+  const centered = (str, mid, y, c) => text(str, Math.round(mid - (str.length * 4 - 1) / 2), y, c);
+
+  function lights() {
+    const rack = s.concept === 3 && (s.place === "library" || s.place === "profile") ? 0.75 : 0.4;
+    return [
+      { x: 112, y: 88, tx: 150, ty: 148, half: 0.44, p: s.power },
+      { x: 188, y: 88, tx: 150, ty: 148, half: 0.44, p: s.power },
+      { x: 258, y: 92, tx: 258, ty: 150, half: 0.7, p: rack },
+      { x: 60, y: 62, tx: 40, ty: 150, half: 0.6, p: 0.3 },
+    ];
+  }
+  function field(x, y, L) {
+    let v = 0.05 + 0.18 * Math.pow(Math.max(0, Math.min(1, (y - 40) / (FLOOR - 40))), 2) - (y > FLOOR ? 0.02 * (y - FLOOR) : 0);
+    for (const l of L) {
+      const ax = l.tx - l.x, ay = l.ty - l.y, len = Math.hypot(ax, ay), qx = x - l.x, qy = y - l.y, d = Math.hypot(qx, qy);
+      if (d < 1 || d > len * 1.3) continue;
+      const ang = Math.acos(Math.max(-1, Math.min(1, (qx * ax + qy * ay) / (d * len))));
+      if (ang < l.half) v += l.p * 0.7 * Math.pow(1 - ang / l.half, 1.3) * (1 - 0.35 * (d / len));
+      v += l.p * 0.5 * Math.max(0, 1 - d / 8);
+    }
+    const ex = (x - 150) / 30, ey = (y - (FLOOR + 3)) / 7;
+    return v + Math.max(0, 1 - (ex * ex + ey * ey)) * 0.8 * s.power;
+  }
+
+  function draw(now) {
+    cx = s.cam.x; cy = s.cam.y;
+    const L = lights(), lit = s.power > 0.85, flashing = now < s.flashUntil;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const v = Math.max(0, Math.min(0.999, field(x + cx, y + cy, L))) * (RAMP.length - 2), lo = Math.floor(v);
+      g.fillStyle = RAMP[v - lo > BAYER[(y & 3) * 4 + (x & 3)] ? lo + 1 : lo]; g.fillRect(x, y, 1, 1);
+    }
+    // far stands, behind the platform
+    for (let row = 0; row < 6; row++) for (let x = 98; x < 204; x += 2) {
+      const y = FLOOR - 34 + row * 4, on = hash(x, row) < 0.3;
+      px(x, y, flashing && Math.random() < 0.06 ? RAMP[8] : on ? RAMP[4] : RAMP[2]);
+    }
+    px(96, FLOOR - 9, RAMP[3], 110, 1);
+    // near stands (History): one seat per workout
+    for (let tier = 0; tier < 22; tier++) {
+      const y = FLOOR - 4 - tier * 4, reach = Math.round(92 - tier * 2.6);
+      px(0, y, RAMP[1], reach, 4); px(0, y, RAMP[3], reach, 1);
+      for (let x = 1; x < reach - 1; x += 2) {
+        const h = hash(x, tier);
+        px(x, y + 2, h < 0.05 ? RAMP[7] : h < 0.36 ? RAMP[5] : RAMP[2]);
+      }
+    }
+    if (s.concept === 3 && s.place === "history") {
+      const sx = 21 + s.seat * 14, sy = FLOOR - 4 - (3 + s.seat * 2) * 4;
+      const on = reduced || Math.floor(now / 260) % 2 === 0;
+      px(sx - 1, sy + 1, on ? RAMP[8] : RAMP[6], 3, 3);
+    }
+    // floor line, platform, bar
+    px(-5, FLOOR, RAMP[4], 320, 1);
+    px(132, FLOOR - 2, RAMP[5], 36, 2); px(134, FLOOR, RAMP[3], 32, 2);
+    const plates = s.live ? Math.min(3, 1 + Math.floor(s.sets / 2)) : 1;
+    px(134, FLOOR - 6, lit ? RAMP[8] : RAMP[6], 32, 1);
+    for (let i = 0; i < plates; i++) {
+      px(137 + i * 3, FLOOR - 10 + i, i ? RAMP[5] : lit ? RAMP[7] : RAMP[5], 2, 9 - i * 2);
+      px(161 - i * 3, FLOOR - 10 + i, i ? RAMP[5] : lit ? RAMP[7] : RAMP[5], 2, 9 - i * 2);
+    }
+    // towers
+    for (const tx of [112, 188]) {
+      px(tx, 90, RAMP[4], 1, FLOOR - 90); px(tx - 3, 86, RAMP[2], 7, 4);
+      for (let k = 0; k < 3; k++) px(tx - 2 + k * 2, 87, lit || k === 1 ? RAMP[8] : RAMP[5], 1, 2);
+    }
+    // scoreboard: grows into the Analytics board
+    const b = s.board, bw = Math.round(38 + 44 * b), bh = Math.round(17 + 33 * b), bx = 150 - bw / 2, by = 82 - Math.round(8 * b);
+    px(bx + 4, by - 70, RAMP[3], 1, 70); px(bx + bw - 5, by - 70, RAMP[3], 1, 70);
+    px(bx, by, RAMP[4], bw, bh); px(bx + 1, by + 1, RAMP[0], bw - 2, bh - 2);
+    CROWN.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === "#") px(146 + rx, by - 7 + ry, lit ? RAMP[8] : RAMP[7]); }));
+    if (b > 0.85) {
+      text("VOLUME", bx + 3, by + 3, RAMP[6]); text("8 WK", bx + bw - 18, by + 3, RAMP[5]);
+      [9, 13, 11, 17, 15, 22, 20, 28].forEach((v, i) => px(bx + 5 + i * 9, by + bh - 4 - v, i === 7 ? RAMP[8] : RAMP[6], 6, v));
+      px(bx + 3, by + bh - 4, RAMP[4], bw - 6, 1);
+    } else if (b < 0.15) {
+      let l1 = "WEEK 2", l2 = "23 SETS";
+      if (s.live) { const t = Math.floor((now - s.startedAt) / 1000) + 754; l1 = `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; l2 = `SET ${s.sets + 1}`; }
+      else if (now < s.saved) { l1 = "SAVED"; l2 = "PUSH DAY"; }
+      centered(l1, 150, by + 3, RAMP[8]); centered(l2, 150, by + 10, RAMP[6]);
+    }
+    // the rack (Library) and the rafters (Profile)
+    const hiR = s.concept === 3 && s.place === "library", hiP = s.concept === 3 && s.place === "profile";
+    px(224, 112, RAMP[4], 1, 38); px(220, 148, RAMP[4], 9, 2);
+    [[118, 11], [128, 9], [137, 7]].forEach(([y, h]) => { px(219, y - h / 2 | 0, hiR ? RAMP[7] : RAMP[5], 3, h); px(227, y - h / 2 | 0, hiR ? RAMP[6] : RAMP[5], 3, h); px(222, y, RAMP[4], 5, 1); });
+    for (const sy of [128, 141]) {
+      px(240, sy, RAMP[4], 54, 1); px(241, sy, RAMP[3], 1, FLOOR - sy); px(292, sy, RAMP[3], 1, FLOOR - sy);
+      for (let i = 0; i < 6; i++) { const x = 243 + i * 8, sz = 3 + (i > 2 ? 1 : 0); px(x, sy - sz, hiR ? RAMP[7] : RAMP[5], 2, sz); px(x + 2, sy - 2, RAMP[4], 2, 1); px(x + 4, sy - sz, hiR ? RAMP[7] : RAMP[5], 2, sz); }
+    }
+    [["", true], ["100", false], ["1K", false]].forEach(([label, earned], i) => {
+      const x = 222 + i * 24, y = 62;
+      px(x + 2, y - 70, RAMP[3], 1, 70); px(x + 11, y - 70, RAMP[3], 1, 70);
+      px(x, y, earned ? RAMP[hiP ? 6 : 4] : RAMP[3], 14, 15); px(x + 1, y + 1, RAMP[earned ? 2 : 1], 12, 12);
+      px(x + 1, y + 13, RAMP[earned ? 2 : 1], 5, 2); px(x + 8, y + 13, RAMP[earned ? 2 : 1], 5, 2);
+      if (earned) CROWN.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === "#") px(x + 3 + rx, y + 4 + ry, hiP ? RAMP[8] : RAMP[7]); }));
+      else centered(label, x + 7.5, y + 5, RAMP[hiP ? 5 : 4]);
+    });
+  }
+
+  /* ---------- loop: only runs while something is moving ---------- */
+  let raf = 0, last = 0;
+  function tick(now) {
+    raf = 0;
+    const t = target(), wantP = s.live ? 1 : 0.5, wantB = s.place === "analytics" && s.concept !== 1 ? 1 : 0;
+    const k = reduced ? 1 : 0.16;
+    s.cam.x += (t.x - s.cam.x) * k; s.cam.y += (t.y - s.cam.y) * k;
+    s.power += (wantP - s.power) * k; s.board += (wantB - s.board) * k;
+    if (now - last > 45 || reduced) { last = now; draw(now); }
+    const moving = Math.abs(t.x - s.cam.x) > 0.3 || Math.abs(t.y - s.cam.y) > 0.3 || Math.abs(wantP - s.power) > 0.01 || Math.abs(wantB - s.board) > 0.01;
+    const alive = now < s.flashUntil || s.live || now < s.saved || (s.concept === 3 && s.place === "history" && !reduced);
+    if (moving || alive) raf = requestAnimationFrame(tick);
+    else { s.cam.x = t.x; s.cam.y = t.y; s.power = wantP; s.board = wantB; draw(now); }
+  }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+
+  /* ---------- the panel ---------- */
+  const BODY = {
+    home: () => s.live
+      ? `<h3>Bench Press</h3><div class="setrow"><b>185 x 8</b><button type="button" data-act="log">Log set</button></div>
+         <p>${s.sets} logged. The bar loads up and the board keeps time.</p><button class="go" type="button" data-act="finish">Finish workout</button>`
+      : `<h3>Start a workout</h3><p>Next in your block: W1 Upper - Press.</p><button class="go" type="button" data-act="start">Step up to the bar</button>`,
+    analytics: () => `<h3>Last 8 weeks</h3><div class="tiles"><div><small>Workouts</small><b>19</b></div><div><small>Sets</small><b>214</b></div><div><small>Top set</small><b>185x8</b></div></div><p>The scoreboard is the chart. Details scroll below it.</p>`,
+    history: () => `<h3>Every seat is a workout</h3><div class="list">${WORKOUTS.map(([n, d], i) => `<button type="button" data-seat="${i}" aria-pressed="${i === s.seat}">${n}<span>${d}</span></button>`).join("")}</div>`,
+    library: () => `<h3>Exercises</h3><div class="list">${["Bench Press", "Barbell Row", "Feet-Up Bench Press"].map((n) => `<button type="button">${n}<span>›</span></button>`).join("")}</div>`,
+    profile: () => `<h3>Banners</h3><div class="list"><button type="button">First workout<span>hung</span></button><button type="button">100 workouts<span>19 / 100</span></button><button type="button">1,000 workouts<span>19 / 1,000</span></button></div>`,
+  };
+  const CASES = {
+    1: `<h2>Dither glass</h2>
+        <p>Keep today's layout. Cards stop being solid: they become <strong>pixel-dither glass</strong>, so the arena shows through in the same checker pattern the art is drawn in. Hold a button and the whole interface steps aside.</p>
+        <ul><li><strong>Good:</strong> a few days of work, nothing to relearn.</li><li><strong>Weak:</strong> the arena is still behind things. Text on a busy scene needs care.</li></ul>
+        <div class="meta"><span><b>Effort</b> small</span><span><b>Risk</b> readability</span></div>`,
+    2: `<h2>Stage and sheet</h2>
+        <p>The arena owns the top of every screen. Everything you touch lives in <strong>one sheet</strong> that rises from the floor. Stats leave their cards and go onto the <strong>scoreboard</strong>, so the scene carries real information.</p>
+        <ul><li>Start a workout: lights come up, the board runs the clock, the bar gains plates as you log.</li><li>Tap the arena to drop the sheet and just look.</li><li><strong>Weak:</strong> less room for content. Long pages scroll inside the sheet.</li></ul>
+        <div class="meta"><span><b>Effort</b> medium</span><span><b>Risk</b> screen space</span></div>`,
+    3: `<h2>One arena, five places</h2>
+        <p>Everything in concept two, plus: the tabs stop being pages and become <strong>places in one continuous arena</strong>. Changing tab moves the camera.</p>
+        <ul><li><strong>Home</strong> is the platform. <strong>Analytics</strong> is the scoreboard, which drops and widens into your chart.</li><li><strong>History</strong> is the stands, one lit seat per workout. <strong>Library</strong> is the rack. <strong>Profile</strong> is the rafters, where milestone banners hang.</li><li><strong>Weak:</strong> the biggest build, and every palette needs its own world (a forest clearing, an iron foundry).</li></ul>
+        <div class="meta"><span><b>Effort</b> large</span><span><b>Risk</b> scope</span></div>`,
+  };
+
+  function render() {
+    const stage = s.concept !== 1;
+    $("classic").hidden = stage; $("sheet").hidden = false;
+    $("sheet").style.height = `${target().frac * 100}%`;
+    $("sheet-body").innerHTML = stage && !s.collapsed ? BODY[s.place]() : "";
+    $("sheet-body").hidden = !stage || s.collapsed;
+    $("place-label").textContent = s.concept === 3 ? PLACES[s.place].label : s.live ? "Live" : "";
+    document.querySelectorAll("#nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.place === s.place)));
+    [1, 2, 3].forEach((n) => $("c" + n).setAttribute("aria-pressed", String(n === s.concept)));
+    $("case").innerHTML = CASES[s.concept];
+    kick();
+  }
+
+  [1, 2, 3].forEach((n) => $("c" + n).addEventListener("click", () => { s.concept = n; s.collapsed = false; if (n === 1) s.place = "home"; render(); }));
+  $("nav").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    s.place = s.concept === 1 ? "home" : b.dataset.place; s.collapsed = false; render();
+  });
+  cv.addEventListener("click", () => { if (s.concept !== 1) { s.collapsed = !s.collapsed; render(); } });
+  $("phone").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-act],[data-seat]"); if (!b) return;
+    const now = performance.now();
+    if (b.dataset.seat) s.seat = Number(b.dataset.seat);
+    if (b.dataset.act === "start") { s.live = true; s.sets = 0; s.startedAt = now; }
+    if (b.dataset.act === "log") { s.sets += 1; s.flashUntil = now + 350; }
+    if (b.dataset.act === "finish") { s.live = false; s.flashUntil = now + 2000; s.saved = now + 4000; }
+    render();
+  });
+  const peek = $("peek"), look = (on) => { $("classic").style.opacity = on ? "0.05" : "1"; };
+  peek.addEventListener("pointerdown", () => look(true));
+  ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => peek.addEventListener(ev, () => look(false)));
+  peek.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") look(true); });
+  peek.addEventListener("keyup", () => look(false));
+
+  const t0 = target(); s.cam.x = t0.x; s.cam.y = t0.y;
+  render(); draw(0);
+})();
+</script>
