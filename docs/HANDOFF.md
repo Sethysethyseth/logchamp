@@ -156,6 +156,19 @@ stated fear: losing what is built. The v2 page's answer: second skin
 over existing components, an "Arena view" switch in Appearance (off by
 default), one place at a time, Home + logger first. NOT decided, NOT
 planned into ROADMAP. Open: light mode, long pages, desktop, keyboard.
+ARENA FINAL DRAFT (Seth, Nov 10 - PROTOTYPE, the design to build from):
+`docs/design/mocks/motion/arena-final-draft.html`. Seth prefers the
+prototype's arena-native sheet over the in-app beta's "old pages under a
+stage" ("I like the look of the arena pre merge with the old"). The draft
+adds what he asked for: an Advanced analytics view (real charts in the
+sheet - reuse the existing analytics components, themed but serious), the
+block flow (Home card -> block page at the rack -> block-day logger with
+plan + "As planned" -> program board fills), and the whole logger with
+every setup option. Its page lists the function map and a build order.
+The in-app beta below is the scaffold (stage, camera, signals); the next
+step is making each page arena-native per the draft, Home + logger first.
+NOT yet planned into ROADMAP / task blocks - needs Seth's go and an Opus
+planning pass (this is a wave, not a unit).
 ARENA VIEW (BETA) IS IN THE APP (Seth, Nov 10: "one last trial holding
 all of the features of the old into the new" - built as a real switch,
 not a third mock; headless-checked only, phone + 1280 desktop):
