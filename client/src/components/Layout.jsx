@@ -17,11 +17,8 @@ export function Layout() {
     return () => document.documentElement.removeAttribute("data-arena");
   }, [arena]);
 
-  return (
-    <div className="app">
-      {arena ? <ArenaStage /> : null}
-      <Navbar />
-      {arena ? <div className="arena-spacer" /> : null}
+  const page = (
+    <>
       <CoachWorkingBar />
       <div className="persistent-workout-bar-wrap container">
         <PersistentWorkoutBar />
@@ -29,9 +26,17 @@ export function Layout() {
       <main className="container main">
         <Outlet />
       </main>
+    </>
+  );
+
+  return (
+    <div className="app">
+      {arena ? <ArenaStage /> : null}
+      <Navbar />
+      {arena ? <div className="arena-spacer" /> : null}
+      {arena ? <div className="arena-sheet">{page}</div> : page}
       <BottomNav />
       <WhatsNewGate />
     </div>
   );
 }
-

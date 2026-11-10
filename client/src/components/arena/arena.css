@@ -34,30 +34,20 @@ html[data-arena]::after {
   display: none;
 }
 
-/* The sheet: an opaque floor-to-bottom surface with the stage's edge on top.
-   The 100vmax shadow + clip makes it full-bleed while .container keeps its
-   column. */
-html[data-arena] .app > .main {
+/* The sheet: a full-width opaque surface that starts under the stage and
+   carries the page. A real wrapper (Layout.jsx), NOT a shadow or an
+   oversized pseudo-element: anything wider than the screen makes a phone
+   zoom the whole page out to fit it. */
+.arena-sheet {
   position: relative;
   z-index: 1;
   min-height: calc(100svh - 96px);
   padding-top: 14px;
   background: var(--color-bg);
-  box-shadow: 0 0 0 100vmax var(--color-bg);
-  clip-path: inset(-2px -100vmax 0);
+  border-top: 2px solid color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
 }
 
-html[data-arena] .app > .main::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -100vmax;
-  right: -100vmax;
-  height: 2px;
-  background: color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
-}
-
-html[data-arena] .app > .main::after {
+.arena-sheet::before {
   content: "";
   position: absolute;
   top: 5px;

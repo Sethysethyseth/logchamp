@@ -178,6 +178,12 @@ not a third mock; headless-checked only, phone + 1280 desktop):
 - Code: `components/arena/` (ArenaStage.jsx, arenaEngine.js, arena.css),
   `lib/arenaPref.js`, `lib/sceneSignal.js` (now also emits "set"),
   `Layout.jsx`. Under `html[data-arena]` the bottom scene band is hidden.
+- FIXED after Seth's first phone try (same day): the sheet's full-bleed
+  trick (100vmax shadow + pseudo) made the page 3x wide, so Android Chrome
+  zoomed the whole app out. The sheet is now a real wrapper
+  (`.arena-sheet`, Layout.jsx). LESSON: desktop-headless screenshots do
+  not show this - check `documentElement.scrollWidth` under a phone device
+  profile (Playwright `devices`) for any layout change.
 - Not done: analytics views on the board (it shows weekly sets only),
   coach answers on the chalkboard, the block on the program board,
   swipe-to-walk, light-mode arena. Decision pending Seth's phone run:
