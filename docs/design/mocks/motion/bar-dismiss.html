@@ -1,0 +1,962 @@
+<title>Bar Dismiss Motion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: the page IS the app screen. A faux Analytics page scrolls under a
+   sticky control strip; the real-size bar and bottom nav are fixed at the
+   bottom, where a thumb finds them. One canvas over everything draws pixels. */
+
+/* ======================================================================
+   TOKENS - copied from client/src/index.css (champ + the four palettes).
+   ====================================================================== */
+:root {
+  --color-bg: #f1f5f9;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f8fafc;
+  --color-surface-3: #eef2f7;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-interactive: #5566c4;
+  --color-interactive-hover: #4453ad;
+  --color-interactive-ink: var(--color-interactive);
+  --color-nav-active-bg: color-mix(in srgb, var(--color-interactive) 10%, var(--color-surface-1));
+  --color-success-text: #166534;
+  --radius-control: 12px;
+  --radius-card: 14px;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-card-hover: 0 6px 18px rgba(15, 23, 42, 0.08);
+  --shadow-lift: 0 14px 30px rgba(15, 23, 42, 0.18);
+  --shadow-ring-accent: 0 0 0 1px color-mix(in srgb, var(--color-interactive) 12%, transparent);
+  --palette-swatch-champ: #5566c4;
+  --palette-swatch-iron: #f59e0b;
+  --palette-swatch-forest: #15803d;
+  --palette-swatch-crimson: #b91c1c;
+  --palette-swatch-chill: #5878b0;
+  --scene-glow: color-mix(in srgb, var(--color-interactive) 11%, transparent);
+  --bottom-nav-height: 3.5rem;
+  --motion-fast: 120ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --mx-quick: 90ms;
+  --mx-reveal: 420ms;
+  --mx-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --mx-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Chakra Petch", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-block: "Barlow Condensed", "Arial Narrow", var(--font-display), sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #060913; --color-surface-1: #0f1628; --color-surface-2: #141f35; --color-surface-3: #192744;
+    --color-border: #34465f; --color-text: #f1f5f9; --color-text-secondary: #94a3b8;
+    --color-interactive: #8b9bff; --color-interactive-hover: #aab4ff;
+    --color-nav-active-bg: color-mix(in srgb, var(--color-interactive) 20%, transparent);
+    --color-success-text: #86efac;
+    --shadow-card: 0 2px 14px rgba(0, 0, 0, 0.28); --shadow-card-hover: 0 12px 34px rgba(0, 0, 0, 0.42);
+    --shadow-lift: 0 18px 40px rgba(0, 0, 0, 0.6);
+    --scene-glow: color-mix(in srgb, var(--color-interactive) 22%, transparent);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #060913; --color-surface-1: #0f1628; --color-surface-2: #141f35; --color-surface-3: #192744;
+  --color-border: #34465f; --color-text: #f1f5f9; --color-text-secondary: #94a3b8;
+  --color-interactive: #8b9bff; --color-interactive-hover: #aab4ff;
+  --color-nav-active-bg: color-mix(in srgb, var(--color-interactive) 20%, transparent);
+  --color-success-text: #86efac;
+  --palette-swatch-champ: #8b9bff; --palette-swatch-iron: #fbbf24; --palette-swatch-forest: #4ade80;
+  --palette-swatch-crimson: #f87171; --palette-swatch-chill: #7c9fd4;
+  --shadow-card: 0 2px 14px rgba(0, 0, 0, 0.28); --shadow-card-hover: 0 12px 34px rgba(0, 0, 0, 0.42);
+  --shadow-lift: 0 18px 40px rgba(0, 0, 0, 0.6);
+  --scene-glow: color-mix(in srgb, var(--color-interactive) 22%, transparent);
+}
+html[data-palette="iron"] {
+  --color-interactive: #f59e0b; --color-interactive-hover: #d97706; --color-interactive-ink: #92400e;
+  --color-bg: #f9f5f0; --color-surface-1: #fffdfa; --color-surface-2: #faf6f1; --color-surface-3: #f2ece4; --color-border: #e7ded2;
+}
+html[data-theme="dark"][data-palette="iron"] {
+  --color-interactive: #fbbf24; --color-interactive-hover: #fcd34d; --color-interactive-ink: var(--color-interactive);
+  --color-bg: #171310; --color-surface-1: #211c17; --color-surface-2: #2b241e; --color-surface-3: #352c24; --color-border: #43382e;
+}
+html[data-palette="forest"] {
+  --color-interactive: #15803d; --color-interactive-hover: #166534;
+  --color-bg: #f3f8f4; --color-surface-1: #fcfefc; --color-surface-2: #f5faf6; --color-surface-3: #eaf3ec; --color-border: #d9e7dc;
+}
+html[data-theme="dark"][data-palette="forest"] {
+  --color-interactive: #4ade80; --color-interactive-hover: #86efac;
+  --color-bg: #0a140f; --color-surface-1: #102019; --color-surface-2: #152a21; --color-surface-3: #1b3429; --color-border: #27483a;
+}
+html[data-palette="crimson"] {
+  --color-interactive: #b91c1c; --color-interactive-hover: #991b1b;
+  --color-bg: #fbf3f3; --color-surface-1: #fffcfc; --color-surface-2: #fbf5f5; --color-surface-3: #f5eaea; --color-border: #ecd9d9;
+}
+html[data-theme="dark"][data-palette="crimson"] {
+  --color-interactive: #f87171; --color-interactive-hover: #fca5a5;
+  --color-bg: #190c0e; --color-surface-1: #241114; --color-surface-2: #2f171a; --color-surface-3: #3a1c20; --color-border: #50292e;
+}
+html[data-palette="chill"] {
+  --color-interactive: #5878b0; --color-interactive-hover: #496699;
+  --color-bg: #f2f4f8; --color-surface-1: #fcfdff; --color-surface-2: #f5f7fb; --color-surface-3: #e9edf4; --color-border: #d8dfeb;
+}
+html[data-theme="dark"][data-palette="chill"] {
+  --color-interactive: #7c9fd4; --color-interactive-hover: #9fbce6;
+  --color-bg: #0d0f1a; --color-surface-1: #141826; --color-surface-2: #1a1f30; --color-surface-3: #21273b; --color-border: #313a52;
+}
+
+/* ======================================================================
+   BASE + PREVIEW CHROME
+   ====================================================================== */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100dvh; overflow-x: hidden;
+  color: var(--color-text); background: var(--color-bg);
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.4;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--color-bg);
+}
+button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+.mx-glow {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 120% 50% at 50% -10%, var(--scene-glow), transparent 68%);
+}
+
+.mx-bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  display: grid; gap: 8px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
+  -webkit-backdrop-filter: saturate(1.1) blur(12px); backdrop-filter: saturate(1.1) blur(12px);
+}
+.mx-bar__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 520px; width: 100%; margin: 0 auto; }
+.mx-bar__title {
+  font-family: var(--font-block); font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  font-size: 12px; color: var(--color-text-secondary); margin-right: auto;
+}
+.mx-pals { display: flex; gap: 6px; }
+.mx-pal {
+  width: 24px; height: 24px; border-radius: 50%; padding: 0; cursor: pointer;
+  border: 2px solid transparent; background: var(--sw);
+}
+.mx-pal.is-on { border-color: var(--color-text); box-shadow: inset 0 0 0 2px var(--color-bg); }
+.mx-pal[data-pal="champ"] { --sw: var(--palette-swatch-champ); }
+.mx-pal[data-pal="iron"] { --sw: var(--palette-swatch-iron); }
+.mx-pal[data-pal="chill"] { --sw: var(--palette-swatch-chill); }
+.mx-pal[data-pal="forest"] { --sw: var(--palette-swatch-forest); }
+.mx-pal[data-pal="crimson"] { --sw: var(--palette-swatch-crimson); }
+.mx-tog {
+  min-height: 30px; padding: 0 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--color-border); background: var(--color-surface-2);
+  font-size: 12px; font-weight: 600;
+}
+.mx-tog[aria-pressed="true"] { border-color: var(--color-interactive); background: var(--color-nav-active-bg); }
+.mx-seg {
+  display: inline-grid; grid-auto-flow: column; gap: 2px; padding: 2px; border-radius: 999px;
+  background: var(--color-surface-2); border: 1px solid var(--color-border);
+}
+.mx-seg > button {
+  border: 0; background: transparent; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--color-text-secondary); white-space: nowrap;
+}
+.mx-seg > button[aria-pressed="true"] {
+  color: var(--color-text); background: var(--color-nav-active-bg);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-interactive) 35%, transparent);
+}
+.mx-seg--wide { display: grid; grid-auto-flow: unset; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+.mx-seg--wide > button { padding: 8px 4px; font-family: var(--font-display); }
+.mx-pal:focus-visible, .mx-tog:focus-visible, .mx-seg > button:focus-visible, .bring:focus-visible,
+.bar__main:focus-visible, .bar__x:focus-visible {
+  outline: 2px solid var(--color-interactive); outline-offset: 2px;
+}
+.mx-read {
+  margin: 0 auto; max-width: 520px; width: 100%; min-height: 1.4em;
+  font-family: var(--font-mono); font-size: 11.5px; color: var(--color-text-secondary);
+}
+
+/* ======================================================================
+   FAUX ANALYTICS PAGE (something real to scroll under the bar)
+   ====================================================================== */
+.mx-app {
+  position: relative; z-index: 1; width: 100%; max-width: 552px; margin: 0 auto;
+  padding-block: 14px calc(var(--bottom-nav-height) + 110px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 12px;
+}
+.page-title { margin: 4px 0 0; font-family: var(--font-display); font-weight: 700; font-size: 26px; letter-spacing: .01em; }
+.page-sub { margin: 0; font-size: 13px; color: var(--color-text-secondary); }
+.card {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface-2) 22%, transparent), transparent 45%), var(--color-surface-1);
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  border-radius: var(--radius-card); padding: 14px; box-shadow: var(--shadow-card);
+}
+.card h2 {
+  margin: 0 0 10px; font-family: var(--font-block); font-weight: 600; font-size: 13px;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-secondary);
+}
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.kpi { padding: 12px; }
+.kpi__n { font-family: var(--font-display); font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; }
+.kpi__l { font-size: 11.5px; color: var(--color-text-secondary); }
+.mrow { display: grid; grid-template-columns: 92px 1fr 28px; align-items: center; gap: 10px; padding: 5px 0; font-size: 13.5px; }
+.mrow__track { display: block; height: 10px; background: var(--color-surface-3); }
+.mrow__fill { display: block; height: 100%; width: var(--w); background: var(--color-interactive); }
+.mrow__n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.srow { display: flex; align-items: baseline; gap: 10px; padding: 9px 0; border-top: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent); font-size: 14px; }
+.srow:first-of-type { border-top: 0; }
+.srow__name { flex: 1; min-width: 0; font-weight: 600; }
+.srow__n { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.srow__d { width: 52px; text-align: right; font-size: 12px; font-weight: 700; color: var(--color-success-text); font-variant-numeric: tabular-nums; }
+.srow__d--flat { color: var(--color-text-secondary); }
+.card p { margin: 0; font-size: 13.5px; color: var(--color-text-secondary); }
+
+/* ======================================================================
+   THE BARS (copied shape from index.css + workout-bar.css + coach-working-bar.css)
+   ====================================================================== */
+.bar-wrap {
+  position: fixed; left: 0; right: 0; z-index: 5;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding: 0 10px 8px; pointer-events: none;
+}
+.bar-wrap > * { pointer-events: auto; }
+.bar {
+  --bar-inset: 0 0 0 0 transparent;
+  width: 100%; max-width: 520px; margin: 0 auto;
+  display: flex; align-items: center; gap: 8px;
+  min-height: 62px; padding: 8px 6px 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-interactive) 42%, var(--color-border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-surface-1) 72%, transparent);
+  -webkit-backdrop-filter: saturate(1.1) blur(10px); backdrop-filter: saturate(1.1) blur(10px);
+  box-shadow: var(--bar-inset), var(--shadow-card);
+  transition: box-shadow 160ms var(--ease-standard), border-color 160ms var(--ease-standard);
+  -webkit-user-select: none; user-select: none;
+  will-change: transform, opacity;
+}
+.bar[hidden], .bring[hidden] { display: none; }
+.bar--workout { --bar-inset: inset 3px 0 0 0 var(--color-interactive); }
+.bar--coach { padding-right: 14px; }
+html[data-dir="any"] .bar { touch-action: none; }
+html[data-dir="side"] .bar { touch-action: pan-y; }
+.bar.is-held { cursor: grabbing; box-shadow: var(--bar-inset), var(--shadow-lift); }
+.bar.is-armed { border-color: var(--color-interactive); }
+.bar__main {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+  padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer;
+}
+.bar__left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.bar__eyebrow { display: flex; gap: 8px; align-items: baseline; font-size: 12px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.bar__muted { color: var(--color-text-secondary); font-weight: 600; }
+.bar__title { font-weight: 800; font-size: 15.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar__snippet { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar__cta { flex: 0 0 auto; font-weight: 800; font-size: 14.5px; color: var(--color-interactive-ink); padding-left: 8px; }
+.bar__x {
+  flex: 0 0 44px; width: 44px; height: 44px; display: grid; place-items: center;
+  border: 0; border-radius: var(--radius-control); background: transparent;
+  color: var(--color-text-secondary); cursor: pointer; padding: 0;
+}
+.crown {
+  flex: 0 0 auto; width: 18px; height: 18px; background-color: var(--color-interactive);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M3,19L3,8L8,12L12,5L16,12L21,8L21,19Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M3,19L3,8L8,12L12,5L16,12L21,8L21,19Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.bring {
+  display: block; margin: 0 auto 6px; min-height: 44px; padding: 0 16px; border-radius: 999px; cursor: pointer;
+  border: 1px dashed color-mix(in srgb, var(--color-interactive) 55%, var(--color-border));
+  background: color-mix(in srgb, var(--color-surface-1) 80%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  font-size: 13px; font-weight: 700; color: var(--color-interactive-ink);
+}
+
+/* ======================================================================
+   BOTTOM NAV (copied shape from index.css .bottom-nav)
+   ====================================================================== */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 5;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  min-height: var(--bottom-nav-height);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-inline: max(0px, calc(50% - 276px));
+  background: color-mix(in srgb, var(--color-surface-1) 55%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+  -webkit-backdrop-filter: saturate(1.1) blur(10px); backdrop-filter: saturate(1.1) blur(10px);
+}
+.nav__item {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 44px; padding: 6px 4px 4px; color: var(--color-text-secondary);
+}
+.nav__item.is-active { color: var(--color-interactive-ink); }
+.nav__item.is-active::before {
+  content: ""; position: absolute; top: 0; left: 50%; width: 28px; height: 3px; transform: translateX(-50%);
+  border-radius: 0 0 3px 3px; background: var(--color-interactive);
+}
+.nav__icon { position: relative; width: 22px; height: 22px; display: block; }
+.nav__icon svg { display: block; width: 22px; height: 22px; }
+.nav__label { font-size: 10.5px; font-weight: 600; }
+.nav__item.is-pinged .nav__icon { animation: nav-pop 420ms var(--mx-ease-spring) both; }
+@keyframes nav-pop { 0% { transform: scale(1); } 40% { transform: scale(1.28); } 100% { transform: scale(1); } }
+/* The live pip: a square accent pixel on the Home tab while the bar is hidden. */
+.pip {
+  position: absolute; top: -3px; right: -6px; width: 7px; height: 7px;
+  background: var(--color-interactive);
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 10px color-mix(in srgb, var(--color-interactive) 70%, transparent);
+  transform: scale(0); transition: transform 320ms var(--mx-ease-spring);
+}
+.pip.is-on { transform: scale(1); }
+html.mx-reduce .pip { transition: none; }
+html.mx-reduce .nav__item.is-pinged .nav__icon { animation: none; }
+
+#fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none; }
+</style>
+
+<div class="mx-glow" aria-hidden="true"></div>
+
+<header class="mx-bar">
+  <div class="mx-bar__row">
+    <span class="mx-bar__title">Bar dismiss</span>
+    <div class="mx-pals" role="group" aria-label="Palette">
+      <button type="button" class="mx-pal is-on" data-pal="champ" aria-label="Champ"></button>
+      <button type="button" class="mx-pal" data-pal="iron" aria-label="Iron"></button>
+      <button type="button" class="mx-pal" data-pal="chill" aria-label="Chill"></button>
+      <button type="button" class="mx-pal" data-pal="forest" aria-label="Forest"></button>
+      <button type="button" class="mx-pal" data-pal="crimson" aria-label="Crimson"></button>
+    </div>
+    <button type="button" class="mx-tog" id="tog-dark" aria-pressed="false">Dark</button>
+    <button type="button" class="mx-tog" id="tog-reduce" aria-pressed="false">Reduced</button>
+  </div>
+  <div class="mx-bar__row">
+    <div class="mx-seg mx-seg--wide" data-opt="exit" role="group" aria-label="How the bar leaves">
+      <button type="button" data-val="throw" aria-pressed="false">A Throw</button>
+      <button type="button" data-val="scatter" aria-pressed="false">B Scatter</button>
+      <button type="button" data-val="home" aria-pressed="true">C Goes Home</button>
+    </div>
+  </div>
+  <div class="mx-bar__row">
+    <div class="mx-seg" data-opt="dir" role="group" aria-label="Drag directions">
+      <button type="button" data-val="any" aria-pressed="true">Any way</button>
+      <button type="button" data-val="side" aria-pressed="false">Sideways</button>
+    </div>
+    <div class="mx-seg" data-opt="bar" role="group" aria-label="Which bar">
+      <button type="button" data-val="workout" aria-pressed="true">Workout</button>
+      <button type="button" data-val="coach" aria-pressed="false">Coach</button>
+    </div>
+  </div>
+  <p class="mx-read" id="readout" aria-live="polite">Drag the bar off in any direction. A flick works too.</p>
+</header>
+
+<main class="mx-app">
+  <h1 class="page-title">Analytics</h1>
+  <p class="page-sub">Last 4 weeks. Example numbers, here so there is a page to scroll.</p>
+
+  <section class="kpis" aria-label="Summary">
+    <div class="card kpi"><div class="kpi__n">42,380</div><div class="kpi__l">lb moved</div></div>
+    <div class="card kpi"><div class="kpi__n">86</div><div class="kpi__l">hard sets</div></div>
+    <div class="card kpi"><div class="kpi__n">3</div><div class="kpi__l">PRs</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Weekly sets by muscle</h2>
+    <div class="mrow"><span>Back</span><span class="mrow__track"><span class="mrow__fill" style="--w: 100%"></span></span><span class="mrow__n">16</span></div>
+    <div class="mrow"><span>Chest</span><span class="mrow__track"><span class="mrow__fill" style="--w: 88%"></span></span><span class="mrow__n">14</span></div>
+    <div class="mrow"><span>Quads</span><span class="mrow__track"><span class="mrow__fill" style="--w: 75%"></span></span><span class="mrow__n">12</span></div>
+    <div class="mrow"><span>Shoulders</span><span class="mrow__track"><span class="mrow__fill" style="--w: 63%"></span></span><span class="mrow__n">10</span></div>
+    <div class="mrow"><span>Arms</span><span class="mrow__track"><span class="mrow__fill" style="--w: 56%"></span></span><span class="mrow__n">9</span></div>
+    <div class="mrow"><span>Hamstrings</span><span class="mrow__track"><span class="mrow__fill" style="--w: 50%"></span></span><span class="mrow__n">8</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Estimated 1RM</h2>
+    <div class="srow"><span class="srow__name">Bench Press</span><span class="srow__n">245 lb</span><span class="srow__d">+5</span></div>
+    <div class="srow"><span class="srow__name">Back Squat</span><span class="srow__n">315 lb</span><span class="srow__d">+10</span></div>
+    <div class="srow"><span class="srow__name">Deadlift</span><span class="srow__n">385 lb</span><span class="srow__d srow__d--flat">0</span></div>
+    <div class="srow"><span class="srow__name">Overhead Press</span><span class="srow__n">150 lb</span><span class="srow__d">+5</span></div>
+    <div class="srow"><span class="srow__name">Barbell Row</span><span class="srow__n">205 lb</span><span class="srow__d srow__d--flat">0</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Execution</h2>
+    <div class="srow"><span class="srow__name">Average reps in reserve</span><span class="srow__n">1.8</span></div>
+    <div class="srow"><span class="srow__name">Sets taken to failure</span><span class="srow__n">6</span></div>
+    <div class="srow"><span class="srow__name">Sets with effort logged</span><span class="srow__n">91%</span></div>
+  </section>
+
+  <section class="card">
+    <h2>What to try here</h2>
+    <p>Scroll this page with your thumb starting on the bar. With "Any way" the bar comes with your thumb and the page stays put. With "Sideways" the page scrolls like it does today. That is the one real cost of going every-direction.</p>
+  </section>
+
+  <section class="card">
+    <h2>What never changes</h2>
+    <p>A tap on the bar still resumes. The X still asks before it discards. Swiping only hides the bar until the app is next opened, and the workout is always on Home.</p>
+  </section>
+</main>
+
+<div class="bar-wrap">
+  <button type="button" class="bring" id="bring" hidden>Bring the bar back</button>
+
+  <div class="bar bar--workout" id="bar-workout">
+    <button type="button" class="bar__main" data-tap="Tap: resumes the workout, same as today.">
+      <span class="bar__left">
+        <span class="bar__eyebrow"><span data-ink>In progress</span><span class="bar__muted" data-ink>24m</span></span>
+        <span class="bar__title" data-ink>Push A, week 3</span>
+      </span>
+      <span class="bar__cta" data-ink>Resume</span>
+    </button>
+    <button type="button" class="bar__x" aria-label="Discard workout" data-tap="Tap on the X: still asks before discarding. A swipe that starts here only hides.">
+      <svg data-ink width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg>
+    </button>
+  </div>
+
+  <div class="bar bar--coach" id="bar-coach" hidden>
+    <button type="button" class="bar__main" data-tap="Tap: opens the coach, same as today.">
+      <span class="crown" data-home aria-hidden="true"></span>
+      <span class="bar__left">
+        <span class="bar__title" data-ink>Coach is working on it</span>
+        <span class="bar__snippet" data-ink>Reading your last six weeks of pressing</span>
+      </span>
+      <span class="bar__cta" data-ink>View</span>
+    </button>
+  </div>
+</div>
+
+<nav class="nav" aria-label="Main (preview only)">
+  <span class="nav__item" id="tab-home">
+    <span class="nav__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 11 12 3l9 8v10h-7v-7h-4v7H3z"/></svg><span class="pip" id="pip"></span></span>
+    <span class="nav__label">Home</span>
+  </span>
+  <span class="nav__item is-active">
+    <span class="nav__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 12h4v8H4zM10 5h4v15h-4zM16 9h4v11h-4z"/></svg></span>
+    <span class="nav__label">Analytics</span>
+  </span>
+  <span class="nav__item">
+    <span class="nav__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm-1 4h2v5h4v2h-6z"/></svg></span>
+    <span class="nav__label">History</span>
+  </span>
+  <span class="nav__item">
+    <span class="nav__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16v4H4zM4 10h16v4H4zM4 16h16v4H4z"/></svg></span>
+    <span class="nav__label">Library</span>
+  </span>
+  <span class="nav__item">
+    <span class="nav__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 3h8v8H8zM4 14h16v7H4z"/></svg></span>
+    <span class="nav__label">Profile</span>
+  </span>
+</nav>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---- the contract: every number the feel depends on ---- */
+  var SLOP_PX = 8;            /* movement before the bar commits to a drag    */
+  var TETHER_PX = 120;        /* the furthest the bar itself ever travels     */
+  var ARM_PX = 72;            /* finger distance past which letting go hides  */
+  var FLING_MIN_PX = 24;      /* a flick: at least this far ...               */
+  var FLING_MIN_V = 0.5;      /* ... and this fast (px/ms), heading outward   */
+  var CELL_PX = 6;            /* scatter pixel size                           */
+  var SWEEP_MS = 170;         /* the dissolve crosses the bar in this long    */
+
+  var root = document.documentElement;
+  var $ = function (s) { return document.querySelector(s); };
+  var state = { exit: "home", dir: "any", bar: "workout", reduced: false };
+
+  /* ---- theme / palette / toggles ---- */
+  var theme = root.getAttribute("data-theme");
+  if (theme !== "dark" && theme !== "light") {
+    theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  function setTheme(t) {
+    theme = t;
+    root.setAttribute("data-theme", t);
+    $("#tog-dark").setAttribute("aria-pressed", String(t === "dark"));
+  }
+  setTheme(theme);
+  root.setAttribute("data-palette", "champ");
+  root.setAttribute("data-dir", state.dir);
+  $("#tog-dark").addEventListener("click", function () { setTheme(theme === "dark" ? "light" : "dark"); });
+
+  function setReduced(on) {
+    state.reduced = on;
+    root.classList.toggle("mx-reduce", on);
+    $("#tog-reduce").setAttribute("aria-pressed", String(on));
+  }
+  setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  $("#tog-reduce").addEventListener("click", function () { setReduced(!state.reduced); });
+
+  document.querySelectorAll(".mx-pal").forEach(function (b) {
+    b.addEventListener("click", function () {
+      root.setAttribute("data-palette", b.getAttribute("data-pal"));
+      document.querySelectorAll(".mx-pal").forEach(function (o) { o.classList.toggle("is-on", o === b); });
+    });
+  });
+
+  var readout = $("#readout");
+  function say(text) { readout.textContent = text; }
+
+  /* ---- the bars ---- */
+  var bars = { workout: $("#bar-workout"), coach: $("#bar-coach") };
+  var bar = bars.workout;
+  var bring = $("#bring");
+  var pip = $("#pip");
+  var tabHome = $("#tab-home");
+  var phase = "idle";         /* idle | drag | return | gone */
+  var g = null;               /* the live gesture */
+  var anim = null;
+  var dragRaf = 0;
+  var suppressClick = false;
+  var suppressTimer = 0;
+  var bringTimer = 0;
+
+  document.querySelectorAll(".mx-seg").forEach(function (seg) {
+    var opt = seg.getAttribute("data-opt");
+    seg.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state[opt] = b.getAttribute("data-val");
+        seg.querySelectorAll("button").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+        if (opt === "dir") root.setAttribute("data-dir", state.dir);
+        if (opt === "bar") restore(true);
+        if (opt === "exit" && phase === "gone") restore(false);
+      });
+    });
+  });
+
+  function clearInline(el) {
+    el.style.transform = "";
+    el.style.opacity = "";
+    el.style.visibility = "";
+    el.classList.remove("is-held", "is-armed");
+  }
+
+  /* Put the chosen bar back, rising in the way every MX reveal does. */
+  function restore(quiet) {
+    window.clearTimeout(bringTimer);
+    if (anim) { anim.cancel(); anim = null; }
+    window.cancelAnimationFrame(dragRaf);
+    g = null;
+    Object.keys(bars).forEach(function (k) { clearInline(bars[k]); bars[k].hidden = k !== state.bar; });
+    bar = bars[state.bar];
+    bring.hidden = true;
+    pip.classList.remove("is-on");
+    phase = "idle";
+    if (!quiet && !state.reduced) {
+      bar.animate(
+        [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }],
+        { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" }
+      );
+    }
+  }
+  bring.addEventListener("click", function () {
+    restore(false);
+    say("Back. In the app it returns the next time the app is opened.");
+  });
+
+  function gone(delay) {
+    phase = "gone";
+    bar.hidden = true;
+    clearInline(bar);
+    window.clearTimeout(bringTimer);
+    bringTimer = window.setTimeout(function () { bring.hidden = false; }, delay);
+  }
+
+  function tick() {
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch (e) { /* optional */ }
+  }
+
+  /* ---- colours for the canvas, resolved from the live tokens ---- */
+  var probe = document.createElement("i");
+  probe.style.cssText = "position:absolute;width:0;height:0;visibility:hidden";
+  document.body.appendChild(probe);
+  function tok(expr) {
+    probe.style.color = "";
+    probe.style.color = expr;
+    return getComputedStyle(probe).color;
+  }
+  function liveColors() {
+    return {
+      surface: tok("var(--color-surface-1)"),
+      edge: tok("color-mix(in srgb, var(--color-interactive) 42%, var(--color-border))"),
+      accent: tok("var(--color-interactive)")
+    };
+  }
+
+  /* ---- gesture helpers ---- */
+  function sample(gs, x, y) {
+    gs.samples.push({ t: performance.now(), x: x, y: y });
+    if (gs.samples.length > 10) gs.samples.shift();
+  }
+  /* px/ms over the last ~100 ms. A finger that stops before lifting reads 0. */
+  function velocityOf(gs) {
+    var s = gs.samples, last = s[s.length - 1], first = last, i;
+    if (!last) return { x: 0, y: 0 };
+    for (i = s.length - 1; i >= 0; i -= 1) {
+      if (last.t - s[i].t > 100) break;
+      first = s[i];
+    }
+    var dt = last.t - first.t;
+    if (dt < 1) return { x: 0, y: 0 };
+    return { x: (last.x - first.x) / dt, y: (last.y - first.y) / dt };
+  }
+  function pull(gs) {
+    var dx = gs.x - gs.sx;
+    var dy = state.dir === "side" ? 0 : gs.y - gs.sy;
+    return { dx: dx, dy: dy, r: Math.sqrt(dx * dx + dy * dy) };
+  }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  /* One frame of the bar under the finger. The bar is tethered: it follows
+     1:1 at first, then lags, and never travels further than TETHER_PX. Past
+     ARM_PX it "lets go": dims, tightens, ticks once, and starts to shed. */
+  function dragFrame(now) {
+    dragRaf = 0;
+    if (!g || !g.locked || phase !== "drag") return;
+    var p = pull(g);
+    var d = p.r > 0 ? TETHER_PX * (1 - Math.exp(-p.r / TETHER_PX)) : 0;
+    var k = p.r > 0 ? d / p.r : 0;
+    var tx = p.dx * k, ty = p.dy * k;
+    var armed = p.r >= ARM_PX;
+    if (armed !== g.armed) {
+      g.armed = armed;
+      bar.classList.toggle("is-armed", armed);
+      if (armed) tick();
+    }
+    var targetScale = armed ? 0.965 : 1.02;
+    var targetOpacity = armed ? 0.62 : 1 - 0.22 * (p.r / ARM_PX);
+    g.scale += (targetScale - g.scale) * 0.24;
+    g.opacity += (targetOpacity - g.opacity) * 0.3;
+    g.tx = tx; g.ty = ty;
+    g.rot = clamp(tx * 0.035, -3, 3);
+    bar.style.transform = "translate3d(" + tx.toFixed(1) + "px," + ty.toFixed(1) + "px,0) rotate(" +
+      g.rot.toFixed(2) + "deg) scale(" + g.scale.toFixed(3) + ")";
+    bar.style.opacity = g.opacity.toFixed(3);
+    if (armed && state.exit !== "throw") shed(now);
+    dragRaf = window.requestAnimationFrame(dragFrame);
+  }
+
+  function onDown(e) {
+    if (e.button !== 0 || !e.isPrimary) return;
+    if (e.currentTarget !== bar || phase === "gone") return;
+    if (anim) { anim.cancel(); anim = null; clearInline(bar); phase = "idle"; }
+    g = {
+      id: e.pointerId, sx: e.clientX, sy: e.clientY, x: e.clientX, y: e.clientY,
+      locked: false, armed: false, captured: false, samples: [],
+      scale: 1, opacity: 1, tx: 0, ty: 0, rot: 0, colors: null
+    };
+    sample(g, e.clientX, e.clientY);
+  }
+
+  function onMove(e) {
+    if (!g || e.pointerId !== g.id) return;
+    g.x = e.clientX; g.y = e.clientY;
+    if (!g.locked) {
+      var dx = g.x - g.sx, dy = g.y - g.sy, ax = Math.abs(dx), ay = Math.abs(dy);
+      if (state.dir === "side") {
+        if (ay > SLOP_PX && ay >= ax) { g = null; return; }   /* the page owns it */
+        if (!(ax > SLOP_PX && ax > ay)) return;
+      } else if (Math.sqrt(dx * dx + dy * dy) <= SLOP_PX) {
+        return;
+      }
+      g.locked = true;
+      /* Measure from where the drag committed, so the bar never jumps. */
+      g.sx = g.x; g.sy = g.y;
+      suppressClick = true;
+      window.clearTimeout(suppressTimer);
+      try { bar.setPointerCapture(e.pointerId); g.captured = true; } catch (err) { /* optional */ }
+      if (!state.reduced) {
+        phase = "drag";
+        g.colors = liveColors();
+        bar.classList.add("is-held");
+        dragRaf = window.requestAnimationFrame(dragFrame);
+      }
+    }
+    sample(g, e.clientX, e.clientY);
+  }
+
+  function endGesture(e, cancelled) {
+    if (!g || e.pointerId !== g.id) return;
+    var gs = g;
+    g = null;
+    if (!gs.locked) return;                       /* a tap: the click goes through */
+    window.cancelAnimationFrame(dragRaf);
+    suppressTimer = window.setTimeout(function () { suppressClick = false; }, 400);
+    try { if (gs.captured) bar.releasePointerCapture(gs.id); } catch (err) { /* optional */ }
+    gs.x = e.clientX; gs.y = e.clientY;
+    sample(gs, e.clientX, e.clientY);
+    var p = pull(gs);
+    var v = velocityOf(gs);
+    if (state.dir === "side") v.y = 0;
+    var speed = Math.sqrt(v.x * v.x + v.y * v.y);
+    var outward = p.r > 0 ? (v.x * p.dx + v.y * p.dy) / p.r : 0;
+    var byDistance = p.r >= ARM_PX;
+    var byFling = p.r >= FLING_MIN_PX && outward >= FLING_MIN_V;
+    if (cancelled || !(byDistance || byFling)) {
+      say("Sprang back: " + Math.round(p.r) + " px pull, it lets go at " + ARM_PX + " px.");
+      springBack(gs);
+      return;
+    }
+    say(byFling && !byDistance
+      ? "Flicked at " + outward.toFixed(1) + " px/ms. Hidden, nothing discarded."
+      : "Let go past the line (" + Math.round(p.r) + " px). Hidden, nothing discarded.");
+    /* Leave the way it was thrown; a slow release leaves the way it was pulled. */
+    var ux, uy;
+    if (speed >= 0.3) { ux = v.x / speed; uy = v.y / speed; }
+    else if (p.r > 0) { ux = p.dx / p.r; uy = p.dy / p.r; }
+    else { ux = 1; uy = 0; }
+    leave(gs, ux, uy, Math.min(speed, 1.6));
+  }
+
+  function springBack(gs) {
+    bar.classList.remove("is-held", "is-armed");
+    if (state.reduced) { phase = "idle"; return; }
+    var from = bar.style.transform || "none";
+    var fromOpacity = bar.style.opacity || "1";
+    bar.style.transform = "";
+    bar.style.opacity = "";
+    phase = "return";
+    anim = bar.animate(
+      [{ transform: from, opacity: fromOpacity },
+       { transform: "translate3d(0,0,0) rotate(0deg) scale(1)", opacity: 1 }],
+      { duration: 360, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" }
+    );
+    anim.onfinish = function () { anim = null; phase = "idle"; };
+  }
+
+  function leave(gs, ux, uy, speed) {
+    bar.classList.remove("is-held", "is-armed");
+    var toHome = state.exit === "home";
+    if (state.reduced) {
+      /* Reduced: nothing ever moved. The bar is simply gone. */
+      gone(250);
+      if (toHome) pip.classList.add("is-on");
+      return;
+    }
+    if (state.exit === "throw") {
+      phase = "gone";
+      var dist = 200 + speed * 150;
+      var spin = gs.rot + (ux >= 0 ? 9 : -9);
+      anim = bar.animate(
+        [{ transform: bar.style.transform, opacity: gs.opacity },
+         { transform: "translate3d(" + (gs.tx + ux * dist) + "px," + (gs.ty + uy * dist) + "px,0) rotate(" +
+             spin + "deg) scale(0.94)", opacity: 0 }],
+        { duration: 270, easing: "cubic-bezier(0.2, 0.7, 0.3, 1)", fill: "forwards" }
+      );
+      anim.onfinish = function () { if (anim) { anim.cancel(); anim = null; } gone(250); };
+      return;
+    }
+    scatter(gs, ux, uy, speed, toHome);
+    gone(toHome ? 900 : 650);
+  }
+
+  /* ---- pixels ---- */
+  var cv = $("#fx");
+  var ctx = cv.getContext("2d");
+  var parts = [];
+  var fxRaf = 0, lastT = 0, lastShed = 0, landed = false;
+
+  function sizeCanvas() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(window.innerWidth * dpr);
+    cv.height = Math.round(window.innerHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sizeCanvas();
+  window.addEventListener("resize", sizeCanvas);
+
+  function runFx() {
+    if (fxRaf) return;
+    lastT = performance.now();
+    fxRaf = window.requestAnimationFrame(stepFx);
+  }
+
+  /* While armed, the bar drops a few pixels: "let go and I am dust". */
+  function shed(now) {
+    if (now - lastShed < 48 || !g || !g.colors) return;
+    lastShed = now;
+    var r = bar.getBoundingClientRect(), i, edge, x, y;
+    for (i = 0; i < 2; i += 1) {
+      edge = Math.random();
+      if (edge < 0.7) { x = r.left + Math.random() * r.width; y = r.bottom - 3; }
+      else { x = Math.random() < 0.5 ? r.left : r.right - 4; y = r.top + Math.random() * r.height; }
+      parts.push({
+        x: x, y: y, w: 4, h: 4, c: Math.random() < 0.3 ? g.colors.accent : g.colors.edge,
+        t0: now, life: 300 + Math.random() * 180, a0: 0.9, drag: 0.96, hold: false,
+        vx: (Math.random() - 0.5) * 0.07, vy: 0.03 + Math.random() * 0.07
+      });
+    }
+    runFx();
+  }
+
+  /* The bar becomes a grid of square pixels in its own colours, then the
+     dissolve sweeps across it from the leading edge and the pixels drift off
+     the way it was thrown. With toHome, the accent pixels (the live marker,
+     the coach crown) do not fade: they fly to the Home tab. */
+  function scatter(gs, ux, uy, speed, toHome) {
+    var colors = gs.colors || liveColors();
+    bar.style.transform = "translate3d(" + gs.tx + "px," + gs.ty + "px,0)";
+    var R = bar.getBoundingClientRect();
+    var inks = [];
+    bar.querySelectorAll("[data-ink]").forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      var inset = r.height * 0.26;
+      inks.push({ l: r.left, r: r.right, t: r.top + inset, b: r.bottom - inset, c: getComputedStyle(el).color });
+    });
+    var homeRect = null;
+    var homeEl = bar.querySelector("[data-home]");
+    if (homeEl) homeRect = homeEl.getBoundingClientRect();
+    var isWorkout = bar === bars.workout;
+    bar.style.visibility = "hidden";
+
+    var cols = Math.max(1, Math.round(R.width / CELL_PX));
+    var rows = Math.max(1, Math.round(R.height / CELL_PX));
+    var cw = R.width / cols, ch = R.height / rows;
+    var mx = R.left + R.width / 2, my = R.top + R.height / 2;
+    var ext = Math.abs(ux) * R.width / 2 + Math.abs(uy) * R.height / 2 || 1;
+    var now = performance.now();
+    var radius = 14;
+    var target = tabHome.querySelector(".nav__icon").getBoundingClientRect();
+    var hx = target.left + target.width / 2, hy = target.top + target.height / 2;
+    var c, r, x, y, cx, cy, color, isAccent, qx, qy, n, pn, delay, base, spread;
+    landed = false;
+
+    for (r = 0; r < rows; r += 1) {
+      for (c = 0; c < cols; c += 1) {
+        x = R.left + c * cw; y = R.top + r * ch;
+        cx = x + cw / 2; cy = y + ch / 2;
+        /* skip the pixels outside the rounded corners */
+        qx = Math.min(cx - R.left, R.right - cx);
+        qy = Math.min(cy - R.top, R.bottom - cy);
+        if (qx < radius && qy < radius &&
+            (radius - qx) * (radius - qx) + (radius - qy) * (radius - qy) > radius * radius) continue;
+        color = colors.surface;
+        isAccent = false;
+        if (isWorkout && c === 0) { color = colors.accent; isAccent = true; }
+        else if (homeRect && cx > homeRect.left && cx < homeRect.right && cy > homeRect.top && cy < homeRect.bottom) {
+          color = colors.accent; isAccent = true;
+        } else if (r === 0 || r === rows - 1 || c === 0 || c === cols - 1) {
+          color = colors.edge;
+        } else {
+          for (n = 0; n < inks.length; n += 1) {
+            if (cx > inks[n].l && cx < inks[n].r && cy > inks[n].t && cy < inks[n].b) {
+              if (Math.random() < 0.66) color = inks[n].c;
+              break;
+            }
+          }
+        }
+        pn = (((cx - mx) * ux + (cy - my) * uy) / ext + 1) / 2;      /* 0 trailing .. 1 leading */
+        delay = (1 - pn) * SWEEP_MS + Math.random() * 50;
+        if (toHome && isAccent) {
+          parts.push({
+            home: true, c: color, w: cw, h: ch, x: x, y: y, hold: true, a0: 1,
+            t0: now + delay + 40, dur: 430 + Math.random() * 170,
+            sx: cx, sy: cy,
+            kx: cx + ux * 90 + (Math.random() - 0.5) * 50, ky: cy + uy * 90 - 30 - Math.random() * 40,
+            ex: hx + (Math.random() - 0.5) * 6, ey: hy + (Math.random() - 0.5) * 6
+          });
+          continue;
+        }
+        base = 0.15 + Math.random() * 0.4 + speed * 0.2;
+        spread = (Math.random() - 0.5) * 0.32;
+        parts.push({
+          x: x, y: y, w: cw, h: ch, c: color, hold: true, a0: 0.95,
+          t0: now + delay, life: 340 + Math.random() * 300, drag: 0.93,
+          vx: ux * base - uy * spread + ((cx - mx) / R.width) * 0.06,
+          vy: uy * base + ux * spread + ((cy - my) / R.height) * 0.06
+        });
+      }
+    }
+    runFx();
+  }
+
+  function land() {
+    if (landed) return;
+    landed = true;
+    pip.classList.add("is-on");
+    tabHome.classList.remove("is-pinged");
+    void tabHome.offsetWidth;
+    tabHome.classList.add("is-pinged");
+    tick();
+  }
+
+  function stepFx(now) {
+    fxRaf = 0;
+    var dt = Math.min(34, now - lastT);
+    lastT = now;
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    var alive = 0, i, p, age, k, f, w, h, e, t, j, a, px, py, s;
+    for (i = 0; i < parts.length; i += 1) {
+      p = parts[i];
+      if (p.dead) continue;
+      age = now - p.t0;
+      if (age < 0) {
+        if (p.hold) {
+          ctx.globalAlpha = p.a0;
+          ctx.fillStyle = p.c;
+          ctx.fillRect(Math.floor(p.x), Math.floor(p.y), Math.ceil(p.w), Math.ceil(p.h));
+        }
+        alive += 1;
+        continue;
+      }
+      if (p.home) {
+        t = age / p.dur;
+        if (t >= 1) { p.dead = true; land(); continue; }
+        ctx.fillStyle = p.c;
+        for (j = 2; j >= 0; j -= 1) {                 /* the pixel and a two-step trail */
+          a = Math.max(0, t - j * 0.05);
+          e = a < 0.5 ? 2 * a * a : 1 - Math.pow(-2 * a + 2, 2) / 2;
+          px = (1 - e) * (1 - e) * p.sx + 2 * (1 - e) * e * p.kx + e * e * p.ex;
+          py = (1 - e) * (1 - e) * p.sy + 2 * (1 - e) * e * p.ky + e * e * p.ey;
+          s = j === 0 ? 5 : 4;
+          ctx.globalAlpha = j === 0 ? 1 : j === 1 ? 0.4 : 0.18;
+          ctx.fillRect(Math.round(px - s / 2), Math.round(py - s / 2), s, s);
+        }
+        alive += 1;
+        continue;
+      }
+      k = age / p.life;
+      if (k >= 1) { p.dead = true; continue; }
+      f = Math.pow(p.drag, dt / 16.67);
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vx *= f; p.vy *= f;
+      w = Math.max(1, Math.round(p.w * (1 - 0.7 * k)));
+      h = Math.max(1, Math.round(p.h * (1 - 0.7 * k)));
+      ctx.globalAlpha = p.a0 * (1 - k * k);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(Math.round(p.x + (p.w - w) / 2), Math.round(p.y + (p.h - h) / 2), w, h);
+      alive += 1;
+    }
+    ctx.globalAlpha = 1;
+    if (alive) {
+      fxRaf = window.requestAnimationFrame(stepFx);
+    } else {
+      parts = [];
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    }
+  }
+
+  /* ---- wire both bars ---- */
+  Object.keys(bars).forEach(function (key) {
+    var el = bars[key];
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", function (e) { endGesture(e, false); });
+    el.addEventListener("pointercancel", function (e) { endGesture(e, true); });
+    /* A drag never fires the thing it started on (Resume, View, the X). */
+    el.addEventListener("click", function (e) {
+      if (suppressClick) {
+        e.preventDefault(); e.stopPropagation();
+        suppressClick = false;
+        return;
+      }
+      var hit = e.target.closest("[data-tap]");
+      if (hit) say(hit.getAttribute("data-tap"));
+    }, true);
+  });
+})();
+</script>

@@ -28,11 +28,15 @@ record is whatever the MX wave's design doc settles
 (`docs/design/mocks/motion/`).
 
 **Rename boundary (WorkoutDB -> LogChamp is DISPLAY-LAYER ONLY):** never rename
-for a rebrand - repo/remote, Render/Neon/Vercel service names, env var names,
+for a rebrand - Render/Neon/Vercel service names, env var names,
 `package.json` name fields, cookie names (`workoutdb.sid`), localStorage keys
 (`workoutdb-theme`, `workoutdb-palette`), route paths, component filenames,
 CSS class prefixes, internal identifiers, migration content, API messages.
 Rebrand text lives in: rendered UI, `<title>`, PWA manifest name fields.
+One deliberate exception (Seth, Nov 10, 2026): the GitHub repo itself was
+renamed `workout-db` -> `logchamp` so work can run from GitHub off the
+laptop. GitHub redirects the old URL. The local folder name stays
+`workout-db`.
 
 ## Stack
 
@@ -40,7 +44,7 @@ Rebrand text lives in: rendered UI, `<title>`, PWA manifest name fields.
 - Backend: Express + Node (Render), Prisma 6 - config in `prisma.config.ts`,
   not `package.json`
 - Database: PostgreSQL via Neon - SEPARATE prod and staging projects
-- Repo: Sethysethyseth/workout-db
+- Repo: Sethysethyseth/logchamp (renamed from workout-db, Nov 10, 2026)
 - Auth: cookie-based sessions (primary) + JWT Bearer (fallback)
 
 ## How to run / test

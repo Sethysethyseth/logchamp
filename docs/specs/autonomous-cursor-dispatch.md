@@ -58,7 +58,7 @@ block is invisible to the cloud):
 POST /v1/agents
 {
   "prompt": { "text": "Read docs/tasks/<unit>.md and execute it exactly. It is the complete task; do not ask for the task in chat. Write the delivery report into the PR body per the block's STOP CONDITION footer." },
-  "repos":  [{ "url": "https://github.com/Sethysethyseth/workout-db",
+  "repos":  [{ "url": "https://github.com/Sethysethyseth/logchamp",
                "startingRef": "<wave-branch>" }],
   "model":  { "id": "<per the block's MODEL header; GET /v1/models for ids>" },
   "autoCreatePR": true

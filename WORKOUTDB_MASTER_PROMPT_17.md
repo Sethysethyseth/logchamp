@@ -272,7 +272,7 @@ Not a training-style classifier; not a real-time set-by-set layer; not a "what t
 ### Rename boundary principle
 
 A user-facing rebrand (WorkoutDB → LogChamp) is **display-layer only** and must never touch infrastructure identity. Never changes for a rebrand:
-- Repo name, GitHub remote (`Sethysethyseth/workout-db`)
+- ~~Repo name, GitHub remote~~ - exception: Seth renamed the repo `workout-db` -> `logchamp` on Nov 10, 2026 (`Sethysethyseth/logchamp`) so work can run from GitHub
 - Render/Neon/Vercel service names
 - Env var names and values (`VITE_API_URL`, `DATABASE_URL`)
 - npm `package.json` name fields
@@ -342,7 +342,7 @@ Prefer a new Opus chat over mid-chat model switches.
 - **Prod Render service:** `workout-db-l3gc` → `https://workout-db-l3gc.onrender.com` (Build: `npm install` · Start: `node src/server.js` — no auto-migrate)
 - **Staging Render service:** `workout-db-staging` → `https://workout-db-staging.onrender.com` (Build: `npm install` · Start: `node src/server.js` — no auto-migrate)
 - **Prod Vercel:** `workout-db-psi.vercel.app`
-- **GitHub:** `Sethysethyseth/workout-db`
+- **GitHub:** `Sethysethyseth/logchamp` (renamed from `workout-db`, Nov 10, 2026)
 - **Git author:** `Seth Knisel <SethjKnisel@gmail.com>`
 - **Local env:** Windows / PowerShell (no `&&` separator — commands on separate lines; Unix tools like `grep`/`wc` unavailable, use `Select-String` etc.)
 - Current branch state / `main` SHA: see `docs/HANDOFF.md`.
