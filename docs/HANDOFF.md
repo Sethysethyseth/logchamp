@@ -1,9 +1,13 @@
 # HANDOFF — current state
 
-> **WHERE WE ARE (Nov 9): MOTION WAVE (MX) OPEN on `motion-wave` - mid-wave,
+> **WHERE WE ARE (Nov 10): MOTION WAVE (MX) OPEN on `motion-wave` - mid-wave,
 > MX7-MX16 still TODO in ROADMAP.** Every smoke item through MXF10 PASSED
-> (Nov 9). MXF11 (swipe the bars away) landed and "definitely works in the
-> barest sense" (Seth, Nov 9) - the FEEL needs a pass; see PICK UP HERE 0.
+> (Nov 9). Nov 10: a cloud Fable session built DIRECTLY at Seth's ask (no
+> Cursor blocks - the cloud box cannot reach the lane worktrees): MX-CI
+> crown intro, crown play, MXF12 (bar pixel exit + any-direction drag +
+> crown loader + loader->login hand-off). All pushed, NONE phone-smoked;
+> verified only in headless Chromium at 400x860 against a mocked API
+> (normal + reduced motion, no page errors). Smoke list below.
 > Seth's direction: "wicked" motion and graphics, analytics first; Fable in
 > Cursor is the designer and its suggestions win; the Claude Code seat
 > writes briefs and audits. Motion stance: AGENTS.md.
@@ -40,9 +44,8 @@
 > - `main` = `b82ad8c` (QOL wave, live on prod). `quality-of-life-updates`
 >   = main + docs; `motion-wave` was cut from it.
 
-**Next action (human):** tell the next session what feels missing in the
-bar swipe ("works in the barest sense") - or say "your call" and let the
-Fable 5.2 feel pass decide; then pick MX7 (recommended) or MX5b / MX10 next.
+**Next action (human):** smoke the Nov 10 work on the phone (list below),
+say what feels off; then pick MX7 (recommended) or MX5b / MX10 next.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
@@ -112,22 +115,24 @@ sheet counts as Open anyway (the answer still saves) - fine?
 
 ## PICK UP HERE (next session)
 
-0. **MXF11 feel pass - "works in the barest sense" (Seth, Nov 9).** The
-   mechanics are verified (QUEUE MXF11 real-app check); what is NOT signed
-   off is how it feels. First ask Seth what is missing - he gave no
-   specifics before handing off. Candidate gaps to offer him (the delivery
-   chose these, `useSwipeDismiss.js`): 1:1 follow with NO rubber-band
-   resistance; opacity-only fade (no scale/tilt/shadow lift on grab); no
-   haptic (`navigator.vibrate` on the dismiss threshold, Android only); no
-   visual hint that the bar is swipeable at all; throw-out 0.6x reveal
-   (~250 ms); a dismissed workout bar gives no "hidden - it's on Home"
-   acknowledgement or undo. Then author a feel block (MXF12) contract-first
-   on `claude-fable-5-2-high` (design work - it designs, its suggestions
-   win), keep MXF11's rulings fixed (sideways only, hide until next app
-   open, X = discard, coach returns once as answered), and keep the pure
-   `swipeDismiss.js` one-liner criterion so the thresholds stay checkable.
-   The run's report is preserved in session scratch only; the block is
-   `docs/tasks/mxf11-swipe-away-bars.md`.
+0. **Nov 10 follow-ups (after Seth's phone smoke of MX-CI / MXF12):**
+   - The MXF11 feel pass is ANSWERED by MXF12: Seth asked for the
+     preview's any-direction drag + pixel exit, and for the bar to return
+     after resuming. Sideways-only (Nov 9) is superseded. Reopen only if
+     the phone smoke says the drag feels wrong (numbers: `TETHER_PX`,
+     `ARM_PX` in `lib/swipeDismiss.js`).
+   - Seth asked for a polish pass over ALL the new animations; only
+     "polish 1" is done (shared landing flash + sparks, bar rise-in). Not
+     yet revisited: the crown intro itself, login arrival, crown rain,
+     error shake. Ask him what he wants pushed further before spending.
+   - Never exercised: the coach bar's scatter, the boot intro's slow-server
+     loop + "Taking longer..." text, a real touch drag (mouse only), any
+     palette beyond champ/forest/iron/crimson spot checks.
+   - Known and accepted: a drag starting on a bar no longer scrolls the
+     page; the boot intro covers the app ~2 s on every cold open (tap
+     skips); crown rain mounts (invisible) under reduced motion.
+   - None of this has a What's New entry yet - add at the wave's What's
+     New unit.
 1. **Continue the MX wave** (opened Oct 9, see the top block):
    - next unit after 0 = the first non-DONE unit in `ROADMAP.md` (MX7
      logger floor, recommended to Seth Nov 9 - or MX5b / MX10 scenes if

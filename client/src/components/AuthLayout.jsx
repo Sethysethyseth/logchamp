@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet } from "react-router-dom";
 import "./motion/crown-play.css";
 import { takeLoaderCrown } from "./motion/crownIntroStore.js";
@@ -26,9 +26,17 @@ export function AuthLayout() {
     mark.style.setProperty("--crown-scale", String(from.w / (r.width * CROWN_W)));
   }, [from]);
 
+  /* Once the arrival has played, later forms (Login <-> Register) come in
+     without the arrival's stagger delay. */
+  const [arrived, setArrived] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setArrived(true), 900);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="auth-page auth-shell">
-      <div className="auth-card-wrap">
+      <div className="auth-card-wrap" data-arrived={arrived ? "" : undefined}>
         <div className={`wordmark${handoff ? " wordmark--handoff" : ""}`} ref={markRef}>
           <img src={wordmarkWhite} alt="LogChamp" />
           {handoff ? (

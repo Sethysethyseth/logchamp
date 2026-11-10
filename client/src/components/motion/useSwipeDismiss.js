@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { decideRelease, decideSwipe, lockAxis, tetherOffset } from "../../lib/swipeDismiss.js";
+import { ARM_PX, decideRelease, decideSwipe, lockAxis, tetherOffset } from "../../lib/swipeDismiss.js";
 import { useReducedMotion } from "../../lib/useReducedMotion.js";
 import { createShedder, scatterBar } from "./pixelScatter.js";
 
@@ -334,7 +334,7 @@ export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
         const tilt = Math.max(-3, Math.min(3, t.tx * 0.035));
         const scale = t.armed ? 0.965 : 1.02;
         el.style.transform = `translate3d(${t.tx.toFixed(1)}px,${t.ty.toFixed(1)}px,0) rotate(${tilt.toFixed(2)}deg) scale(${scale})`;
-        el.style.opacity = String(t.armed ? 0.62 : 1 - 0.22 * (t.r / 72));
+        el.style.opacity = String(t.armed ? 0.62 : 1 - 0.22 * (t.r / ARM_PX));
         if (t.armed) {
           g.shedder ??= createShedder();
           g.shedder.shed(el);

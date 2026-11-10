@@ -15,6 +15,11 @@
   perspective: 240px;
 }
 
+/* Sparks exist only as motion: without it they take no space at all. */
+.crown-sparks {
+  display: none;
+}
+
 .crown-rain {
   position: fixed;
   inset: 0;
@@ -82,6 +87,11 @@
 
   .auth-card-wrap > .auth-form {
     animation: mx-rise var(--mx-reveal) var(--mx-ease-out-expo) 340ms both;
+  }
+
+  /* Login <-> Register after the arrival: the new form must not wait. */
+  .auth-card-wrap[data-arrived] > .auth-form {
+    animation-delay: 0ms;
   }
 
   /* The crown layer: lands late with a stepped bounce, then glints every
@@ -184,6 +194,11 @@
   animation: none;
 }
 
+/* Inside the auth screens the wordmark is already on the page. */
+.auth-card-wrap .loading-page__mark--under {
+  display: none;
+}
+
 /* ---- Bar dismiss (MXF12): Home pings, and keeps a pip ---- */
 
 .bottom-nav__pip {
@@ -284,6 +299,7 @@
   /* The landing signature, shared by every crown that touches down: four
      square pixels thrown to the sides. Size and reach scale with --spark. */
   .crown-sparks {
+    display: block;
     position: absolute;
     pointer-events: none;
   }
