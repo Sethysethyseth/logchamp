@@ -25,6 +25,7 @@ import {
 } from "../lib/sessionDisplay.js";
 import { formatTonnage, sessionDurationLabel, sessionTonnage } from "../lib/sessionFacts.js";
 import { loadWeightUnit } from "../lib/weightUnitPref.js";
+import { CrownEgg } from "../components/motion/CrownEgg.jsx";
 import "../styles/coach-page.css";
 import "../styles/workout-bar.css";
 
@@ -334,7 +335,7 @@ export function DashboardPage() {
       <header className="home-masthead">
         <div className="home-masthead__top">
           <div className="home-masthead__brand">
-            <span className="home-masthead__crown" aria-hidden="true" />
+            <CrownEgg />
             <h1 className="home-masthead__wordmark">LogChamp</h1>
           </div>
           <Link className="coach-masthead-btn" to="/coach" aria-label="Ask the coach">

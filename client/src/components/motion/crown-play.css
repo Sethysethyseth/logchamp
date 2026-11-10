@@ -1,0 +1,155 @@
+/* Crown play (MX): the small, cheap moments that carry the crown intro's
+   8-bit voice into the rest of the app. CSS only, tokens only, and all of
+   it sits inside no-preference - reduced motion gets none of it. */
+
+.crown-egg {
+  display: inline-flex;
+  padding: 8px;
+  margin: -8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  perspective: 240px;
+}
+
+.crown-rain {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.crown-rain__drop {
+  position: absolute;
+  top: -40px;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Home crown: tap = a coin flip, stepped like the intro's spin. */
+  .crown-egg__flip {
+    animation: crown-egg-flip 640ms steps(10) both;
+  }
+
+  @keyframes crown-egg-flip {
+    0% {
+      transform: translateY(0) rotateY(0deg);
+    }
+    50% {
+      transform: translateY(-0.55em) rotateY(360deg);
+      filter: brightness(1.5);
+    }
+    100% {
+      transform: translateY(0) rotateY(720deg);
+    }
+  }
+
+  /* Five quick taps: it rains crowns. */
+  .crown-rain__drop {
+    animation-name: crown-rain-fall;
+    animation-timing-function: steps(22);
+    animation-fill-mode: both;
+  }
+
+  @keyframes crown-rain-fall {
+    0% {
+      opacity: 1;
+      transform: translateY(0) rotateY(0deg);
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(112vh) rotateY(900deg);
+    }
+  }
+
+  /* Login arrival: the wordmark rises, the crown drops on in steps, then
+     the tagline and the card follow. Plays once per visit to the auth
+     screens (login <-> register keeps the same header mounted). */
+  .auth-card-wrap > .wordmark {
+    animation: mx-rise var(--mx-reveal) var(--mx-ease-out-expo) both;
+  }
+
+  .auth-card-wrap > .auth-tagline {
+    animation: mx-rise var(--mx-reveal) var(--mx-ease-out-expo) 260ms both;
+  }
+
+  .auth-card-wrap > .auth-form {
+    animation: mx-rise var(--mx-reveal) var(--mx-ease-out-expo) 340ms both;
+  }
+
+  /* The crown layer: lands late with a stepped bounce, then glints every
+     few seconds for as long as the screen is open. */
+  .auth-card-wrap > .wordmark::after {
+    animation:
+      crown-drop 520ms steps(8) 300ms both,
+      crown-glint 6.5s steps(1) 2.4s infinite;
+  }
+
+  @keyframes crown-drop {
+    0% {
+      opacity: 0;
+      transform: translateY(-34px);
+    }
+    15% {
+      opacity: 1;
+    }
+    60% {
+      transform: translateY(0);
+    }
+    78% {
+      transform: translateY(-7px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes crown-glint {
+    0%,
+    7%,
+    100% {
+      filter: none;
+    }
+    1.5% {
+      filter: brightness(1.7);
+    }
+    3% {
+      filter: brightness(1.25);
+    }
+    4.5% {
+      filter: brightness(1.9);
+    }
+  }
+
+  /* A refused sign-in shakes its error once, in hard steps. */
+  .auth-form .card.error {
+    animation: auth-error-shake 360ms steps(2) both;
+  }
+
+  @keyframes auth-error-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-7px);
+    }
+    40% {
+      transform: translateX(6px);
+    }
+    60% {
+      transform: translateX(-4px);
+    }
+    80% {
+      transform: translateX(3px);
+    }
+  }
+}

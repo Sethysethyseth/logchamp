@@ -614,6 +614,13 @@ Conventions for every unit below:
 - **Bounds kept:** tap skips; reduced motion = never mounts; colours read
   from the live tokens (all palettes, both modes, custom); a 1.2 s cap so
   a stuck canvas cannot hold sign-in.
+- **Seth, Nov 10:** "keep it as is" - timing and triggers are settled.
+- **Crown play (same day, CSS-only):** `components/motion/crown-play.css`
+  + `CrownEgg.jsx`. Login arrival (wordmark rise, stepped crown drop,
+  idle glint), auth error shake, Home masthead crown flips on tap, five
+  quick taps = crown rain. All inside `prefers-reduced-motion:
+  no-preference`. More cheap candidates, not built: nav-icon pixel pop,
+  a finish-workout crown stamp (belongs to MX8), a crown on 404/empty.
 
 ---
 

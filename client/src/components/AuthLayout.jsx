@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import "./motion/crown-play.css";
 import wordmarkWhite from "../assets/brand/wordmark_white.png";
 
 export function AuthLayout() {

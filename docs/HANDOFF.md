@@ -71,7 +71,13 @@ Seth's ask - no Cursor block; NOT yet smoked on a phone):
 - Tap anywhere during either: it wipes out at once.
 - Reduced motion on: no intro at all, sign-in and boot as before.
 - Signed out, open the app: straight to the login form, no intro.
-Open for Seth: is ~2 s on EVERY cold open right, or only the first open
+Crown play (Nov 10, same session, CSS-only, not yet smoked):
+- Login screen: the wordmark rises, the crown drops on with a bounce,
+  then glints every ~6 s. A wrong password shakes the error once.
+- Home: tap the masthead crown -> it flips like a coin. Five quick taps
+  -> it rains crowns for ~3 s (easter egg; one short buzz on Android).
+Seth, Nov 10: crown intro timing stays AS IS (every cold open).
+RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)
 Open questions for Seth: keep the crown on coach answers + the Analytics
 coach card, or the bubble everywhere? `/coach/status` and `/coach/stop`
