@@ -1,0 +1,193 @@
+/* Home acknowledges a finished workout (session arc, built Nov 10): the
+   Start hero's own face reads "Workout saved" for a few seconds - a pixel
+   crown stamps onto the card, a light runs once around the notched frame,
+   then the face rolls back to "Start a workout". No extra card, no layout
+   shift (both faces share one grid cell), and the buttons never move or
+   lock. Tokens only. Reduced motion: the faces swap, nothing travels. */
+
+@property --saved-run {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.workout-hero__faces {
+  display: grid;
+}
+
+.workout-hero__face {
+  grid-area: 1 / 1;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+  transition:
+    opacity 260ms var(--ease-standard),
+    transform 420ms var(--mx-ease-out-expo),
+    visibility 0s linear 0s;
+}
+
+.workout-hero__face--saved,
+.workout-hero.is-saved .workout-hero__face--idle {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition-delay: 0s, 0s, 260ms;
+}
+
+.workout-hero__face--saved {
+  transform: translateY(-10px);
+  padding-right: 64px; /* clear of the stamp */
+}
+
+.workout-hero.is-saved .workout-hero__face--idle {
+  transform: translateY(10px);
+}
+
+.workout-hero.is-saved .workout-hero__face--saved {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.workout-hero__eyebrow--saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-interactive-ink);
+}
+
+.workout-hero__eyebrow--saved::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--color-interactive);
+}
+
+.workout-hero__saved-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The stamp: a pixel crown pressed into the card's top corner. */
+.workout-hero > .workout-hero__stamp {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 46px;
+  color: var(--color-interactive);
+  opacity: 0;
+  transform: rotate(8deg);
+  pointer-events: none;
+  transition: opacity 260ms var(--ease-standard);
+}
+
+.workout-hero.is-saved > .workout-hero__stamp {
+  opacity: 1;
+}
+
+.workout-hero__stamp-crown {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-interactive) 55%, transparent));
+}
+
+.workout-hero__stamp-sparks {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The notched frame is the card's own background: sweep a bright arc
+     around it once. (Specificity: must beat the dark-mode notched rule.) */
+  html .card.card--notched.workout-hero.is-saved {
+    background: conic-gradient(
+      from var(--saved-run),
+      color-mix(in srgb, var(--color-interactive) 34%, var(--color-border)) 0deg,
+      color-mix(in srgb, var(--color-interactive) 34%, var(--color-border)) 230deg,
+      var(--color-interactive) 300deg,
+      color-mix(in srgb, var(--color-text) 85%, var(--color-interactive)) 340deg,
+      color-mix(in srgb, var(--color-interactive) 34%, var(--color-border)) 360deg
+    );
+    animation: workout-saved-run 1500ms var(--mx-ease-draw) 120ms both;
+  }
+
+  .workout-hero.is-saved .workout-hero__face--saved > * {
+    animation: mx-rise var(--mx-reveal) var(--mx-ease-out-expo) backwards;
+  }
+
+  .workout-hero.is-saved .workout-hero__face--saved > :nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .workout-hero.is-saved .workout-hero__face--saved > :nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  .workout-hero.is-saved .workout-hero__stamp-crown {
+    animation: workout-saved-stamp 520ms var(--mx-ease-spring) 260ms backwards;
+  }
+
+  .workout-hero.is-saved .workout-hero__stamp-sparks {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+  }
+
+  .workout-hero__stamp-sparks i {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    margin: -2.5px 0 0 -2.5px;
+    background: var(--color-interactive);
+    opacity: 0;
+    animation: workout-saved-spark 560ms steps(7) 520ms forwards;
+  }
+
+  .workout-hero__stamp-sparks i:nth-child(1) { --sx: -46px; --sy: -14px; }
+  .workout-hero__stamp-sparks i:nth-child(2) { --sx: -38px; --sy: 22px; }
+  .workout-hero__stamp-sparks i:nth-child(3) { --sx: -8px; --sy: 40px; }
+  .workout-hero__stamp-sparks i:nth-child(4) { --sx: 26px; --sy: 30px; }
+  .workout-hero__stamp-sparks i:nth-child(5) { --sx: -60px; --sy: 6px; background: var(--color-text); }
+  .workout-hero__stamp-sparks i:nth-child(6) { --sx: -22px; --sy: 54px; background: var(--color-text); }
+
+  @keyframes workout-saved-run {
+    from {
+      --saved-run: 20deg;
+    }
+    to {
+      --saved-run: 380deg;
+    }
+  }
+
+  @keyframes workout-saved-stamp {
+    0% {
+      opacity: 0;
+      transform: scale(3.2);
+    }
+    55% {
+      opacity: 1;
+      filter: brightness(2.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes workout-saved-spark {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+    75% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--sx), var(--sy));
+    }
+  }
+}

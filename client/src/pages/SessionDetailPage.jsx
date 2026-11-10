@@ -45,6 +45,8 @@ import { RestTimerBar } from "../components/workout/RestTimerBar.jsx";
 import { loadWeightUnit } from "../lib/weightUnitPref.js";
 import "../styles/training-prefs.css";
 import "../styles/logger.css";
+import "../styles/logger-motion.css";
+import { LoggerLiveStrip } from "../components/workout/LoggerLiveStrip.jsx";
 import { useSessionLiveLoggingGuard } from "../context/SessionLiveLoggingGuardContext.jsx";
 import {
   BLANK_SESSION_EXERCISE_NAME,
@@ -1520,7 +1522,9 @@ const SessionSetRow = memo(function SessionSetRow({
   const statusBadge =
     !isDraft && !disabled && coreLogged && synced ? (
       <span className="session-set-sync-badge" title="Saved" aria-label="Saved">
-        ✓
+        <svg viewBox="0 0 7 7" shapeRendering="crispEdges" fill="currentColor" aria-hidden="true">
+          <path d="M0 3h1v2H0zM1 4h1v2H1zM2 5h1v2H2zM3 4h1v2H3zM4 3h1v2H4zM5 2h1v2H5zM6 1h1v2H6z" />
+        </svg>
       </span>
     ) : null;
 
@@ -2702,6 +2706,15 @@ export function SessionDetailPage() {
   const [scrollToExerciseId, setScrollToExerciseId] = useState(null);
   const [adjustingSetCountExerciseId, setAdjustingSetCountExerciseId] = useState(null);
   const [completeBusy, setCompleteBusy] = useState(false);
+  /* Rows that arrive after the first paint animate in; the ones a session
+     opens with do not (logger-motion.css keys off `logger--settled`). */
+  const [loggerSettled, setLoggerSettled] = useState(false);
+  const sessionLoaded = session != null;
+  useEffect(() => {
+    if (!sessionLoaded) return undefined;
+    const id = window.setTimeout(() => setLoggerSettled(true), 700);
+    return () => window.clearTimeout(id);
+  }, [sessionLoaded]);
   const [reopenBusy, setReopenBusy] = useState(false);
   const [confirmReopen, setConfirmReopen] = useState(false);
   const [discardBusy, setDiscardBusy] = useState(false);
@@ -3552,11 +3565,21 @@ export function SessionDetailPage() {
           ),
         };
       })();
-      await sessionApi.completeSession(sessionId, payload);
+      const done = await sessionApi.completeSession(sessionId, payload);
       if (session && !session.workoutTemplate && !session.blockContext) {
         setAdHocSessionTitle(sessionId, "");
       }
-      navigate("/", { replace: true, state: { workoutSaved: true } });
+      const startedMs = new Date(session?.startedAt || session?.performedAt || NaN).getTime();
+      navigate("/", {
+        replace: true,
+        state: {
+          workoutSaved: {
+            name: done?.session ? sessionDisplayTitle(done.session) : payload.name || null,
+            sets: Array.isArray(session?.sets) ? session.sets.length : 0,
+            minutes: Number.isFinite(startedMs) ? Math.round((Date.now() - startedMs) / 60000) : null,
+          },
+        },
+      });
     } catch (err) {
       setError(err);
     } finally {
@@ -4278,7 +4301,7 @@ export function SessionDetailPage() {
     <div
       className={`stack session-detail-page${!isCompleted ? " session-detail-page--live" : ""}${
         isFromBlock ? " session-detail-page--block" : ""
-      }`}
+      }${loggerSettled ? " logger--settled" : ""}`}
     >
       {isFromBlock && !isCompleted ? (
         <div className="bk-log-block-head-actions bk">
@@ -4325,21 +4348,20 @@ export function SessionDetailPage() {
                   : sessionDisplayTitle(session)
                 : pageTitle}
             </h1>
-            <p className={`muted small${isCompleted ? " session-detail-head__sub" : ""}`} style={{ margin: 0 }}>
-              {isCompleted ? (
-                <>
-                  Finished {formatDate(session?.completedAt)} · {sourceSummary}
-                  {blockContext?.weekLabel ? ` · ${blockContext.weekLabel}` : ""}
-                </>
-              ) : (
-                <>
-                  Live session. Updates save as you go.{" "}
-                  {isFromTemplate
-                    ? `Started from ${session.workoutTemplate.name}.`
-                    : "One-time session."}
-                </>
-              )}
-            </p>
+            {isCompleted ? (
+              <p className="muted small session-detail-head__sub" style={{ margin: 0 }}>
+                Finished {formatDate(session?.completedAt)} · {sourceSummary}
+                {blockContext?.weekLabel ? ` · ${blockContext.weekLabel}` : ""}
+              </p>
+            ) : null}
+            {!isCompleted && session ? (
+              <LoggerLiveStrip
+                startedAt={session.startedAt || session.performedAt}
+                setsLogged={totalSetsLogged}
+                reopened={session.reopenedAt != null}
+                source={isFromTemplate ? session.workoutTemplate.name : null}
+              />
+            ) : null}
           </div>
           <div className="session-detail-head__actions">
             {session && !isCompleted && session.reopenedAt == null ? (
@@ -4518,12 +4540,14 @@ export function SessionDetailPage() {
           </div>
         ) : (
         <div className="card stack session-log-workout-form">
-          <label>
-            Name
+          <label className="logger-name">
+            <span className="logger-name__label">Workout name</span>
             {isFromTemplate ? (
               <input readOnly value={readonlyWorkoutName} className="session-readonly-input" />
             ) : (
               <input
+                className="logger-name__input"
+                placeholder="Untitled - named for you at finish"
                 value={quickTitleDraft}
                 onChange={(e) => setQuickTitleDraft(e.target.value)}
                 onBlur={() => void commitQuickTitle()}
@@ -4531,13 +4555,6 @@ export function SessionDetailPage() {
               />
             )}
           </label>
-          {isQuickLog ? (
-            <p className="muted small" style={{ margin: "-4px 0 0" }}>
-              Shown in History. Leave blank for an automatic dated name. Template workouts use the
-              template name.
-            </p>
-          ) : null}
-
           {String(sessionNotesDraft ?? "").trim() ||
           String(session?.notes ?? "").trim() ||
           workoutNoteOpen ? (

@@ -1,0 +1,270 @@
+/* Logger floor motion (MX7 direction, built Nov 10). Tokens only.
+   The rule of the floor: nothing loops, nothing moves a focused input, and
+   every effect is a class toggle driving a CSS animation - no JS on the tap.
+   Static looks sit at the top; every animation is inside the
+   `prefers-reduced-motion: no-preference` block at the bottom. */
+
+/* --- Live strip: square live pixel, running clock, set count --- */
+.logger-live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.logger-live__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-interactive-ink);
+}
+
+.logger-live__dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  background: var(--color-interactive);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-interactive) 60%, transparent);
+}
+
+.logger-live__clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.logger-live__count {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.logger-live__source {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+/* --- Workout name: reads as the session's title, not a form field --- */
+.session-detail-page .logger-name {
+  display: grid;
+  gap: 4px;
+}
+
+.logger-name__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.session-detail-page input.logger-name__input {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.session-detail-page input.logger-name__input::placeholder {
+  font-family: var(--font-sans, inherit);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* --- Saved check: a pixel tick on the accent, not a text glyph --- */
+.session-detail-page .session-set-sync-badge {
+  position: relative;
+  min-width: 0;
+  width: 1.5rem;
+  padding: 0;
+  border-radius: 6px;
+  color: var(--color-btn-primary-fg);
+  background: var(--color-btn-primary-bg);
+  border-color: transparent;
+}
+
+.session-detail-page .session-set-sync-badge svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* --- Finish button: clips its own one-shot glint --- */
+.session-detail-page .session-finish-dock__btn {
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* A set lands: the tick springs in and throws two pixels, the row takes
+     one quick wash. Replaces the old 720ms ring. */
+  .session-detail-page .session-set-row-card--save-pulse {
+    animation: none;
+  }
+
+  .session-detail-page .session-set-row-card--save-pulse::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--color-interactive) 26%, transparent);
+    pointer-events: none;
+    animation: logger-row-wash 520ms var(--mx-ease-out-expo) both;
+  }
+
+  .session-set-row-card--save-pulse .session-set-sync-badge {
+    animation: logger-tick-in 320ms var(--mx-ease-spring) both;
+  }
+
+  .session-set-row-card--save-pulse .session-set-sync-badge::before,
+  .session-set-row-card--save-pulse .session-set-sync-badge::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    margin: -2px 0 0 -2px;
+    background: var(--color-interactive);
+    pointer-events: none;
+    opacity: 0;
+    animation: logger-tick-spark 420ms steps(6) 90ms forwards;
+  }
+
+  .session-set-row-card--save-pulse .session-set-sync-badge::before {
+    --sx: 20px;
+    --sy: -14px;
+  }
+
+  .session-set-row-card--save-pulse .session-set-sync-badge::after {
+    --sx: 24px;
+    --sy: 8px;
+  }
+
+  /* The header answers: the live pixel pings, the count pops. */
+  .logger-live__dot.is-ping::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--color-interactive);
+    pointer-events: none;
+    animation: logger-live-ping 620ms steps(8) both;
+  }
+
+  .logger-live__count.is-pop {
+    animation: logger-count-pop 380ms var(--mx-ease-spring) both;
+  }
+
+  /* Rows and lifts that arrive after first paint drop in from above. Never
+     while the row holds focus - a focused input does not move. */
+  .logger--settled .session-set-rows > :not(:focus-within),
+  .logger--settled .session-live-builder > .workout-builder-exercise-block:not(:focus-within) {
+    animation: logger-row-in 260ms var(--mx-ease-out-expo) backwards;
+    transform-origin: 50% 0;
+  }
+
+  /* Finish arms: one glint crosses the button when the first set makes it
+     tappable (and once on returning to a workout that already has sets). */
+  .logger--settled .session-finish-dock--logged .session-finish-dock__btn:not(:disabled)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 40%;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      color-mix(in srgb, var(--color-btn-primary-fg) 34%, transparent),
+      transparent
+    );
+    pointer-events: none;
+    animation: logger-arm-glint 760ms var(--mx-ease-draw) both;
+  }
+
+  @keyframes logger-row-wash {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes logger-tick-in {
+    from {
+      transform: scale(0.2);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes logger-tick-spark {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--sx), var(--sy));
+    }
+  }
+
+  @keyframes logger-live-ping {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(3.4);
+    }
+  }
+
+  @keyframes logger-count-pop {
+    0% {
+      transform: translateY(5px) scale(0.7);
+      color: var(--color-interactive-ink);
+    }
+    60% {
+      color: var(--color-interactive-ink);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes logger-row-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scaleY(0.94);
+    }
+  }
+
+  @keyframes logger-arm-glint {
+    from {
+      transform: translateX(-110%);
+    }
+    to {
+      transform: translateX(360%);
+    }
+  }
+}

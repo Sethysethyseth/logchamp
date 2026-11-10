@@ -94,7 +94,8 @@ export function DashboardPage() {
   const [quickStarting, setQuickStarting] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [heroNow, setHeroNow] = useState(() => Date.now());
-  const [workoutSavedFlash, setWorkoutSavedFlash] = useState(false);
+  /** The just-finished workout ({ name, sets, minutes }) while the hero acknowledges it. */
+  const [workoutSavedFlash, setWorkoutSavedFlash] = useState(null);
   const [workoutDiscardedFlash, setWorkoutDiscardedFlash] = useState(false);
   // Bumped after an in-place discard so WeeklyReport (fetches once on
   // mount) refetches and stops counting the discarded workout.
@@ -182,7 +183,7 @@ export function DashboardPage() {
     const st = location.state;
     if (!st || typeof st !== "object") return;
     if (st.workoutSaved) {
-      setWorkoutSavedFlash(true);
+      setWorkoutSavedFlash(typeof st.workoutSaved === "object" ? st.workoutSaved : {});
       navigate("/", { replace: true, state: {} });
       return;
     }
@@ -194,7 +195,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     if (!workoutSavedFlash) return;
-    const id = window.setTimeout(() => setWorkoutSavedFlash(false), 8000);
+    const id = window.setTimeout(() => setWorkoutSavedFlash(null), 5200);
     return () => window.clearTimeout(id);
   }, [workoutSavedFlash]);
 
@@ -344,15 +345,6 @@ export function DashboardPage() {
         </div>
         <p className="home-masthead__date">{mastheadDate}</p>
       </header>
-      {workoutSavedFlash ? (
-        <div className="workout-tab__saved-flash card" role="status">
-          <strong>Workout saved</strong>
-          <span aria-hidden="true"> </span>✅
-          <p className="muted small" style={{ margin: "6px 0 0" }}>
-            {"You're done. It's in History and Recent workouts below."}
-          </p>
-        </div>
-      ) : null}
       {workoutDiscardedFlash ? (
         <div className="workout-tab__discard-flash card" role="status">
           <strong>Workout discarded</strong>
@@ -407,6 +399,7 @@ export function DashboardPage() {
             onStartEmpty={() => void onStartEmptyWorkout()}
             onBrowseTemplates={() => setPickerOpen(true)}
             startingEmpty={quickStarting}
+            saved={workoutSavedFlash}
             lastSessionLabel={
               completedRecent[0]
                 ? `${sessionDisplayTitle(completedRecent[0])}, ${formatRelativeDay(completedRecent[0].completedAt)}`

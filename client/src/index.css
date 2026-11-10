@@ -5252,12 +5252,6 @@ html[data-theme="dark"] .exercise-name-suggestions {
   }
 }
 
-.workout-tab__saved-flash {
-  padding: 12px 14px;
-  border-color: var(--color-success-flash-border);
-  background: var(--color-success-flash-bg);
-}
-
 .workout-tab__discard-flash {
   padding: 12px 14px;
   color: var(--color-text-secondary);
