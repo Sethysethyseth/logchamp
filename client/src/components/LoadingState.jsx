@@ -220,6 +220,12 @@ export function LoadingState({
           <div className="loading-coin" aria-hidden="true" ref={coinRef}>
             <PixelCrown className="loading-coin__crown" />
             <span className="loading-coin__shadow" />
+            <span className="crown-sparks" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
           </div>
           <div className="loading-page__mark loading-page__mark--under" aria-hidden="true">
             <span className="loading-page__wordmark" />

@@ -92,6 +92,16 @@ Round 3 (Nov 10, same session, not yet smoked):
   wait ends the big crown shrinks into the login wordmark's crown, flashes
   and throws four pixels. Arriving at login any other way: the crown
   drops on as before.
+- Any-direction bar drag (round 5, Seth: "omnidirectional" - REPLACES
+  the Nov 9 sideways-only ruling): drag the resume or coach bar any way;
+  it lags behind the finger and tilts; past ~72 px its edge lights, it
+  dims, buzzes once and sheds pixels; let go there (or flick) and it
+  scatters the way it was thrown. A short pull springs back. A drag that
+  starts on the bar no longer scrolls the page. Swipe it away, resume,
+  back out, swipe again - must work (was a bug, fixed).
+- Polish 1: every crown landing flashes + throws four pixels (loading
+  coin each loop, Home crown flip, login hand-off); the resume bar rises
+  in when it appears.
 Seth, Nov 10: crown intro timing stays AS IS (every cold open).
 RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)

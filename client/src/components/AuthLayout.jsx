@@ -32,7 +32,7 @@ export function AuthLayout() {
         <div className={`wordmark${handoff ? " wordmark--handoff" : ""}`} ref={markRef}>
           <img src={wordmarkWhite} alt="LogChamp" />
           {handoff ? (
-            <span className="wordmark__sparks" aria-hidden="true">
+            <span className="crown-sparks" aria-hidden="true">
               <i />
               <i />
               <i />

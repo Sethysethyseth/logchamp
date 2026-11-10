@@ -630,10 +630,13 @@ Conventions for every unit below:
   `components/motion/pixelScatter.js`, switched on by `useSwipeDismiss`'s
   new `scatter` option (workout bar `toHome`, coach bar plain scatter).
   The Home tab pings and keeps `.bottom-nav__pip` while the bar is hidden.
-- **NOT ported from the preview:** "Any way" dragging, the tether/tilt
-  under the finger, and the armed "shed" pixels. Sideways-only (Seth's
-  Nov 9 ruling) and `swipeDismiss.js` thresholds are unchanged. The
-  HANDOFF feel-pass questions about the drag itself are still open.
+- **Any-direction drag (Seth, Nov 10, supersedes the Nov 9 sideways-only
+  ruling):** the preview's "Any way" mode is ported - tether (120 px),
+  tilt, arm at 72 px (edge lights, dims, haptic tick, shed pixels),
+  release/flick scatters along the throw. Pure numbers live in
+  `lib/swipeDismiss.js` (`tetherOffset`, `decideRelease`); bars set
+  `touch-action: none`. This closes the HANDOFF "feel pass" item unless
+  Seth's phone smoke says otherwise.
 - **Ruling change (Seth, Nov 10):** opening the live workout un-hides the
   bar (resume, back out, it is back). State moved to
   `lib/workoutBarHidden.js` so the bar, the pip and that rule agree.

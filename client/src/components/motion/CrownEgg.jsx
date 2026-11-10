@@ -55,6 +55,14 @@ export function CrownEgg() {
           key={flip}
           className={`home-masthead__crown${flip ? " crown-egg__flip" : ""}`}
         />
+        {flip ? (
+          <span className="crown-sparks" key={`s${flip}`}>
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+        ) : null}
       </button>
       {rain
         ? createPortal(

@@ -54,10 +54,10 @@ function homeTarget() {
 /**
  * @param {HTMLElement} el  the bar, wherever the finger left it
  * @param {{ ux?: number, speed?: number, toHome?: boolean, accentSelector?: string }} [o]
- *   `ux` -1 | 1 the way it was thrown; `speed` px/ms; `accentSelector` marks
+ *   `ux`, `uy` the unit direction it was thrown; `speed` px/ms; `accentSelector` marks
  *   extra accent pixels inside the bar (the coach crown).
  */
-export function scatterBar(el, { ux = 1, speed = 0, toHome = false, accentSelector } = {}) {
+export function scatterBar(el, { ux = 1, uy = 0, speed = 0, toHome = false, accentSelector } = {}) {
   const R = el.getBoundingClientRect();
   if (!R.width || !R.height) return;
   const colors = tokenColors();
@@ -88,6 +88,7 @@ export function scatterBar(el, { ux = 1, speed = 0, toHome = false, accentSelect
   const my = R.top + R.height / 2;
   const start = performance.now();
   const boost = Math.min(1.5, Math.abs(speed));
+  const ext = (Math.abs(ux) * R.width) / 2 + (Math.abs(uy) * R.height) / 2 || 1;
   const parts = [];
 
   for (let r = 0; r < rows; r += 1) {
@@ -120,7 +121,7 @@ export function scatterBar(el, { ux = 1, speed = 0, toHome = false, accentSelect
           }
         }
       }
-      const lead = (((cx - mx) * ux) / (R.width / 2) + 1) / 2; // 0 trailing .. 1 leading
+      const lead = (((cx - mx) * ux + (cy - my) * uy) / ext + 1) / 2; // 0 trailing .. 1 leading
       const delay = (1 - lead) * SWEEP_MS + Math.random() * 50;
       if (home && accent) {
         parts.push({
@@ -135,7 +136,7 @@ export function scatterBar(el, { ux = 1, speed = 0, toHome = false, accentSelect
           sx: cx,
           sy: cy,
           kx: cx + ux * 90 + (Math.random() - 0.5) * 50,
-          ky: cy - 30 - Math.random() * 40,
+          ky: cy + uy * 90 - 30 - Math.random() * 40,
           ex: home.x + (Math.random() - 0.5) * 6,
           ey: home.y + (Math.random() - 0.5) * 6,
         });
@@ -151,8 +152,8 @@ export function scatterBar(el, { ux = 1, speed = 0, toHome = false, accentSelect
         h: ch,
         t0: start + delay,
         life: 340 + Math.random() * 300,
-        vx: ux * base + ((cx - mx) / R.width) * 0.06,
-        vy: ux * spread + ((cy - my) / R.height) * 0.06,
+        vx: ux * base - uy * spread + ((cx - mx) / R.width) * 0.06,
+        vy: uy * base + ux * spread + ((cy - my) / R.height) * 0.06,
       });
     }
   }
@@ -231,4 +232,89 @@ export function scatterBar(el, { ux = 1, speed = 0, toHome = false, accentSelect
     else canvas.remove();
   }
   requestAnimationFrame(step);
+}
+
+/**
+ * While a bar is held past the let-go distance it drops a few pixels off
+ * its edges: "let go and I am dust". One small canvas for the life of the
+ * drag; call `shed(el)` on pointer moves (it throttles itself) and `stop()`
+ * when the drag ends - it removes itself once the last pixel has fallen.
+ */
+export function createShedder() {
+  let canvas = null;
+  let ctx = null;
+  let colors = null;
+  let parts = [];
+  let raf = 0;
+  let last = 0;
+  let lastShed = 0;
+  let stopped = false;
+
+  function step(now) {
+    raf = 0;
+    const dt = Math.min(34, now - last);
+    last = now;
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    parts = parts.filter((p) => now - p.t0 < p.life);
+    for (const p of parts) {
+      const k = (now - p.t0) / p.life;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      ctx.globalAlpha = 0.9 * (1 - k * k);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(Math.round(p.x), Math.round(p.y), 4, 4);
+    }
+    ctx.globalAlpha = 1;
+    if (parts.length) raf = requestAnimationFrame(step);
+    else if (stopped && canvas) {
+      canvas.remove();
+      canvas = null;
+    }
+  }
+
+  return {
+    shed(el) {
+      const now = performance.now();
+      if (stopped || now - lastShed < 48) return;
+      lastShed = now;
+      if (!canvas) {
+        canvas = document.createElement("canvas");
+        canvas.setAttribute("aria-hidden", "true");
+        canvas.style.cssText =
+          "position:fixed;inset:0;width:100%;height:100%;z-index:1400;pointer-events:none";
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(window.innerWidth * dpr);
+        canvas.height = Math.round(window.innerHeight * dpr);
+        ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        document.body.appendChild(canvas);
+        colors = tokenColors();
+      }
+      const r = el.getBoundingClientRect();
+      for (let i = 0; i < 2; i += 1) {
+        const along = Math.random() < 0.7;
+        parts.push({
+          x: along ? r.left + Math.random() * r.width : Math.random() < 0.5 ? r.left : r.right - 4,
+          y: along ? r.bottom - 3 : r.top + Math.random() * r.height,
+          c: Math.random() < 0.3 ? colors.accent : colors.edge,
+          t0: now,
+          life: 300 + Math.random() * 180,
+          vx: (Math.random() - 0.5) * 0.07,
+          vy: 0.03 + Math.random() * 0.07,
+        });
+      }
+      if (!raf) {
+        last = now;
+        raf = requestAnimationFrame(step);
+      }
+    },
+    stop() {
+      stopped = true;
+      if (!parts.length && canvas) {
+        cancelAnimationFrame(raf);
+        canvas.remove();
+        canvas = null;
+      }
+    },
+  };
 }

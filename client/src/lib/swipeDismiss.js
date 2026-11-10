@@ -47,3 +47,59 @@ export function decideSwipe({ dx, width, velocityX }) {
   }
   return "return";
 }
+
+/* ---- Any-direction drag (MXF12, Seth Nov 10: "omnidirectional") ----
+ * The numbers from docs/design/mocks/motion/bar-dismiss.html, "Any way".
+ * Supersedes the sideways-only rule above for bars that opt in (both do);
+ * the sideways helpers stay for the hook's plain mode.
+ */
+
+/** The furthest the bar itself ever travels under the finger. */
+export const TETHER_PX = 120;
+/** Finger distance past which letting go hides the bar. */
+export const ARM_PX = 72;
+
+/**
+ * Where the bar sits for a finger pulled (dx, dy) from where the drag
+ * committed: 1:1 at first, then it lags, never past TETHER_PX.
+ *
+ * @param {{ dx: number, dy: number }} p
+ * @returns {{ tx: number, ty: number, r: number, armed: boolean }}
+ */
+export function tetherOffset({ dx, dy }) {
+  const r = Math.hypot(dx, dy);
+  if (!(r > 0)) return { tx: 0, ty: 0, r: 0, armed: false };
+  const k = (TETHER_PX * (1 - Math.exp(-r / TETHER_PX))) / r;
+  return { tx: dx * k, ty: dy * k, r, armed: r >= ARM_PX };
+}
+
+/**
+ * What happens on release, in any direction. Velocities are px/ms. A
+ * dismiss carries the unit direction the bar leaves in: the way it was
+ * thrown, or - for a slow release - the way it was pulled.
+ *
+ * @param {{ dx: number, dy: number, vx: number, vy: number }} p
+ * @returns {{ verdict: "dismiss" | "return", ux: number, uy: number, speed: number }}
+ */
+export function decideRelease({ dx, dy, vx, vy }) {
+  const r = Math.hypot(dx, dy);
+  const speed = Math.hypot(vx, vy);
+  const outward = r > 0 ? (vx * dx + vy * dy) / r : 0;
+  const byDistance = r >= ARM_PX;
+  const byFling = r >= FLING_MIN_DISTANCE_PX && outward >= FLING_MIN_VELOCITY_PX_MS;
+  let ux = 1;
+  let uy = 0;
+  if (speed >= 0.3) {
+    ux = vx / speed;
+    uy = vy / speed;
+  } else if (r > 0) {
+    ux = dx / r;
+    uy = dy / r;
+  }
+  return {
+    verdict: byDistance || byFling ? "dismiss" : "return",
+    ux,
+    uy,
+    speed: Math.min(speed, 1.6),
+  };
+}

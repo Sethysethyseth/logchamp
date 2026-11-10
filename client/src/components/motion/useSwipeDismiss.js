@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { decideSwipe, lockAxis } from "../../lib/swipeDismiss.js";
+import { decideRelease, decideSwipe, lockAxis, tetherOffset } from "../../lib/swipeDismiss.js";
 import { useReducedMotion } from "../../lib/useReducedMotion.js";
-import { scatterBar } from "./pixelScatter.js";
+import { createShedder, scatterBar } from "./pixelScatter.js";
 
 /**
  * Swipe a floating bar sideways to hide it (MXF11). Shared by the
@@ -26,10 +26,14 @@ import { scatterBar } from "./pixelScatter.js";
  * The hook writes styles straight to the element on pointermove (no React
  * state per frame) so a mid-range phone keeps 60fps under the finger.
  *
- * - `scatter` (MXF12): the dismiss exit is the pixel scatter instead of the
- *   throw - the bar breaks into pixels where the finger left it; with
- *   `toHome` its accent pixels fly to the Home tab. Reduced motion is
- *   unchanged (simply gone).
+ * - `scatter` (MXF12, Seth Nov 10): the bar can be dragged ANY way, not
+ *   just sideways (`touch-action: none` - a drag that starts on the bar
+ *   moves the bar, never the page). It is tethered: 1:1 at first, then it
+ *   lags, never past TETHER_PX, tilting a little with the pull. Past ARM_PX
+ *   it "lets go" (tightens, dims, one haptic tick). Release there, or
+ *   flick, and it breaks into pixels that leave the way it was thrown;
+ *   with `toHome` its accent pixels fly to the Home tab. Otherwise it
+ *   springs back. Reduced motion: same recognition, zero motion.
  *
  * @param {{ onDismiss?: () => void, resetKey?: unknown, scatter?: { toHome?: boolean, accentSelector?: string } }} opts
  *   `resetKey` - when it changes, any thrown-out / mid-gesture styling is
@@ -60,9 +64,9 @@ function followOpacity(dx, width) {
   return Math.max(0.08, 1 - Math.abs(dx) / (w * 0.7));
 }
 
-function pushSample(gesture, x) {
+function pushSample(gesture, x, y = 0) {
   const t = performance.now();
-  gesture.samples.push({ t, x });
+  gesture.samples.push({ t, x, y });
   if (gesture.samples.length > MAX_SAMPLES) gesture.samples.shift();
 }
 
@@ -80,6 +84,29 @@ function velocityOf(gesture) {
   const dt = last.t - first.t;
   if (dt < 1) return 0;
   return (last.x - first.x) / dt;
+}
+
+/* Any-direction mode: velocity on both axes over the same window. */
+function velocityXY(gesture) {
+  const s = gesture.samples;
+  const last = s[s.length - 1];
+  if (!last) return { vx: 0, vy: 0 };
+  let first = last;
+  for (let i = s.length - 1; i >= 0; i -= 1) {
+    if (last.t - s[i].t > VELOCITY_WINDOW_MS) break;
+    first = s[i];
+  }
+  const dt = last.t - first.t;
+  if (dt < 1) return { vx: 0, vy: 0 };
+  return { vx: (last.x - first.x) / dt, vy: ((last.y ?? 0) - (first.y ?? 0)) / dt };
+}
+
+function hapticTick() {
+  try {
+    navigator.vibrate?.(8);
+  } catch {
+    /* no haptics here - fine */
+  }
 }
 
 function clearInline(el) {
@@ -108,6 +135,17 @@ export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
     onDismissRef.current = onDismiss;
     reducedRef.current = reduced;
     scatterRef.current = scatter;
+  });
+
+  /* Any-direction bars own every drag that starts on them. */
+  const anyDirection = Boolean(scatter);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || !anyDirection) return undefined;
+    el.style.touchAction = "none";
+    return () => {
+      el.style.touchAction = "";
+    };
   });
 
   const clearEnd = useCallback(() => {
@@ -262,6 +300,47 @@ export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
       if (!g || g.pointerId !== e.pointerId) return;
       const el = ref.current;
       if (!el) return;
+      if (scatterRef.current) {
+        /* Any-direction drag. */
+        if (!g.axis) {
+          if (Math.hypot(e.clientX - g.startX, e.clientY - g.startY) <= SLOP_PX) return;
+          g.axis = "any";
+          /* Measure from where the drag committed, so the bar never jumps. */
+          g.startX = e.clientX;
+          g.startY = e.clientY;
+          armClickSuppress();
+          try {
+            el.setPointerCapture(e.pointerId);
+            g.captured = true;
+          } catch {
+            /* capture optional */
+          }
+          if (!reducedRef.current) {
+            phaseRef.current = "drag";
+            el.setAttribute("data-swipe", "drag");
+            el.style.transition = "none";
+          }
+        }
+        pushSample(g, e.clientX, e.clientY);
+        const t = tetherOffset({ dx: e.clientX - g.startX, dy: e.clientY - g.startY });
+        if (t.armed !== Boolean(g.armed)) {
+          g.armed = t.armed;
+          if (t.armed) hapticTick();
+          if (!reducedRef.current) el.toggleAttribute("data-swipe-armed", t.armed);
+        }
+        g.tx = t.tx;
+        g.ty = t.ty;
+        if (reducedRef.current) return;
+        const tilt = Math.max(-3, Math.min(3, t.tx * 0.035));
+        const scale = t.armed ? 0.965 : 1.02;
+        el.style.transform = `translate3d(${t.tx.toFixed(1)}px,${t.ty.toFixed(1)}px,0) rotate(${tilt.toFixed(2)}deg) scale(${scale})`;
+        el.style.opacity = String(t.armed ? 0.62 : 1 - 0.22 * (t.r / 72));
+        if (t.armed) {
+          g.shedder ??= createShedder();
+          g.shedder.shed(el);
+        }
+        return;
+      }
       const dx = e.clientX - g.startX;
       const dy = e.clientY - g.startY;
       if (!g.axis) {
@@ -304,6 +383,29 @@ export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
       const el = ref.current;
       releaseCapture(g);
       if (!el) return;
+      if (g.axis === "any") {
+        pushSample(g, e.clientX, e.clientY);
+        el.removeAttribute("data-swipe-armed");
+        g.shedder?.stop();
+        const dx = e.clientX - g.startX;
+        const dy = e.clientY - g.startY;
+        const out = decideRelease({ dx, dy, ...velocityXY(g) });
+        if (out.verdict !== "dismiss") {
+          springBack(el, Math.hypot(dx, dy));
+          return;
+        }
+        if (!reducedRef.current) {
+          /* Square the bar up where it is, then hand it to the canvas. */
+          el.style.transform = `translate3d(${(g.tx || 0).toFixed(1)}px,${(g.ty || 0).toFixed(1)}px,0)`;
+          scatterBar(el, { ux: out.ux, uy: out.uy, speed: out.speed, ...scatterRef.current });
+          el.style.transition = "";
+          el.style.opacity = "0";
+        }
+        el.setAttribute("data-swipe", "gone");
+        phaseRef.current = "gone";
+        onDismissRef.current?.();
+        return;
+      }
       pushSample(g, e.clientX);
       const dx = e.clientX - g.startX;
       const velocityX = velocityOf(g);
@@ -323,7 +425,9 @@ export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
       const el = ref.current;
       releaseCapture(g);
       if (!el) return;
-      springBack(el, e.clientX - g.startX);
+      el.removeAttribute("data-swipe-armed");
+      g.shedder?.stop();
+      springBack(el, g.axis === "any" ? Math.hypot(g.tx || 0, g.ty || 0) : e.clientX - g.startX);
     },
     [releaseCapture, springBack]
   );

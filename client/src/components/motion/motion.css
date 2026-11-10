@@ -40,3 +40,9 @@
     transition: none;
   }
 }
+
+/* A bar held in an any-direction drag (useSwipeDismiss, MXF12): past the
+   let-go distance its edge lights, so "release now and it goes" is visible. */
+[data-swipe-armed] {
+  border-color: var(--color-interactive);
+}

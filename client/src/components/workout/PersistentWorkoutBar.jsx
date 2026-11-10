@@ -83,7 +83,9 @@ export function PersistentWorkoutBar() {
       if (activeId == null) return;
       setHiddenWorkoutBarId(activeId);
     },
-    resetKey: activeId,
+    /* Also resets when the bar comes back from hidden, so it can be swiped
+       again. */
+    resetKey: `${activeId}:${hiddenSessionId === activeId ? "hidden" : "shown"}`,
     scatter: { toHome: true },
   });
 
