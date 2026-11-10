@@ -1,0 +1,501 @@
+<title>LogChamp Arena</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: the working phone is the page; the case for it runs beside it
+     (below it on a phone) as short sections. One deliberate dark world; the
+     Profile palette switch re-tints every token from one hue. */
+  :root {
+    color-scheme: dark;
+    --night: hsl(234 50% 5%);
+    --panel: hsl(234 42% 12%);
+    --panel-2: hsl(234 42% 19%);
+    --line: hsl(234 35% 28%);
+    --ink: hsl(234 60% 96%);
+    --ink-2: hsl(234 30% 72%);
+    --accent: hsl(234 100% 77%);
+    --btn: hsl(234 80% 70%);
+    --btn-ink: hsl(234 60% 9%);
+    --display: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+    --body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  [hidden] { display: none !important; }
+  body {
+    background: var(--night); color: var(--ink); font: 15px/1.55 var(--body);
+    padding-block: 28px 48px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 44px; align-items: start; }
+  .words { display: grid; gap: 30px; min-width: 0; }
+  .words section { display: grid; gap: 12px; }
+  .eyebrow { margin: 0; font: 600 11px/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  h1 { margin: 0; font: 700 clamp(2rem, 6vw, 2.8rem)/1.05 var(--display); letter-spacing: -0.01em; text-wrap: balance; }
+  h2 { margin: 0; font: 700 1.2rem/1.2 var(--display); }
+  p { margin: 0; max-width: 60ch; color: var(--ink-2); }
+  strong { color: var(--ink); font-weight: 600; }
+  ol, ul { margin: 0; padding-left: 20px; display: grid; gap: 7px; color: var(--ink-2); max-width: 60ch; }
+  .map { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); }
+  th { font: 600 11px/1.2 var(--display); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
+  td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
+  td { color: var(--ink-2); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- phone ---------- */
+  .stick { position: sticky; top: 16px; justify-self: center; width: 100%; max-width: 340px; display: grid; gap: 8px; }
+  .hint { font-size: 12px; text-align: center; max-width: none; }
+  .phone {
+    position: relative; width: 100%; aspect-ratio: 100 / 178; overflow: hidden;
+    background: var(--night); border: 1px solid var(--line);
+    font-size: 12px; line-height: 1.3; user-select: none; -webkit-user-select: none;
+  }
+  .phone canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; cursor: grab; touch-action: pan-y; }
+  .mast { position: absolute; left: 12px; top: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+  .mast b { display: block; font: 700 16px/1 var(--display); }
+  .mast span { display: block; margin-top: 5px; font: 600 9px/1 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .phone button { font: 600 12px/1 var(--body); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); min-height: 32px; padding: 0 10px; cursor: pointer; }
+  .coach-btn { pointer-events: auto; border-radius: 999px; min-height: 30px; background: color-mix(in srgb, var(--panel) 80%, transparent) !important; }
+  .coach-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  .phone button.go { background: var(--btn); color: var(--btn-ink); border-color: transparent; font-weight: 700; min-height: 40px; width: 100%; border-radius: 8px; font-size: 13px; }
+  .phone button.quiet { background: transparent; width: 100%; }
+
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 38%;
+    background: var(--panel); border-top: 2px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+    transition: height 440ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .grip { border: 0 !important; background: transparent !important; min-height: 16px !important; width: 100%; padding: 0 !important; display: grid; place-items: center; }
+  .grip::before { content: ""; width: 34px; height: 3px; background: var(--line); }
+  .body { padding: 2px 12px 8px; display: grid; gap: 8px; align-content: start; overflow-y: auto; min-height: 0; scrollbar-width: none; }
+  .body::-webkit-scrollbar { display: none; }
+  .body h3 { margin: 0; font: 700 15px/1.15 var(--display); }
+  .body p { font-size: 11px; color: var(--ink-2); max-width: none; }
+  .body small { font: 700 9px/1 var(--body); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-2); }
+  .card { border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); padding: 9px; display: grid; gap: 6px; }
+  .list { display: grid; gap: 4px; }
+  .list button { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; text-align: left; background: transparent; min-height: 30px; }
+  .list button[aria-pressed="true"] { border-color: var(--accent); background: var(--panel-2); }
+  .list button span { color: var(--ink-2); font-weight: 500; white-space: nowrap; }
+  .seg { display: flex; gap: 4px; }
+  .seg button { flex: 1 1 0; min-width: 0; padding: 0 4px; min-height: 28px; font-size: 11px; background: transparent; }
+  .seg button[aria-pressed="true"] { border-color: var(--accent); background: var(--panel-2); color: var(--accent); }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .tiles div { border: 1px solid var(--line); padding: 6px; display: grid; gap: 3px; }
+  .tiles b { font: 700 14px/1 var(--display); font-variant-numeric: tabular-nums; }
+  .set { display: grid; grid-template-columns: 18px minmax(0, 1fr) minmax(0, 1fr) 24px; gap: 6px; align-items: center; }
+  .set i { font: 600 11px/1 var(--display); font-style: normal; color: var(--ink-2); }
+  .set u { text-decoration: none; border: 1px solid var(--line); padding: 7px 8px; font: 700 13px/1 var(--display); background: var(--night); }
+  .set.next u { border-color: var(--accent); }
+  .set em { font-style: normal; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 5px; font-size: 11px; font-weight: 800; }
+  .set.done em { background: var(--btn); color: var(--btn-ink); }
+  .rest { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line); padding: 6px 9px; font: 700 13px/1 var(--display); }
+  .rest span { font: 500 11px/1 var(--body); color: var(--ink-2); }
+  .bubble { padding: 8px 10px; border: 1px solid var(--line); max-width: 92%; font-size: 12px; }
+  .bubble.me { justify-self: end; background: var(--panel-2); }
+  .bubble.coach { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chips button { border-radius: 999px; min-height: 28px; font-size: 11px; }
+  .swatches { display: flex; gap: 8px; }
+  .swatches button { width: 30px; min-height: 30px; padding: 0; border-radius: 999px; border: 2px solid transparent; }
+  .swatches button[aria-pressed="true"] { border-color: var(--ink); }
+  .nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+  .nav button { border: 0; background: transparent; min-height: 40px; padding: 0; font: 600 10px/1 var(--body); color: var(--ink-2); }
+  .nav button[aria-pressed="true"] { color: var(--accent); box-shadow: inset 0 2px 0 var(--accent); }
+
+  @media (max-width: 800px) {
+    .wrap { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+    .stick { position: static; order: -1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
+</style>
+
+<div class="wrap">
+  <div class="words">
+    <section>
+      <p class="eyebrow">Full rethink, second pass</p>
+      <h1>LogChamp Arena</h1>
+      <p>One continuous arena instead of five pages. Every tab is a place, every stat lives on something in the room, and one sheet holds everything you type. This pass adds the coach, the full analytics views, your block, the rest timer and settings, and shows where each thing you already built goes.</p>
+    </section>
+
+    <section>
+      <h2>Try it</h2>
+      <ol>
+        <li><strong>Swipe the arena</strong> left and right to walk between places, or use the tabs.</li>
+        <li><strong>Start your block day</strong> on Home, log a set, and watch the board run the rest timer while the lights dip and come back.</li>
+        <li><strong>Open Analytics</strong> and flip between Muscles, Strength, Exercises and Execution. The scoreboard is the chart.</li>
+        <li><strong>Ask the coach</strong> (top right). The answer goes on the chalkboard in the coach's corner.</li>
+        <li><strong>Change palette</strong> in Profile. Same room, new light.</li>
+        <li><strong>Drag the grip</strong> at the top of the sheet for more room, or tap the arena to put the sheet away.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Where everything goes</h2>
+      <p>Nothing you have built is dropped. Each feature keeps its job and gets a home in the room.</p>
+      <div class="map">
+        <table>
+          <thead><tr><th>Today</th><th>In the arena</th></tr></thead>
+          <tbody>
+            <tr><td>Start a workout</td><td>The platform. Starting brings the lights up, one tower at a time.</td></tr>
+            <tr><td>Next in your block</td><td>First card in Home's sheet, and the program board on the rack wall fills in day by day.</td></tr>
+            <tr><td>Last 7 days</td><td>The scoreboard's idle face, with seven lamps under it for the week.</td></tr>
+            <tr><td>Logger</td><td>The same fields, in the sheet. The bar loads plates as you log.</td></tr>
+            <tr><td>Rest timer</td><td>The board counts it down; the towers dim and climb back as you recover.</td></tr>
+            <tr><td>Workout saved</td><td>Camera flashes in the stands, the board reads SAVED, a new seat lights up.</td></tr>
+            <tr><td>Analytics (4 views)</td><td>The scoreboard drops and widens. Each view is a board face; tables and "how it's calculated" stay in the sheet.</td></tr>
+            <tr><td>Coach</td><td>The coach's corner beside the platform. Answers are chalked on the board; the chat and saved conversations are in the sheet.</td></tr>
+            <tr><td>History</td><td>The stands. One seat per workout, brighter seats for PR days.</td></tr>
+            <tr><td>Library</td><td>The rack: workouts, blocks and exercises as three tabs in the sheet.</td></tr>
+            <tr><td>Profile and settings</td><td>The locker room. Milestone banners hang in the rafters above it.</td></tr>
+            <tr><td>Palettes</td><td>Same room, relit. No new art needed to keep all five.</td></tr>
+            <tr><td>Resume bar</td><td>Not needed on most screens: the lights are up everywhere while a workout is live. It stays as the tap target.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>How to get there without losing anything</h2>
+      <ul>
+        <li><strong>It is a second skin, not a rewrite.</strong> Fields, lists, charts and the coach chat are the components you have now, placed in the sheet. The arena replaces page chrome, not features.</li>
+        <li><strong>Ship it as a switch.</strong> "Arena view" in Appearance, off by default. The current layout stays in the app, untouched, until you decide otherwise.</li>
+        <li><strong>One place at a time.</strong> Home and the logger first, then Analytics, then the rest. Each step is usable on its own.</li>
+        <li><strong>Everything from this week carries over</strong>: the crown intro, the pixel tick on a logged set, the lights following a live workout.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Not solved yet</h2>
+      <ul>
+        <li><strong>Light mode.</strong> Probably the same arena by day, with skylights. Not drawn.</li>
+        <li><strong>Long pages.</strong> Analytics tables and the coach chat want the sheet at full height, which leaves a thin strip of arena.</li>
+        <li><strong>Desktop.</strong> The sheet likely becomes a side panel with the arena beside it.</li>
+        <li><strong>The keyboard.</strong> While typing, the sheet has to own the screen. The arena waits.</li>
+      </ul>
+      <p>Prototype only, with made-up numbers. Nothing here is in the app.</p>
+    </section>
+  </div>
+
+  <div class="stick">
+    <div class="phone" id="phone">
+      <canvas id="scene" width="100" height="178" aria-label="The arena. Swipe to move between places, tap to hide or show the sheet."></canvas>
+      <div class="mast">
+        <div><b>LogChamp</b><span id="place-label"></span></div>
+        <button type="button" class="coach-btn" id="coach-btn" data-go="coach" aria-pressed="false">Coach</button>
+      </div>
+      <div class="sheet" id="sheet">
+        <button type="button" class="grip" id="grip" aria-label="Resize the sheet"></button>
+        <div class="body" id="body"></div>
+        <div class="nav" id="nav">
+          <button type="button" data-go="home">Home</button>
+          <button type="button" data-go="analytics">Analytics</button>
+          <button type="button" data-go="history">History</button>
+          <button type="button" data-go="library">Library</button>
+          <button type="button" data-go="profile">Profile</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Swipe the arena, tap the tabs, drag the grip.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const cv = $("scene"), g = cv.getContext("2d");
+  const W = 100, H = 178, FLOOR = 150;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+  const CROWN = ["....#....", "#...#...#", "##.###.##", "#########", "#########", ".#######."];
+  const FONT = {
+    0: "111101101101111", 1: "010110010010111", 2: "111001111100111", 3: "111001111001111", 4: "101101111001001",
+    5: "111100111001111", 6: "111100111101111", 7: "111001001001001", 8: "111101111101111", 9: "111101111001111",
+    A: "111101111101101", B: "110101110101110", C: "111100100100111", D: "110101101101110", E: "111100111100111",
+    F: "111100111100100", G: "111100101101111", H: "101101111101101", I: "111010010010111", J: "001001001101111",
+    K: "101101110101101", L: "100100100100111", M: "101111111101101", N: "111101101101101", O: "111101101101111",
+    P: "111101111100100", Q: "111101101111001", R: "111101110101101", S: "111100111001111", T: "111010010010010",
+    U: "101101101101111", V: "101101101101010", W: "101101111111101", X: "101101010101101", Y: "101101010010010",
+    Z: "111001010100111", ":": "000010000010000", "+": "000010111010000", ".": "000000000000010",
+  };
+  const PALS = { champ: [234, 70], iron: [38, 78], forest: [146, 55], crimson: [354, 66], chill: [212, 34] };
+  let RAMP = [];
+  function setPalette(name) {
+    const [h, sat] = PALS[name];
+    RAMP = [4, 7, 11, 17, 26, 38, 54, 74, 93].map((l, i) => `hsl(${h} ${Math.round(sat * (i > 6 ? 1 : 0.8))}% ${l}%)`);
+    const r = document.documentElement.style;
+    r.setProperty("--night", `hsl(${h} ${sat * 0.7}% 5%)`); r.setProperty("--panel", `hsl(${h} ${sat * 0.6}% 12%)`);
+    r.setProperty("--panel-2", `hsl(${h} ${sat * 0.6}% 19%)`); r.setProperty("--line", `hsl(${h} ${sat * 0.5}% 28%)`);
+    r.setProperty("--ink", `hsl(${h} 60% 96%)`); r.setProperty("--ink-2", `hsl(${h} 30% 72%)`);
+    r.setProperty("--accent", `hsl(${h} 100% 77%)`); r.setProperty("--btn", `hsl(${h} ${Math.min(90, sat + 10)}% 70%)`);
+    r.setProperty("--btn-ink", `hsl(${h} 60% 9%)`);
+  }
+
+  /* ---------- state ---------- */
+  const PLACES = {
+    history: { x: 0, sheet: 0.44, label: "The stands" },
+    home: { x: 100, sheet: 0.4, label: "The platform" },
+    analytics: { x: 100, sheet: 0.36, label: "The scoreboard" },
+    coach: { x: 200, sheet: 0.46, label: "Coach's corner" },
+    library: { x: 300, sheet: 0.44, label: "The rack" },
+    profile: { x: 400, sheet: 0.42, label: "The locker room" },
+  };
+  const WALK = ["history", "home", "coach", "library", "profile"];
+  const WORKOUTS = [["Arm Day", "today · 12 sets"], ["Leg Day", "Sun · 15 sets"], ["Push Day", "Fri · 14 sets"], ["Pull Day", "Wed · 13 sets"]];
+  const VIEWS = ["Muscles", "Strength", "Exercises", "Execution"];
+  const ANSWERS = {
+    "How was my week?": ["Two sessions, 23 sets. Pressing is up, legs got one day. A third session would keep your block on pace.", ["2 DAYS", "23 SETS", "ADD LEGS"]],
+    "What should I add to bench?": ["You hit 185 x 8 at RPE 7 twice. Go to 190 next session and keep the reps.", ["BENCH", "190 X 8", "NEXT DAY"]],
+  };
+  const s = {
+    place: "home", palette: "champ", size: "half", cam: { x: 100, y: 0 }, drag: null,
+    live: false, sets: 0, startedAt: 0, restFrom: 0, saved: 0, flashUntil: 0, seats: 0,
+    power: 0.5, board: 0, view: 0, seat: 0, histTab: 0, libTab: 0,
+    chat: [], thinking: 0, chalk: ["ASK ME", "ANYTHING"],
+  };
+  const REST_MS = 7000;
+  const hash = (x, y) => { const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); };
+  const resting = (now) => s.live && s.restFrom && now - s.restFrom < REST_MS;
+
+  function sheetFrac() {
+    if (s.size === "peek") return 0.11;
+    if (s.size === "full") return 0.64;
+    return s.live && s.place === "home" ? 0.52 : PLACES[s.place].sheet;
+  }
+  function target() {
+    const stageH = H * (1 - sheetFrac());
+    let y = FLOOR - (stageH - 7);
+    if (s.place === "analytics" && stageH < 80) y = 59;   // keep the board in the strip
+    if (s.place === "coach" && stageH < 80) y = 71;      // keep the chalkboard in the strip
+    return { x: PLACES[s.place].x, y };
+  }
+
+  /* ---------- drawing ---------- */
+  let cx = 0, cy = 0;
+  const px = (x, y, c, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(Math.round(x - cx), Math.round(y - cy), w, h); };
+  function text(str, x, y, c, k = 1) {
+    [...str].forEach((ch, i) => {
+      const gl = FONT[ch]; if (!gl) return;
+      for (let n = 0; n < 15; n++) if (gl[n] === "1") px(x + (i * 4 + (n % 3)) * k, y + ((n / 3) | 0) * k, c, k, k);
+    });
+  }
+  const mid = (str, m, y, c, k = 1) => text(str, Math.round(m - ((str.length * 4 - 1) * k) / 2), y, c, k);
+  const crown = (x, y, c) => CROWN.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === "#") px(x + rx, y + ry, c); }));
+
+  function field(x, y, L) {
+    let v = 0.05 + 0.18 * Math.pow(Math.max(0, Math.min(1, (y - 40) / (FLOOR - 40))), 2) - (y > FLOOR ? 0.02 * (y - FLOOR) : 0);
+    for (const l of L) {
+      const qx = x - l.x, qy = y - l.y, d = Math.hypot(qx, qy);
+      if (d < 1 || d > l.len * 1.3) continue;
+      const ang = Math.acos(Math.max(-1, Math.min(1, (qx * l.ax + qy * l.ay) / (d * l.len))));
+      if (ang < l.half) v += l.p * 0.7 * Math.pow(1 - ang / l.half, 1.3) * (1 - 0.35 * (d / l.len));
+      v += l.p * 0.5 * Math.max(0, 1 - d / 8);
+    }
+    const ex = (x - 150) / 30, ey = (y - (FLOOR + 3)) / 7;
+    return v + Math.max(0, 1 - (ex * ex + ey * ey)) * 0.8 * s.power;
+  }
+  const light = (x, y, tx, ty, half, p) => ({ x, y, half, p, ax: tx - x, ay: ty - y, len: Math.hypot(tx - x, ty - y) });
+
+  function draw(now) {
+    cx = s.cam.x; cy = s.cam.y;
+    const at = (p) => s.place === p;
+    const L = [
+      light(112, 88, 150, 148, 0.44, s.power), light(188, 88, 150, 148, 0.44, s.power),
+      light(60, 62, 40, 150, 0.6, at("history") ? 0.5 : 0.3),
+      light(254, 84, 254, 150, 0.62, at("coach") ? 0.85 : 0.4),
+      light(358, 84, 358, 150, 0.7, at("library") ? 0.8 : 0.35),
+      light(450, 84, 450, 150, 0.7, at("profile") ? 0.8 : 0.35),
+    ].filter((l) => l.x > cx - 70 && l.x < cx + W + 70);
+    const lit = s.power > 0.85, flashing = now < s.flashUntil;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const v = Math.max(0, Math.min(0.999, field(x + cx, y + cy, L))) * (RAMP.length - 2), lo = Math.floor(v);
+      g.fillStyle = RAMP[v - lo > BAYER[(y & 3) * 4 + (x & 3)] ? lo + 1 : lo]; g.fillRect(x, y, 1, 1);
+    }
+    // far stands behind the platform
+    for (let row = 0; row < 6; row++) for (let x = 98; x < 204; x += 2) {
+      const on = hash(x, row) < 0.3;
+      px(x, FLOOR - 34 + row * 4, flashing && Math.random() < 0.07 ? RAMP[8] : on ? RAMP[4] : RAMP[2]);
+    }
+    px(96, FLOOR - 9, RAMP[3], 110, 1);
+    // near stands: History. One seat per workout.
+    for (let tier = 0; tier < 22; tier++) {
+      const y = FLOOR - 4 - tier * 4, reach = Math.round(92 - tier * 2.6);
+      px(0, y, RAMP[1], reach, 4); px(0, y, RAMP[3], reach, 1);
+      for (let x = 1; x < reach - 1; x += 2) { const h = hash(x, tier); px(x, y + 2, h < 0.05 ? RAMP[7] : h < 0.36 ? RAMP[5] : RAMP[2]); }
+    }
+    for (let i = 0; i < s.seats; i++) px(80 - i * 4, FLOOR - 2, RAMP[8], 2, 2);          // seats earned this visit
+    if (at("history")) {
+      const blink = reduced || Math.floor(now / 260) % 2 === 0;
+      px(20 + s.seat * 14, FLOOR - 4 - (3 + s.seat * 2) * 4 + 1, blink ? RAMP[8] : RAMP[6], 3, 3);
+    }
+    px(-5, FLOOR, RAMP[4], 520, 1);
+    // platform + bar (plates load as sets are logged)
+    px(132, FLOOR - 2, RAMP[5], 36, 2); px(134, FLOOR, RAMP[3], 32, 2);
+    px(134, FLOOR - 6, lit ? RAMP[8] : RAMP[6], 32, 1);
+    const plates = s.live ? Math.min(4, 1 + s.sets) : 1;
+    for (let i = 0; i < plates; i++) for (const x of [137 + i * 3, 161 - i * 3]) px(x, FLOOR - 10 + i, i ? RAMP[5] : lit ? RAMP[7] : RAMP[5], 2, 9 - i * 2);
+    for (const tx of [112, 188]) {
+      px(tx, 90, RAMP[4], 1, FLOOR - 90); px(tx - 3, 86, RAMP[2], 7, 4);
+      for (let k = 0; k < 3; k++) px(tx - 2 + k * 2, 87, lit || k === 1 ? RAMP[8] : RAMP[5], 1, 2);
+    }
+    // scoreboard -> analytics board
+    const b = s.board, bw = Math.round(38 + 46 * b), bh = Math.round(17 + 35 * b), bx = Math.round(150 - bw / 2), by = 82 - Math.round(10 * b);
+    px(bx + 4, by - 90, RAMP[3], 1, 90); px(bx + bw - 5, by - 90, RAMP[3], 1, 90);
+    px(bx, by, RAMP[4], bw, bh); px(bx + 1, by + 1, RAMP[0], bw - 2, bh - 2);
+    crown(146, by - 7, lit ? RAMP[8] : RAMP[7]);
+    if (b > 0.85) {
+      const v = s.view;
+      text(VIEWS[v].toUpperCase(), bx + 3, by + 3, RAMP[6]);
+      if (v === 0) [["CHE", 44], ["BAC", 52], ["LEG", 24], ["SHO", 36], ["ARM", 30]].forEach(([n, w], i) => { text(n, bx + 3, by + 11 + i * 8, RAMP[5]); px(bx + 17, by + 11 + i * 8, i === 2 ? RAMP[8] : RAMP[6], w, 5); });
+      if (v === 1) { text("E1RM 231", bx + bw - 36, by + 3, RAMP[8]); [4, 6, 6, 9, 12, 12, 16, 19, 22, 27].forEach((h, i) => { px(bx + 5 + i * 7, by + bh - 5 - h, RAMP[i === 9 ? 8 : 7], 7, 1); px(bx + 5 + i * 7, by + bh - 4 - h, RAMP[3], 7, h); }); }
+      if (v === 2) [["BENCH", "185X8"], ["ROW", "135X10"], ["SQUAT", "225X5"], ["PRESS", "95X8"]].forEach(([n, t], i) => { text(n, bx + 3, by + 12 + i * 9, RAMP[7]); text(t, bx + bw - 3 - t.length * 4, by + 12 + i * 9, RAMP[5]); });
+      if (v === 3) { text("92", bx + 6, by + 14, RAMP[8], 4); text("ON PLAN", bx + 44, by + 18, RAMP[6]); px(bx + 6, by + 40, RAMP[3], bw - 12, 4); px(bx + 6, by + 40, RAMP[7], Math.round((bw - 12) * 0.92), 4); }
+    } else if (b < 0.15) {
+      let l1 = "WEEK 2", l2 = "23 SETS";
+      if (resting(now)) { const left = Math.ceil((1 - (now - s.restFrom) / REST_MS) * 90); l1 = "REST"; l2 = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`; }
+      else if (s.live) { const t = Math.floor((now - s.startedAt) / 1000) + 754; l1 = `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; l2 = `SET ${s.sets + 1}`; }
+      else if (now < s.saved) { l1 = "SAVED"; l2 = "UPPER"; }
+      mid(l1, 150, by + 3, RAMP[8]); mid(l2, 150, by + 10, RAMP[6]);
+      [1, 0, 0, 1, 0, 0, s.live || now < s.saved || s.seats ? 1 : 0].forEach((on, i) => px(137 + i * 4, by + bh + 2, on ? RAMP[8] : RAMP[3], 2, 2));  // the week
+    }
+    // coach's corner: chalkboard, stool, bottle
+    px(238, 124, RAMP[4], 1, 26); px(270, 124, RAMP[4], 1, 26);
+    px(234, 96, RAMP[at("coach") ? 6 : 4], 41, 29); px(235, 97, RAMP[1], 39, 27);
+    crown(250, 88, at("coach") ? RAMP[8] : RAMP[6]);
+    if (now < s.thinking) { const n = reduced ? 3 : 1 + (Math.floor(now / 280) % 3); for (let i = 0; i < n; i++) px(249 + i * 5, 109, RAMP[8], 2, 2); }
+    else s.chalk.forEach((ln, i) => mid(ln, 254.5, 100 + i * 8, i ? RAMP[7] : RAMP[8]));
+    px(282, 140, RAMP[5], 9, 2); px(283, 142, RAMP[4], 1, 8); px(289, 142, RAMP[4], 1, 8); px(278, 145, RAMP[7], 2, 5);
+    // the rack: plate tree, dumbbells, and the block's program board
+    const hiR = at("library");
+    px(324, 112, RAMP[4], 1, 38); px(320, 148, RAMP[4], 9, 2);
+    [[118, 11], [128, 9], [137, 7]].forEach(([y, h]) => { px(319, y - (h >> 1), hiR ? RAMP[7] : RAMP[5], 3, h); px(327, y - (h >> 1), hiR ? RAMP[6] : RAMP[5], 3, h); px(322, y, RAMP[4], 5, 1); });
+    for (const sy of [130, 142]) {
+      px(338, sy, RAMP[4], 56, 1); px(339, sy, RAMP[3], 1, FLOOR - sy); px(392, sy, RAMP[3], 1, FLOOR - sy);
+      for (let i = 0; i < 6; i++) { const x = 342 + i * 8, sz = 3 + (i > 2 ? 1 : 0); px(x, sy - sz, hiR ? RAMP[7] : RAMP[5], 2, sz); px(x + 2, sy - 2, RAMP[4], 2, 1); px(x + 4, sy - sz, hiR ? RAMP[7] : RAMP[5], 2, sz); }
+    }
+    px(340, 90, RAMP[hiR ? 6 : 4], 45, 27); px(341, 91, RAMP[1], 43, 25); text("BLOCK W1", 345, 93, RAMP[6]);
+    for (let wk = 0; wk < 6; wk++) for (let d = 0; d < 3; d++) {
+      const done = wk === 0 && d === 0 && (s.seats > 0 || now < s.saved), today = wk === 0 && d === (s.seats ? 1 : 0);
+      px(344 + wk * 7, 100 + d * 5, done ? RAMP[8] : today && (reduced || Math.floor(now / 400) % 2) ? RAMP[7] : RAMP[3], 5, 3);
+    }
+    // the locker room, banners in the rafters
+    const hiP = at("profile");
+    for (let i = 0; i < 8; i++) {
+      const x = 418 + i * 8, mine = i === 3;
+      px(x, 112, mine ? RAMP[hiP ? 7 : 5] : RAMP[4], 7, 38); px(x + 1, 113, mine ? RAMP[3] : RAMP[2], 5, 36);
+      px(x + 2, 116, RAMP[4], 3, 1); px(x + 2, 118, RAMP[4], 3, 1); px(x + 4, 131, RAMP[6], 1, 2);
+      if (mine) px(x + 2, 122, RAMP[8], 3, 3);
+    }
+    px(428, 144, RAMP[5], 44, 2); px(431, 146, RAMP[4], 1, 4); px(468, 146, RAMP[4], 1, 4);
+    [["", true], ["100", false], ["1K", false]].forEach(([label, earned], i) => {
+      const x = 424 + i * 24, y = 62;
+      px(x + 2, y - 70, RAMP[3], 1, 70); px(x + 11, y - 70, RAMP[3], 1, 70);
+      px(x, y, earned ? RAMP[hiP ? 6 : 4] : RAMP[3], 14, 15); px(x + 1, y + 1, RAMP[earned ? 2 : 1], 12, 12);
+      px(x + 1, y + 13, RAMP[earned ? 2 : 1], 5, 2); px(x + 8, y + 13, RAMP[earned ? 2 : 1], 5, 2);
+      if (earned) crown(x + 3, y + 4, hiP ? RAMP[8] : RAMP[7]); else mid(label, x + 7.5, y + 5, RAMP[hiP ? 5 : 4]);
+    });
+  }
+
+  /* ---------- loop ---------- */
+  let last = 0;
+  function tick(now) {
+    requestAnimationFrame(tick);
+    if (document.hidden || now - last < 55) return;
+    last = now;
+    const t = target(), k = reduced ? 1 : 0.2;
+    if (s.restFrom && s.live && now - s.restFrom >= REST_MS) { s.restFrom = 0; s.flashUntil = now + 250; render(); }
+    const rest = resting(now) ? (now - s.restFrom) / REST_MS : 1;
+    const wantP = s.live ? 0.3 + 0.7 * rest : 0.5, wantB = s.place === "analytics" ? 1 : 0;
+    if (!s.drag) s.cam.x += (t.x - s.cam.x) * k;
+    s.cam.y += (t.y - s.cam.y) * k;
+    s.power += (wantP - s.power) * k; s.board += (wantB - s.board) * k;
+    draw(now);
+  }
+
+  /* ---------- the sheet ---------- */
+  const seg = (items, cur, key) => `<div class="seg">${items.map((n, i) => `<button type="button" data-set="${key}" data-val="${i}" aria-pressed="${i === cur}">${n}</button>`).join("")}</div>`;
+  const rows = (items) => `<div class="list">${items.map(([a, b2]) => `<button type="button">${a}<span>${b2}</span></button>`).join("")}</div>`;
+  const BODY = {
+    home() {
+      if (!s.live) return `
+        <div class="card"><small>Next in your block</small><h3>W1 · Upper - Press</h3><p>Imported block · week 1 of 6 · 23 sets</p>
+        <button class="go" type="button" data-act="start">Start W1 · Upper - Press</button></div>
+        <button class="quiet" type="button" data-act="start">Start empty workout</button>
+        <small>Recent</small>${rows(WORKOUTS.slice(0, 2))}`;
+      const now = performance.now(), r = resting(now);
+      return `<h3>Feet-Up Bench Press</h3>
+        ${[0, 1, 2].map((i) => `<div class="set ${i < s.sets ? "done" : i === s.sets ? "next" : ""}"><i>${i + 1}</i><u>185 lb</u><u>8 reps</u><em>${i < s.sets ? "✓" : ""}</em></div>`).join("")}
+        ${r ? `<div class="rest">Resting<span>the board has the clock</span></div>` : ""}
+        <button class="go" type="button" data-act="log" ${s.sets >= 3 ? "disabled" : ""}>${s.sets >= 3 ? "All sets logged" : `Log set ${s.sets + 1}`}</button>
+        <button class="quiet" type="button" data-act="finish">Finish workout</button>`;
+    },
+    analytics: () => `${seg(VIEWS, s.view, "view")}
+      <div class="tiles"><div><small>Workouts</small><b>19</b></div><div><small>Sets</small><b>214</b></div><div><small>Top gain</small><b>+15 lb</b></div></div>
+      ${[rows([["Back", "52 sets"], ["Chest", "44 sets"], ["Legs", "24 sets · low"]]), rows([["Bench Press", "e1RM 231"], ["Squat", "e1RM 262"], ["Row", "e1RM 180"]]), rows([["Bench Press", "185 x 8"], ["Barbell Row", "135 x 10"], ["Squat", "225 x 5"]]), rows([["Sets as planned", "92%"], ["Missed sets", "4"], ["Effort logged", "88%"]])][s.view]}
+      <p>How it's calculated · chart or table</p>`,
+    history: () => `${seg(["Workouts", "Coach chats"], s.histTab, "histTab")}
+      ${s.histTab === 0 ? `<div class="list">${WORKOUTS.map(([n, d], i) => `<button type="button" data-set="seat" data-val="${i}" aria-pressed="${i === s.seat}">${n}<span>${d}</span></button>`).join("")}</div>` : rows([["How was my week?", "today"], ["Deload timing", "Nov 2"]])}`,
+    coach: () => `${s.chat.length ? s.chat.map(([who, t]) => `<div class="bubble ${who}">${t}</div>`).join("") : `<h3>Your coach</h3><p>Knows your block and your last sessions. Answers are saved to History.</p>`}
+      ${performance.now() < s.thinking ? `<p>Coach is thinking…</p>` : `<div class="chips">${Object.keys(ANSWERS).map((q) => `<button type="button" data-ask="${q}">${q}</button>`).join("")}</div>`}`,
+    library: () => `${seg(["Workouts", "Blocks", "Exercises"], s.libTab, "libTab")}
+      ${[rows([["Push A", "6 lifts"], ["Pull A", "5 lifts"], ["Legs A", "5 lifts"]]), rows([["Imported block", "running · W1"], ["Upper/Lower 4wk", "paused"]]), rows([["Bench Press", "chest"], ["Barbell Row", "back"], ["Feet-Up Bench", "chest"]])][s.libTab]}`,
+    profile: () => `<h3>Appearance</h3>
+      <div class="swatches">${Object.keys(PALS).map((p) => `<button type="button" data-pal="${p}" aria-label="${p}" aria-pressed="${p === s.palette}" style="background:hsl(${PALS[p][0]} ${PALS[p][1]}% 62%)"></button>`).join("")}</div>
+      ${rows([["Training", "RPE · rest 1:30"], ["AI access", "on"], ["Security", ""], ["What's new", "3"], ["Banners", "1 of 3 hung"]])}`,
+  };
+
+  function render() {
+    $("sheet").style.height = `${sheetFrac() * 100}%`;
+    $("body").hidden = s.size === "peek";
+    if (s.size !== "peek") $("body").innerHTML = BODY[s.place]();
+    $("place-label").textContent = PLACES[s.place].label;
+    document.querySelectorAll("#nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.go === s.place)));
+    $("coach-btn").setAttribute("aria-pressed", String(s.place === "coach"));
+    if (reduced) { const t = target(); s.cam.x = t.x; s.cam.y = t.y; draw(performance.now()); }
+  }
+  function go(place) { s.place = place; if (s.size === "peek") s.size = "half"; $("body").scrollTop = 0; render(); }
+
+  $("phone").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const now = performance.now(), d = b.dataset;
+    if (b.id === "grip") s.size = s.size === "full" ? "half" : "full";
+    else if (d.go) return go(d.go);
+    else if (d.set) s[d.set] = Number(d.val);
+    else if (d.pal) { s.palette = d.pal; setPalette(d.pal); }
+    else if (d.act === "start") { s.live = true; s.sets = 0; s.startedAt = now; s.restFrom = 0; }
+    else if (d.act === "log") { s.sets += 1; s.restFrom = s.sets < 3 ? now : 0; s.flashUntil = now + 200; }
+    else if (d.act === "finish") { s.live = false; s.restFrom = 0; s.flashUntil = now + 2000; s.saved = now + 4500; s.seats += 1; }
+    else if (d.ask) {
+      s.chat.push(["me", d.ask]); s.thinking = now + 1600;
+      setTimeout(() => { const [t, chalk] = ANSWERS[d.ask]; s.chat.push(["coach", t]); s.chalk = chalk; render(); $("body").scrollTop = 9999; }, 1650);
+    } else return;
+    render();
+  });
+
+  // swipe the arena to walk; tap it to put the sheet away
+  const scale = () => cv.clientWidth / W;
+  cv.addEventListener("pointerdown", (e) => { s.drag = { x0: e.clientX, cam0: s.cam.x, moved: 0 }; cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener("pointermove", (e) => {
+    if (!s.drag) return;
+    const dx = (e.clientX - s.drag.x0) / scale(); s.drag.moved = Math.max(s.drag.moved, Math.abs(dx));
+    s.cam.x = Math.max(-20, Math.min(420, s.drag.cam0 - dx));
+  });
+  const drop = () => {
+    if (!s.drag) return;
+    const moved = s.drag.moved; s.drag = null;
+    if (moved < 4) { s.size = s.size === "peek" ? "half" : "peek"; return render(); }
+    let best = WALK[0];
+    for (const p of WALK) if (Math.abs(PLACES[p].x - s.cam.x) < Math.abs(PLACES[best].x - s.cam.x)) best = p;
+    if (best === "home" && s.place === "analytics" && Math.abs(s.cam.x - 100) < 50) best = "analytics";
+    go(best);
+  };
+  cv.addEventListener("pointerup", drop); cv.addEventListener("pointercancel", drop);
+
+  setPalette("champ");
+  const t0 = target(); s.cam.x = t0.x; s.cam.y = t0.y;
+  render(); draw(0);
+  if (!reduced) requestAnimationFrame(tick); else setInterval(() => draw(performance.now()), 500);
+})();
+</script>

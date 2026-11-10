@@ -145,6 +145,17 @@ and make it the new default"; headless-checked only):
   `docs/design/mocks/motion/champ-arena.html` (Artifact
   B89CfhvmvGiF86h7oN4AsE) - its "Room to grow" ideas (seats fill with
   history, plates match the last top set, milestone banners) are NOT built.
+UI overhaul direction (Seth, Nov 10 - PROTOTYPES ONLY, nothing in the
+app): Seth wants the arena brought forward ("we are absolutely onto
+something"). `docs/design/mocks/motion/arena-ui-concepts.html` (three
+concepts, Artifact DHV5E4bdodEXcwcsAVNBiL) -> he picked the full rethink
+-> `arena-ui-v2.html` ("LogChamp Arena", Artifact in the session log):
+one continuous arena, tabs are places (platform / scoreboard / stands /
+coach's corner / rack / locker room), one sheet holds all input. His
+stated fear: losing what is built. The v2 page's answer: second skin
+over existing components, an "Arena view" switch in Appearance (off by
+default), one place at a time, Home + logger first. NOT decided, NOT
+planned into ROADMAP. Open: light mode, long pages, desktop, keyboard.
 Seth, Nov 10: crown intro timing stays AS IS (every cold open).
 RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)
