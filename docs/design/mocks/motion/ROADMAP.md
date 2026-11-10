@@ -1,6 +1,6 @@
 # MX wave roadmap - motion + visuals for LogChamp
 
-**Last checkpoint:** MXF11 (Nov 9, 2026): Seth's Nov 9 smoke passed everything. DONE since Oct 11: MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6` (exercise detail inline under the tapped row), MXF10 `f5826af` (coach box above the Android keyboard - edge-to-edge Chrome's keyboard rect ignored the nav bar; /coach drops viewport-fit=cover in Chromium), MXF11 `1bf3ee7` (IDEAS 16 promoted: swipe the workout bar and coach bar away sideways). Seth on MXF11 (Nov 9): "it definitely works in the barest sense" - the mechanics pass, the FEEL needs a pass (MXF12, ask Seth what is missing first; HANDOFF PICK UP HERE 0). Then the next code unit is MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. Fable 5.2 is now on the Cursor CLI (`claude-fable-5-2-high` etc.). MX1-MX6, MX-S, MXF1-MXF11 and MXC1 stay DONE.
+**Last checkpoint:** MX7a (Nov 10, 2026): logger floor PARTIAL + Home saved moment built direct (`a6338da`), see MX7; a default-scene idea "Champ Arena" is a preview only (`champ-arena.html`), awaiting Seth. Before that - MXF11 (Nov 9, 2026): Seth's Nov 9 smoke passed everything. DONE since Oct 11: MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6` (exercise detail inline under the tapped row), MXF10 `f5826af` (coach box above the Android keyboard - edge-to-edge Chrome's keyboard rect ignored the nav bar; /coach drops viewport-fit=cover in Chromium), MXF11 `1bf3ee7` (IDEAS 16 promoted: swipe the workout bar and coach bar away sideways). Seth on MXF11 (Nov 9): "it definitely works in the barest sense" - the mechanics pass, the FEEL needs a pass (MXF12, ask Seth what is missing first; HANDOFF PICK UP HERE 0). Then the next code unit is MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. Fable 5.2 is now on the Cursor CLI (`claude-fable-5-2-high` etc.). MX1-MX6, MX-S, MXF1-MXF11 and MXC1 stay DONE.
 
 This file is the wave's state. It stands on its own next to
 `MOTION-DIRECTION.md` (the design) and needs no chat history. Whoever picks
@@ -404,7 +404,18 @@ Conventions for every unit below:
   the keypad never covers the active input.
 - **Depends on:** MX1. **Packages:** none.
 - **Note (MXF4):** the first-set focus drop (draft promotion unmounting the input the lifter is typing in) was moved to MXF4 and is handled there. This unit does not own it.
-- **Status:** TODO.
+- **Status:** PARTIAL (MX7a, Nov 10, 2026, `a6338da`, cloud Fable session,
+  direct at Seth's ask; awaiting his phone smoke). BUILT for the quick /
+  template logger: pixel-tick confirm + row wash + two sparks
+  (`styles/logger-motion.css`, class toggle only), new rows and lifts drop
+  in (never a focused row; gated by `logger--settled`), Finish glints when
+  it arms, and a live strip in the header (`LoggerLiveStrip.jsx`: live
+  pixel pings and the count pops per set - nothing loops). Also pulled
+  forward from MX9: Home's saved moment lives on the Start hero
+  (`styles/workout-saved.css`; the green card is gone; finish passes
+  `{ name, sets, minutes }` in route state). **Pick up here:** the rest
+  dock grid-rows expand, the completed-exercise exit, the next-set accent
+  ring, and all of it on the block-day logger (untouched).
 
 ## MX8 - PR moment (Crown stamp A) + milestone takeover
 

@@ -5,7 +5,8 @@
 > (Nov 9). Nov 10: a cloud Fable session built DIRECTLY at Seth's ask (no
 > Cursor blocks - the cloud box cannot reach the lane worktrees): MX-CI
 > crown intro, crown play, MXF12 (bar pixel exit + any-direction drag +
-> crown loader + loader->login hand-off). All pushed, NONE phone-smoked;
+> crown loader + loader->login hand-off), then MX7a (logger floor + the
+> Home saved moment, `a6338da`). All pushed, NONE phone-smoked;
 > verified only in headless Chromium at 400x860 against a mocked API
 > (normal + reduced motion, no page errors). Smoke list below.
 > Seth's direction: "wicked" motion and graphics, analytics first; Fable in
@@ -105,6 +106,29 @@ Round 3 (Nov 10, same session, not yet smoked):
 - Polish 1: every crown landing flashes + throws four pixels (loading
   coin each loop, Home crown flip, login hand-off); the resume bar rises
   in when it appears.
+MX7a logger floor + saved moment (Nov 10, second cloud Fable session,
+built directly at Seth's ask; `a6338da`; headless-checked only, champ +
+crimson dark, champ + forest light, reduced motion):
+- Open a quick workout: under "Log workout" a line reads LIVE + a running
+  clock + the set count. No "Live session. Updates save..." sentence.
+- Log weight + reps on a set: a square tick springs in on the set, the
+  row washes once, the header's live pixel pings and the count pops.
+  Typing is never interrupted; a focused row never moves.
+- "+ Add set" / "+ Add exercise": the new row or lift drops in.
+- First set logged: one glint crosses Finish workout.
+- The name field reads "WORKOUT NAME", bigger type, the long helper
+  sentence is gone (placeholder says it is named for you at finish).
+- Finish: Home has NO green "Workout saved" card. The Start card itself
+  reads WORKOUT SAVED + the workout's name + sets / minutes, a pixel
+  crown stamps onto its corner, a light runs once round the frame; after
+  ~5 s it rolls back to "Start a workout". Both buttons work throughout.
+- Reduced motion: same words, no travel.
+- NOT touched: the block-day logger (its own header and grid), the rest
+  dock, the finish sheet (MX9). Block-day finishes still get the saved
+  hero.
+Default-theme idea (preview only, nothing in the app): "Champ Arena" -
+`docs/design/mocks/motion/champ-arena.html`, Artifact
+B89CfhvmvGiF86h7oN4AsE. Seth to say yes / no / change it.
 Seth, Nov 10: crown intro timing stays AS IS (every cold open).
 RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)
