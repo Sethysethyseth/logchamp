@@ -8,6 +8,17 @@
 
 let cheerTimer = 0;
 
+/** Arena view (beta) listens for these: "finish", "rest", "set". */
+export const SCENE_SIGNAL_EVENT = "workoutdb-scene-signal";
+
+export function sceneSignal(kind) {
+  try {
+    window.dispatchEvent(new CustomEvent(SCENE_SIGNAL_EVENT, { detail: { kind } }));
+  } catch {
+    /* no window */
+  }
+}
+
 export function setSceneLive(on) {
   if (typeof document === "undefined") return;
   document.documentElement.toggleAttribute("data-scene-live", Boolean(on));
@@ -16,6 +27,7 @@ export function setSceneLive(on) {
 export function sceneCheer(kind = "finish") {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
+  sceneSignal(kind);
   window.clearTimeout(cheerTimer);
   root.removeAttribute("data-scene-cheer");
   // Next frame, so a repeat cheer restarts its animation.

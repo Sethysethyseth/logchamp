@@ -47,6 +47,7 @@ import "../styles/training-prefs.css";
 import "../styles/logger.css";
 import "../styles/logger-motion.css";
 import { LoggerLiveStrip } from "../components/workout/LoggerLiveStrip.jsx";
+import { sceneSignal } from "../lib/sceneSignal.js";
 import { useSessionLiveLoggingGuard } from "../context/SessionLiveLoggingGuardContext.jsx";
 import {
   BLANK_SESSION_EXERCISE_NAME,
@@ -1499,6 +1500,7 @@ const SessionSetRow = memo(function SessionSetRow({
     }
     if (synced && !prevSyncedRef.current) {
       setSavePulse(true);
+      sceneSignal("set");
       const t = setTimeout(() => setSavePulse(false), 720);
       prevSyncedRef.current = synced;
       return () => clearTimeout(t);

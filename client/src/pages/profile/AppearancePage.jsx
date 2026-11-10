@@ -9,6 +9,7 @@ import {
   getCoachStatus,
 } from "../../api/coachApi.js";
 import { useTheme } from "../../context/ThemeContext.jsx";
+import { setArenaView, useArenaView } from "../../lib/arenaPref.js";
 import { CUSTOM_PALETTE_ID } from "../../lib/customPalette.js";
 import { AiWait } from "../../components/coach/AiWait.jsx";
 
@@ -109,6 +110,7 @@ export function AppearancePage() {
     preview,
     previewPalette,
   } = useTheme();
+  const arenaView = useArenaView();
 
   const inputId = useId();
   const [description, setDescription] = useState("");
@@ -301,6 +303,35 @@ export function AppearancePage() {
                 </label>
               ) : null}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="settings-section" aria-labelledby="settings-arena-heading">
+        <h2 id="settings-arena-heading" className="settings-section-heading">
+          Arena view (beta)
+        </h2>
+        <div className="settings-group settings-group--tight">
+          <p className="settings-group-hint muted small">
+            Puts the arena at the top of every screen. Each tab is a place in it, and your pages
+            slide up over it. Every feature stays where it is. This device only.
+          </p>
+          <div className="settings-theme-seg" role="radiogroup" aria-label="Arena view">
+            {[
+              [false, "Classic"],
+              [true, "Arena"],
+            ].map(([value, label]) => (
+              <button
+                key={label}
+                type="button"
+                role="radio"
+                aria-checked={arenaView === value}
+                className={`settings-theme-seg__btn${arenaView === value ? " settings-theme-seg__btn--active" : ""}`}
+                onClick={() => setArenaView(value)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       </section>

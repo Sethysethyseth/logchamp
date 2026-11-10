@@ -1,0 +1,84 @@
+/* Arena view (beta). On only under html[data-arena]. The stage is fixed
+   behind the top of the page; .main is "the sheet": it starts below the
+   stage and rides the ordinary window scroll up over it. Nothing inside a
+   page changes. Tokens only. */
+
+.arena-stage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--arena-h, 40svh) + 2px);
+  z-index: 0;
+  pointer-events: none;
+  background: var(--color-bg);
+  transition: height 440ms var(--mx-ease-out-expo);
+}
+
+.arena-stage__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.arena-spacer {
+  height: var(--arena-h, 40svh);
+  pointer-events: none;
+  transition: height 440ms var(--mx-ease-out-expo);
+}
+
+/* The arena is the scene now: the bottom band and its lit layer step aside. */
+html[data-arena] body::after,
+html[data-arena]::after {
+  display: none;
+}
+
+/* The sheet: an opaque floor-to-bottom surface with the stage's edge on top.
+   The 100vmax shadow + clip makes it full-bleed while .container keeps its
+   column. */
+html[data-arena] .app > .main {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100svh - 96px);
+  padding-top: 14px;
+  background: var(--color-bg);
+  box-shadow: 0 0 0 100vmax var(--color-bg);
+  clip-path: inset(-2px -100vmax 0);
+}
+
+html[data-arena] .app > .main::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -100vmax;
+  right: -100vmax;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
+}
+
+html[data-arena] .app > .main::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 34px;
+  height: 3px;
+  margin-left: -17px;
+  background: var(--color-border);
+}
+
+/* Desktop: the top navbar is in the flow above the spacer, so the stage
+   runs behind it too. */
+@media (min-width: 720px) {
+  .arena-stage {
+    height: calc(var(--arena-h, 40svh) + 60px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arena-stage,
+  .arena-spacer {
+    transition: none;
+  }
+}

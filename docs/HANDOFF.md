@@ -156,6 +156,32 @@ stated fear: losing what is built. The v2 page's answer: second skin
 over existing components, an "Arena view" switch in Appearance (off by
 default), one place at a time, Home + logger first. NOT decided, NOT
 planned into ROADMAP. Open: light mode, long pages, desktop, keyboard.
+ARENA VIEW (BETA) IS IN THE APP (Seth, Nov 10: "one last trial holding
+all of the features of the old into the new" - built as a real switch,
+not a third mock; headless-checked only, phone + 1280 desktop):
+- Profile > Appearance > "Arena view (beta)": Classic / Arena. Off by
+  default, this device only (`workoutdb-arena`).
+- On: a pixel arena fills the top of every screen and the page is a sheet
+  that scrolls up over it. Tabs move the camera: Home = platform,
+  Analytics = scoreboard (widens into 8 weeks of sets), History = stands
+  (one lit seat per finished workout), Coach = chalkboard, Library = rack,
+  Profile = lockers + banners. EVERY page is the existing page, unchanged.
+- Board on Home: sets in the last 7 days + a lamp per trained day. Live
+  workout: lights up, running clock, SET n, plates added as sets land;
+  rest timer = REST m:ss with the lights dipping; finish = flashes +
+  SAVED + the workout name.
+- Works in all palettes (the room is mixed from the accent) and in light
+  mode (the stage stays dark - not designed yet).
+- Smoke: every tab, a full workout incl. rest timer and finish, the coach
+  page WITH THE KEYBOARD OPEN (never exercised - /coach has its own
+  keyboard fit), scrolling long pages, switching back to Classic.
+- Code: `components/arena/` (ArenaStage.jsx, arenaEngine.js, arena.css),
+  `lib/arenaPref.js`, `lib/sceneSignal.js` (now also emits "set"),
+  `Layout.jsx`. Under `html[data-arena]` the bottom scene band is hidden.
+- Not done: analytics views on the board (it shows weekly sets only),
+  coach answers on the chalkboard, the block on the program board,
+  swipe-to-walk, light-mode arena. Decision pending Seth's phone run:
+  keep going place by place, or cut.
 Seth, Nov 10: crown intro timing stays AS IS (every cold open).
 RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)
