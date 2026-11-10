@@ -71,7 +71,8 @@ laptop. GitHub redirects the old URL. The local folder name stays
 - `client/src/context` - `ThemeContext` owns both `data-theme` and
   `data-palette` axes via the `useTheme()` accessor
 - `client/src/assets/scenes` - palette scene rasters (champ, iron, chill,
-  forest, crimson). Shipping assets ONLY - design references live in
+  forest, crimson). Champ is the arena: two generated stills (`champ.png`,
+  `champ-live.png`, from `scripts/gen-champ-arena.cjs`). Shipping assets ONLY - design references live in
   `docs/design/mocks/` and must never be imported from `client/src/`.
 - `server/` - Express API, Prisma schema, migrations
 - `server/src/analytics/` - the analytics engine: pure, composable,

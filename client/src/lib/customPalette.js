@@ -1,4 +1,4 @@
-import champScene from "../assets/scenes/champ.jpg";
+import champScene from "../assets/scenes/champ.png";
 import ironScene from "../assets/scenes/iron.jpg";
 import forestScene from "../assets/scenes/forest.jpg";
 import crimsonScene from "../assets/scenes/crimson.jpg";

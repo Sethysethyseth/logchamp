@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import * as sessionApi from "../api/sessionApi.js";
 import { useAuth } from "./AuthContext.jsx";
+import { sceneCheer, setSceneLive } from "../lib/sceneSignal.js";
 import { pickLatestActiveSession } from "../lib/activeSession.js";
 
 const ActiveSessionContext = createContext(null);
@@ -57,6 +58,7 @@ export function ActiveSessionProvider({ children }) {
       if (sessionId != null) {
         const idKey = String(sessionId);
         if (type === "completed") {
+          sceneCheer("finish");
           setSessions((prev) =>
             prev.map((s) =>
               s && String(s.id) === idKey && !s.completedAt
@@ -81,6 +83,13 @@ export function ActiveSessionProvider({ children }) {
   }, [refresh]);
 
   const activeSession = useMemo(() => pickLatestActiveSession(sessions), [sessions]);
+
+  /* The scene knows when a workout is live (the arena's lights come up). */
+  const hasActiveSession = Boolean(currentUser && activeSession);
+  useEffect(() => {
+    setSceneLive(hasActiveSession);
+    return () => setSceneLive(false);
+  }, [hasActiveSession]);
 
   const value = useMemo(
     () => ({

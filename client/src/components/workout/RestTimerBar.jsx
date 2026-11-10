@@ -7,6 +7,7 @@ import {
   readRestRun,
   remainingMs,
 } from "../../lib/restTimer.js";
+import { sceneCheer } from "../../lib/sceneSignal.js";
 import "../../styles/rest-timer.css";
 
 const DONE_HOLD_MS = 3000;
@@ -81,6 +82,7 @@ export function RestTimerBar({ sessionId, enabled }) {
       if (doneNow && sawTimeLeft && !vibratedRef.current) {
         vibratedRef.current = true;
         vibrateOnce();
+        sceneCheer("rest");
       }
       const nextText = doneNow ? "Rest done" : formatRest(left);
       setText((prev) => (prev === nextText ? prev : nextText));

@@ -1,6 +1,6 @@
 # MX wave roadmap - motion + visuals for LogChamp
 
-**Last checkpoint:** MX7a (Nov 10, 2026): logger floor PARTIAL + Home saved moment built direct (`a6338da`), see MX7; a default-scene idea "Champ Arena" is a preview only (`champ-arena.html`), awaiting Seth. Before that - MXF11 (Nov 9, 2026): Seth's Nov 9 smoke passed everything. DONE since Oct 11: MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6` (exercise detail inline under the tapped row), MXF10 `f5826af` (coach box above the Android keyboard - edge-to-edge Chrome's keyboard rect ignored the nav bar; /coach drops viewport-fit=cover in Chromium), MXF11 `1bf3ee7` (IDEAS 16 promoted: swipe the workout bar and coach bar away sideways). Seth on MXF11 (Nov 9): "it definitely works in the barest sense" - the mechanics pass, the FEEL needs a pass (MXF12, ask Seth what is missing first; HANDOFF PICK UP HERE 0). Then the next code unit is MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. Fable 5.2 is now on the Cursor CLI (`claude-fable-5-2-high` etc.). MX1-MX6, MX-S, MXF1-MXF11 and MXC1 stay DONE.
+**Last checkpoint:** MX7a (Nov 10, 2026): logger floor PARTIAL + Home saved moment built direct (`a6338da`), see MX7; then Champ Arena shipped as the default (champ) scene with a lit layer that follows live workouts (see MX10 note). Before that - MXF11 (Nov 9, 2026): Seth's Nov 9 smoke passed everything. DONE since Oct 11: MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6` (exercise detail inline under the tapped row), MXF10 `f5826af` (coach box above the Android keyboard - edge-to-edge Chrome's keyboard rect ignored the nav bar; /coach drops viewport-fit=cover in Chromium), MXF11 `1bf3ee7` (IDEAS 16 promoted: swipe the workout bar and coach bar away sideways). Seth on MXF11 (Nov 9): "it definitely works in the barest sense" - the mechanics pass, the FEEL needs a pass (MXF12, ask Seth what is missing first; HANDOFF PICK UP HERE 0). Then the next code unit is MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. Fable 5.2 is now on the Cursor CLI (`claude-fable-5-2-high` etc.). MX1-MX6, MX-S, MXF1-MXF11 and MXC1 stay DONE.
 
 This file is the wave's state. It stands on its own next to
 `MOTION-DIRECTION.md` (the design) and needs no chat history. Whoever picks
@@ -492,7 +492,13 @@ Conventions for every unit below:
   particles capped); build passes.
 - **Depends on:** MX-S (the preview) and Seth's pick of each environment's
   motion. **Packages:** none.
-- **Status:** TODO.
+- **Status:** TODO for four palettes. CHAMP PARTIAL (Nov 10, 2026, direct
+  at Seth's ask): the champ raster is now the Champ Arena (two stills from
+  `scripts/gen-champ-arena.cjs`), and its lit still is a CSS layer
+  (`html::after`) driven by `lib/sceneSignal.js` - towers on while a
+  workout is live, flashes on finish, one blink when rest ends. No canvas,
+  no idle loop. "Files: scenes untouched" above no longer holds for champ.
+  Not built: ambient idle (dust), seats filling with history.
 
 ## MX11 - Block run page adoption
 

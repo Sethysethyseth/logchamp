@@ -126,9 +126,25 @@ crimson dark, champ + forest light, reduced motion):
 - NOT touched: the block-day logger (its own header and grid), the rest
   dock, the finish sheet (MX9). Block-day finishes still get the saved
   hero.
-Default-theme idea (preview only, nothing in the app): "Champ Arena" -
-`docs/design/mocks/motion/champ-arena.html`, Artifact
-B89CfhvmvGiF86h7oN4AsE. Seth to say yes / no / change it.
+Champ Arena is the DEFAULT scene (Seth, Nov 10: "PLEASE add champ arena
+and make it the new default"; headless-checked only):
+- Dark mode, Champ palette: the skyline is gone. The bottom of every page
+  is an arena - lifting platform, loaded bar, two light towers, the crown
+  banner, stands. Light mode shows it washed, as the skyline was.
+- Start a workout: the left tower switches on, then the right, and the
+  lights STAY up on every page while the workout is live.
+- Finish: the lights flicker like camera flashes for ~2 s, then go low.
+- Rest timer runs out: the lights blink once (with the buzz).
+- Other palettes: unchanged. Reduced motion: lights just on or off.
+- Easter egg: press and hold Start empty workout - the dumbbell curls.
+- Stills: `client/src/assets/scenes/champ.png` + `champ-live.png`, drawn by
+  `scripts/gen-champ-arena.cjs`; the old skyline is kept at
+  `docs/design/mocks/champ-city-retired.jpg`. Wiring: `lib/sceneSignal.js`
+  sets `data-scene-live` / `data-scene-cheer` on <html>; the lit layer is
+  `html::after` (index.css, "Champ Arena"). Preview page:
+  `docs/design/mocks/motion/champ-arena.html` (Artifact
+  B89CfhvmvGiF86h7oN4AsE) - its "Room to grow" ideas (seats fill with
+  history, plates match the last top set, milestone banners) are NOT built.
 Seth, Nov 10: crown intro timing stays AS IS (every cold open).
 RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)

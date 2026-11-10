@@ -355,9 +355,13 @@ html[data-theme="dark"] {
   --scene-glow: color-mix(in srgb, var(--color-interactive) 22%, transparent);
 }
 
-/* The photograph per palette, both modes (light renders it washed). */
+/* The photograph per palette, both modes (light renders it washed).
+   Champ (the default) is the arena: an after-hours lifting platform under
+   two light towers. It ships as two stills drawn by
+   scripts/gen-champ-arena.cjs - lights low, and lights up. */
 :root {
-  --scene-image: url("./assets/scenes/champ.jpg");
+  --scene-image: url("./assets/scenes/champ.png");
+  --scene-image-live: url("./assets/scenes/champ-live.png");
 }
 
 html[data-palette="iron"] {
@@ -490,6 +494,79 @@ html[data-theme="dark"] body::after {
     rgba(0, 0, 0, 1) 38%,
     rgba(0, 0, 0, 0) 100%
   );
+}
+
+/* Champ Arena - the lit layer. Dark champ (and no palette = champ) only.
+   The "lights up" still sits exactly over the band, hidden; while a workout
+   is live (html[data-scene-live], lib/sceneSignal.js) it is revealed left
+   half then right half - the towers switch on one at a time. A finished
+   workout flickers it like camera flashes; a finished rest blinks it once.
+   html::after paints after body's two layers and under #root. */
+html[data-theme="dark"]:is(:not([data-palette]), [data-palette="champ"]) body::after {
+  image-rendering: pixelated;
+}
+
+html[data-theme="dark"]:is(:not([data-palette]), [data-palette="champ"])::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--scene-band-h);
+  z-index: 0;
+  pointer-events: none;
+  background: var(--scene-image-live) center bottom / cover no-repeat;
+  image-rendering: pixelated;
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 38%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 38%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    opacity 240ms var(--ease-standard),
+    clip-path 900ms steps(2, end);
+}
+
+html[data-theme="dark"][data-scene-live]:is(:not([data-palette]), [data-palette="champ"])::after,
+html[data-theme="dark"][data-scene-cheer]:is(:not([data-palette]), [data-palette="champ"])::after {
+  opacity: 1;
+  clip-path: inset(0);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-theme="dark"][data-scene-cheer="finish"]:is(:not([data-palette]), [data-palette="champ"])::after {
+    transition: none;
+    animation: scene-arena-flashes 2400ms steps(1, end) both;
+  }
+
+  html[data-theme="dark"][data-scene-cheer="rest"]:is(:not([data-palette]), [data-palette="champ"])::after {
+    transition: none;
+    animation: scene-arena-blink 700ms steps(1, end) both;
+  }
+
+  @keyframes scene-arena-flashes {
+    0% { opacity: 1; filter: brightness(1.9); }
+    6% { opacity: 0.35; filter: none; }
+    14% { opacity: 1; filter: brightness(1.7); }
+    20% { opacity: 0.5; filter: none; }
+    31% { opacity: 1; filter: brightness(2); }
+    36% { opacity: 0.3; filter: none; }
+    48% { opacity: 1; filter: brightness(1.5); }
+    55% { opacity: 0.6; filter: none; }
+    66% { opacity: 1; filter: brightness(1.7); }
+    72%, 100% { opacity: 1; filter: none; }
+  }
+
+  @keyframes scene-arena-blink {
+    0% { opacity: 1; filter: brightness(1.8); }
+    35% { opacity: 0.2; filter: none; }
+    60%, 100% { opacity: 1; filter: brightness(1.3); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="dark"]:is(:not([data-palette]), [data-palette="champ"])::after {
+    transition: none;
+  }
 }
 
 #root {
@@ -5383,6 +5460,19 @@ html[data-theme="dark"] .workout-hero.card--notched::before {
   background-color: currentColor;
   -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%3E%3Cpath%20d='M6.5%206.5v11M3.5%209v5M17.5%206.5v11M20.5%209v5M7%2012h10'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='2'%20stroke-linecap='round'%3E%3Cpath%20d='M6.5%206.5v11M3.5%209v5M17.5%206.5v11M20.5%209v5M7%2012h10'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Press Start and the dumbbell does one curl. */
+@media (prefers-reduced-motion: no-preference) {
+  .workout-hero__cta::after {
+    transform-origin: 15% 50%;
+    transition: transform 420ms var(--mx-ease-spring);
+  }
+
+  .workout-hero__cta:active::after {
+    transform: rotate(-62deg);
+    transition-duration: 110ms;
+  }
 }
 
 .workout-tab-recent {
