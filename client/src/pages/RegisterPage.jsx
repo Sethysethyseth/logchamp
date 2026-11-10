@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { ErrorMessage } from "../components/ErrorMessage.jsx";
 import { PasswordInput } from "../components/auth/PasswordInput.jsx";
 import { safeNextPath } from "../lib/safeNext.js";
+import { playCrownIntro } from "../components/motion/crownIntroStore.js";
 import { validateUsername } from "../lib/username.js";
 
 export function RegisterPage() {
@@ -34,6 +35,8 @@ export function RegisterPage() {
     setSubmitting(true);
     try {
       await register({ email, password, username });
+      // The crown intro covers the screen first, so Home swaps in unseen.
+      await playCrownIntro();
       navigate(nextUrl, { replace: true });
     } catch (err) {
       setError(err);

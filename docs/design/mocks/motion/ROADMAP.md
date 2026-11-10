@@ -595,6 +595,26 @@ Conventions for every unit below:
   describes the old skyline flicker - it is not in this block's FILES TO
   TOUCH; MX10's author should update it to match scenes.html.
 
+## MX-CI - Crown intro (app open + first sign-in)
+
+- **Status:** BUILT Nov 10, 2026 (cloud Fable session, direct at Seth's
+  ask: "the crown spinning... an 8 bit ish rendition" of a console boot).
+  Awaiting Seth's phone smoke; HANDOFF carries the items.
+- **What it is:** one canvas overlay, `components/motion/CrownIntro.jsx`
+  (host, mounted in App) + `crownIntroEngine.js` (frames) +
+  `crownIntroStore.js` (`playCrownIntro()` for the auth forms). Beats:
+  pixel ribbons build the crown -> flash + pixel shock ring -> coin-toss
+  spin (24 steps a turn) -> drops into the wordmark lockup, letters step
+  in -> Bayer-dither wipe outward from the crown reveals the app.
+- **Triggers:** "login" after sign-in/registration (ribbons lift off the
+  login page's own crown; the route swaps only once the screen is
+  covered); "boot" once per page load when the device holds an auth
+  token - its spin repeats until `/auth/me` answers, so it is the boot
+  loader. Never for signed-out visitors or the connector login.
+- **Bounds kept:** tap skips; reduced motion = never mounts; colours read
+  from the live tokens (all palettes, both modes, custom); a 1.2 s cap so
+  a stuck canvas cannot hold sign-in.
+
 ---
 
 ## Server-side units this wave surfaced (not in this block)

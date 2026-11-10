@@ -1,0 +1,36 @@
+/* The crown intro overlay (MX). The canvas paints everything; this file only
+   places it above the whole app. Tokens-only. */
+
+.crown-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Boot: solid from the very first paint, until the canvas has drawn its own
+   first frame - no flash of the page loader underneath. */
+.crown-intro--solid {
+  background: var(--color-bg);
+}
+
+.crown-intro__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.crown-intro__slow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 62%;
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  animation: mx-fade var(--mx-reveal) var(--ease-standard) both;
+}

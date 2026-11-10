@@ -28,6 +28,7 @@ import { WhatsNewPage } from "./pages/profile/WhatsNewPage.jsx";
 import { DevFeedbackPage } from "./pages/DevFeedbackPage.jsx";
 import { HelloPage } from "./pages/HelloPage.jsx";
 import { RouteTransition } from "./components/motion/RouteTransition.jsx";
+import { CrownIntroHost } from "./components/motion/CrownIntro.jsx";
 import { CoachSessionProvider } from "./context/CoachSessionContext.jsx";
 
 function HomeRoute() {
@@ -46,6 +47,7 @@ function HomeRoute() {
 export default function App() {
   return (
     <CoachSessionProvider>
+    <CrownIntroHost />
     <Routes>
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />

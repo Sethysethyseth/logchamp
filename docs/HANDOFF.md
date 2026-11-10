@@ -60,6 +60,19 @@ Analytics):
 - Ask the coach something, leave, swipe the "working" bar away -> when
   the answer is ready the bar returns once as "Coach answered"; swipe it
   again -> gone for good. The answer is in History > Coach either way.
+MX-CI crown intro (Nov 10, built directly in a cloud Fable session at
+Seth's ask - no Cursor block; NOT yet smoked on a phone):
+- Sign in from the login screen: the login crown breaks into pixel
+  ribbons, builds a big crown, flashes, spins twice like a coin, drops
+  into the LOGCHAMP wordmark, and the screen dithers away to Home (~3 s).
+- Close the app fully and reopen while signed in: the shorter version
+  plays (~2 s). On a slow server wake the crown keeps spinning and
+  "Taking longer than usual..." appears after 4 s.
+- Tap anywhere during either: it wipes out at once.
+- Reduced motion on: no intro at all, sign-in and boot as before.
+- Signed out, open the app: straight to the login form, no intro.
+Open for Seth: is ~2 s on EVERY cold open right, or only the first open
+of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)
 Open questions for Seth: keep the crown on coach answers + the Analytics
 coach card, or the bubble everywhere? `/coach/status` and `/coach/stop`
 count against the coach limit - OK? Tapping outside the "still answering"
