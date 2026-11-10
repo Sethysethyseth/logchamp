@@ -241,3 +241,80 @@
     animation: mx-pop 320ms var(--mx-ease-spring) 520ms both;
   }
 }
+
+/* ---- Loader -> login hand-off: the big crown shrinks into the wordmark ----
+   AuthLayout sets --crown-dx / --crown-dy / --crown-scale from where the
+   loader's crown was. The crown layer starts there, lands with one last
+   stepped flip-squeeze, flashes, and throws four pixels. */
+@media (prefers-reduced-motion: no-preference) {
+  .auth-card-wrap > .wordmark.wordmark--handoff {
+    animation: mx-fade var(--mx-reveal) var(--ease-standard) both;
+  }
+
+  .auth-card-wrap > .wordmark.wordmark--handoff::after {
+    transform-origin: 47.66% 17.75%;
+    animation:
+      crown-handoff 560ms var(--mx-ease-draw) both,
+      crown-land 280ms steps(1) 540ms forwards,
+      crown-glint 6.5s steps(1) 3s infinite;
+  }
+
+  @keyframes crown-handoff {
+    0% {
+      transform: translate(var(--crown-dx), var(--crown-dy)) scale(var(--crown-scale));
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes crown-land {
+    0% {
+      filter: brightness(2.2);
+    }
+    35% {
+      filter: brightness(1.4);
+    }
+    70%,
+    100% {
+      filter: none;
+    }
+  }
+
+  .wordmark__sparks {
+    position: absolute;
+    left: 47.66%;
+    top: 17.75%;
+    pointer-events: none;
+  }
+
+  .wordmark__sparks i {
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    width: 4px;
+    height: 4px;
+    background: var(--color-text);
+    opacity: 0;
+    animation: crown-spark 380ms steps(5) 540ms both;
+  }
+
+  .wordmark__sparks i:nth-child(1) { --sx: -30px; --sy: -14px; }
+  .wordmark__sparks i:nth-child(2) { --sx: 30px; --sy: -14px; }
+  .wordmark__sparks i:nth-child(3) { --sx: -22px; --sy: 8px; }
+  .wordmark__sparks i:nth-child(4) { --sx: 22px; --sy: 8px; }
+
+  @keyframes crown-spark {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0);
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--sx), var(--sy));
+    }
+  }
+}

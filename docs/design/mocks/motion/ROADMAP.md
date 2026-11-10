@@ -640,6 +640,10 @@ Conventions for every unit below:
 - **Loader:** `LoadingState tone="page"` is the pixel crown coin
   (`PixelCrown.jsx` + `crown-play.css`), not the barbell. Inline and
   skeleton-caption barbells are untouched.
+- **Loader -> login hand-off (Seth, Nov 10):** the loader notes its
+  crown's resting box (`crownIntroStore.js`, 500 ms window); `AuthLayout`
+  starts the wordmark's crown layer there via `--crown-dx/dy/scale` and
+  it shrinks home, flashes, throws four pixels (`wordmark--handoff`).
 
 ---
 

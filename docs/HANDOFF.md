@@ -88,6 +88,10 @@ Round 3 (Nov 10, same session, not yet smoked):
   bar is there again and the pip is gone. Without resuming it stays
   hidden until the next app open, as before.
 - Reduced motion: bar simply gone (pip still shows), crown holds still.
+- Loader -> login hand-off (round 4): signed out + slow server, when the
+  wait ends the big crown shrinks into the login wordmark's crown, flashes
+  and throws four pixels. Arriving at login any other way: the crown
+  drops on as before.
 Seth, Nov 10: crown intro timing stays AS IS (every cold open).
 RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)

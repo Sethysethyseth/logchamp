@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { noteLoaderCrown, stampLoaderCrown } from "./motion/crownIntroStore.js";
 import { PixelCrown } from "./motion/PixelCrown.jsx";
 import "./motion/crown-play.css";
 
@@ -195,6 +196,16 @@ export function LoadingState({
     const timer = setTimeout(() => setSkeletonSlow(true), 2500);
     return () => clearTimeout(timer);
   }, [tone, caption]);
+  /* Page tone: remember where the crown rests, so the login screen's crown
+     can start from it (the loader -> login hand-off). */
+  const coinRef = useRef(null);
+  const showCoin = visible && tone === "page";
+  useLayoutEffect(() => {
+    if (!showCoin || !coinRef.current) return undefined;
+    const r = coinRef.current.getBoundingClientRect();
+    noteLoaderCrown({ x: r.left + r.width / 2, y: r.top + 34 + 34, w: 100 });
+    return stampLoaderCrown;
+  }, [showCoin]);
   if (!visible) return null;
 
   const text = slow && slowLabel ? slowLabel : label;
@@ -206,7 +217,7 @@ export function LoadingState({
         <div className="loading-page__content">
           {/* The crown intro's coin, as the full-page wait: tossed and
               spinning over its own pixel shadow, wordmark underneath. */}
-          <div className="loading-coin" aria-hidden="true">
+          <div className="loading-coin" aria-hidden="true" ref={coinRef}>
             <PixelCrown className="loading-coin__crown" />
             <span className="loading-coin__shadow" />
           </div>

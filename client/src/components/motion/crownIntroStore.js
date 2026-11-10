@@ -53,3 +53,28 @@ export function claimBootIntro() {
   bootPlayed = true;
   return true;
 }
+
+/* ---- Loader -> login hand-off ----
+ * The full-page wait's crown notes where it rests; if the login screen
+ * mounts right after, its own crown starts there and shrinks into place.
+ */
+const HANDOFF_WINDOW_MS = 500;
+let loaderCrown = null;
+
+/** Called by the loader: its crown's resting box, in viewport px. */
+export function noteLoaderCrown(rect) {
+  loaderCrown = rect ? { ...rect, at: performance.now() } : null;
+}
+
+/** Called by the loader as it leaves: the hand-off window opens now. */
+export function stampLoaderCrown() {
+  if (loaderCrown) loaderCrown.at = performance.now();
+}
+
+/** The loader crown's box if the loader left a moment ago, else null. The
+ *  window closes by itself, so reading it twice is harmless. */
+export function takeLoaderCrown() {
+  const c = loaderCrown;
+  if (!c || prefersReducedMotion() || performance.now() - c.at > HANDOFF_WINDOW_MS) return null;
+  return c;
+}
