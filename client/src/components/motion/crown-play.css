@@ -153,3 +153,91 @@
     }
   }
 }
+
+/* ---- Full-page wait: the crown coin (replaces the barbell splash) ---- */
+
+.loading-coin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 34px; /* room for the toss; no perspective - a flat 8-bit squeeze */
+}
+
+.loading-coin__crown {
+  display: block;
+  width: 100px;
+  height: 68px;
+  color: var(--color-interactive);
+}
+
+.loading-coin__shadow {
+  width: 76px;
+  height: 4px;
+  background: color-mix(in srgb, var(--color-interactive) 34%, transparent);
+}
+
+/* The wordmark sits under the coin now and holds still - the coin is the
+   thing that moves. Its own crown layer is not drawn here. */
+.loading-page__mark.loading-page__mark--under {
+  width: 150px;
+  animation: none;
+}
+
+/* ---- Bar dismiss (MXF12): Home pings, and keeps a pip ---- */
+
+.bottom-nav__pip {
+  position: absolute;
+  top: 5px;
+  left: calc(50% + 7px);
+  width: 7px;
+  height: 7px;
+  background: var(--color-interactive);
+  box-shadow: 0 0 0 2px var(--color-surface-1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loading-coin__crown {
+    animation: loading-coin-toss 1.5s steps(9) infinite;
+  }
+
+  .loading-coin__shadow {
+    animation: loading-coin-shadow 1.5s steps(9) infinite;
+  }
+
+  /* Up, two turns, down, a beat of rest. */
+  @keyframes loading-coin-toss {
+    0% {
+      transform: translateY(0) rotateY(0deg);
+    }
+    35% {
+      transform: translateY(-30px) rotateY(360deg);
+    }
+    70%,
+    100% {
+      transform: translateY(0) rotateY(720deg);
+    }
+  }
+
+  @keyframes loading-coin-shadow {
+    0%,
+    70%,
+    100% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+    35% {
+      transform: scaleX(0.5);
+      opacity: 0.45;
+    }
+  }
+
+  .bottom-nav__icon--pinged {
+    animation: mx-nav-pop 420ms var(--mx-ease-spring) both;
+  }
+
+  /* The pip lands when the flying pixels do. */
+  .bottom-nav__pip {
+    animation: mx-pop 320ms var(--mx-ease-spring) 520ms both;
+  }
+}

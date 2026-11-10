@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { PixelCrown } from "./motion/PixelCrown.jsx";
+import "./motion/crown-play.css";
 
 const SHOW_DELAY_MS = 400;
 const SLOW_DELAY_MS = 4000;
@@ -202,11 +204,15 @@ export function LoadingState({
     return (
       <div className="loading-page" role="status" aria-live="polite">
         <div className="loading-page__content">
-          <div className="loading-page__mark" aria-hidden="true">
-            <span className="loading-page__wordmark" />
-            <span className="loading-page__crown" />
+          {/* The crown intro's coin, as the full-page wait: tossed and
+              spinning over its own pixel shadow, wordmark underneath. */}
+          <div className="loading-coin" aria-hidden="true">
+            <PixelCrown className="loading-coin__crown" />
+            <span className="loading-coin__shadow" />
           </div>
-          <Barbell plates={3} className="loading-page__barbell" />
+          <div className="loading-page__mark loading-page__mark--under" aria-hidden="true">
+            <span className="loading-page__wordmark" />
+          </div>
           <div className="loading-page__text-wrap">
             <span
               className={`loading-page__text loading-page__text--primary${showSlow ? " loading-page__text--hidden" : ""}`}

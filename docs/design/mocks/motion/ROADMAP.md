@@ -622,6 +622,25 @@ Conventions for every unit below:
   no-preference`. More cheap candidates, not built: nav-icon pixel pop,
   a finish-workout crown stamp (belongs to MX8), a crown on 404/empty.
 
+## MXF12 - Bar dismiss exit + crown loader (Seth, Nov 10)
+
+- **Status:** BUILT Nov 10, 2026 (cloud Fable session, direct). Awaiting
+  Seth's phone smoke.
+- **Exit:** `bar-dismiss.html` option C "Goes Home" is in the app:
+  `components/motion/pixelScatter.js`, switched on by `useSwipeDismiss`'s
+  new `scatter` option (workout bar `toHome`, coach bar plain scatter).
+  The Home tab pings and keeps `.bottom-nav__pip` while the bar is hidden.
+- **NOT ported from the preview:** "Any way" dragging, the tether/tilt
+  under the finger, and the armed "shed" pixels. Sideways-only (Seth's
+  Nov 9 ruling) and `swipeDismiss.js` thresholds are unchanged. The
+  HANDOFF feel-pass questions about the drag itself are still open.
+- **Ruling change (Seth, Nov 10):** opening the live workout un-hides the
+  bar (resume, back out, it is back). State moved to
+  `lib/workoutBarHidden.js` so the bar, the pip and that rule agree.
+- **Loader:** `LoadingState tone="page"` is the pixel crown coin
+  (`PixelCrown.jsx` + `crown-play.css`), not the barbell. Inline and
+  skeleton-caption barbells are untouched.
+
 ---
 
 ## Server-side units this wave surfaced (not in this block)

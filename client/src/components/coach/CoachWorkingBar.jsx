@@ -166,6 +166,7 @@ export function CoachWorkingBar() {
   const { ref: swipeRef, handlers: swipeHandlers } = useSwipeDismiss({
     onDismiss: dismissBar,
     resetKey: `${bar.phase}:${bar.beat}`,
+    scatter: { accentSelector: ".coach-msg__crown" },
   });
 
   if (!present) return null;

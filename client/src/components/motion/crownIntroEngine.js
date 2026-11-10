@@ -12,7 +12,7 @@
 
 /* The brand crown on a 25 x 17 grid (sampled from wordmark_crown_mask.png,
    mirrored so the spin reads clean). */
-const CROWN = [
+export const CROWN = [
   "...........###...........",
   "...........###...........",
   "###......#######......###",

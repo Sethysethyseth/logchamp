@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { decideSwipe, lockAxis } from "../../lib/swipeDismiss.js";
 import { useReducedMotion } from "../../lib/useReducedMotion.js";
+import { scatterBar } from "./pixelScatter.js";
 
 /**
  * Swipe a floating bar sideways to hide it (MXF11). Shared by the
@@ -25,7 +26,12 @@ import { useReducedMotion } from "../../lib/useReducedMotion.js";
  * The hook writes styles straight to the element on pointermove (no React
  * state per frame) so a mid-range phone keeps 60fps under the finger.
  *
- * @param {{ onDismiss?: () => void, resetKey?: unknown }} opts
+ * - `scatter` (MXF12): the dismiss exit is the pixel scatter instead of the
+ *   throw - the bar breaks into pixels where the finger left it; with
+ *   `toHome` its accent pixels fly to the Home tab. Reduced motion is
+ *   unchanged (simply gone).
+ *
+ * @param {{ onDismiss?: () => void, resetKey?: unknown, scatter?: { toHome?: boolean, accentSelector?: string } }} opts
  *   `resetKey` - when it changes, any thrown-out / mid-gesture styling is
  *   cleared. Pass the identity of what the bar shows (session id, coach
  *   phase+beat) so a bar that comes back on the SAME element starts clean.
@@ -83,11 +89,12 @@ function clearInline(el) {
   el.removeAttribute("data-swipe");
 }
 
-export function useSwipeDismiss({ onDismiss, resetKey } = {}) {
+export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
   const reduced = useReducedMotion();
   const ref = useRef(null);
   const onDismissRef = useRef(onDismiss);
   const reducedRef = useRef(reduced);
+  const scatterRef = useRef(scatter);
   /* { pointerId, startX, startY, axis, width, samples, captured } */
   const gestureRef = useRef(null);
   /* idle | drag | return | dismiss | gone */
@@ -100,6 +107,7 @@ export function useSwipeDismiss({ onDismiss, resetKey } = {}) {
   useEffect(() => {
     onDismissRef.current = onDismiss;
     reducedRef.current = reduced;
+    scatterRef.current = scatter;
   });
 
   const clearEnd = useCallback(() => {
@@ -190,12 +198,23 @@ export function useSwipeDismiss({ onDismiss, resetKey } = {}) {
   );
 
   const throwOut = useCallback(
-    (el, dx, width) => {
+    (el, dx, width, velocity = 0) => {
       const sign = dx < 0 ? -1 : 1;
       if (reducedRef.current) {
         /* Reduced: no throw - past the threshold it is simply gone. */
         phaseRef.current = "gone";
         el.setAttribute("data-swipe", "gone");
+        onDismissRef.current?.();
+        return;
+      }
+      if (scatterRef.current) {
+        /* The canvas takes over from exactly where the bar is; the bar
+           itself is done. */
+        scatterBar(el, { ux: sign, speed: velocity, ...scatterRef.current });
+        el.style.transition = "";
+        el.style.opacity = "0";
+        el.setAttribute("data-swipe", "gone");
+        phaseRef.current = "gone";
         onDismissRef.current?.();
         return;
       }
@@ -287,8 +306,9 @@ export function useSwipeDismiss({ onDismiss, resetKey } = {}) {
       if (!el) return;
       pushSample(g, e.clientX);
       const dx = e.clientX - g.startX;
-      const verdict = decideSwipe({ dx, width: g.width, velocityX: velocityOf(g) });
-      if (verdict === "dismiss") throwOut(el, dx, g.width);
+      const velocityX = velocityOf(g);
+      const verdict = decideSwipe({ dx, width: g.width, velocityX });
+      if (verdict === "dismiss") throwOut(el, dx, g.width, velocityX);
       else springBack(el, dx);
     },
     [releaseCapture, springBack, throwOut]

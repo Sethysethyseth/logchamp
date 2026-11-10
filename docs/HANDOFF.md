@@ -76,6 +76,18 @@ Crown play (Nov 10, same session, CSS-only, not yet smoked):
   then glints every ~6 s. A wrong password shakes the error once.
 - Home: tap the masthead crown -> it flips like a coin. Five quick taps
   -> it rains crowns for ~3 s (easter egg; one short buzz on Android).
+Round 3 (Nov 10, same session, not yet smoked):
+- Slow first load while signed out (server waking): the full-page wait
+  is now the pixel crown tossed and spinning over a pixel shadow with the
+  wordmark under it - no barbell.
+- MXF12 bar exit: start a workout, go to Analytics, swipe the resume bar
+  sideways -> it breaks into pixels the way it was thrown; the accent
+  pixels fly to the Home tab, Home pops, and a small square pip stays on
+  Home while the bar is hidden. Coach bar: same scatter, no fly-home.
+- Tap Home > Resume (or open the live workout any way), back out -> the
+  bar is there again and the pip is gone. Without resuming it stays
+  hidden until the next app open, as before.
+- Reduced motion: bar simply gone (pip still shows), crown holds still.
 Seth, Nov 10: crown intro timing stays AS IS (every cold open).
 RESOLVED - was: is ~2 s on EVERY cold open right, or only the first open
 of the day? (`TIMING` in `crownIntroEngine.js` holds every duration.)

@@ -1,9 +1,11 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useGuardedNav } from "../../lib/useGuardedNav.js";
 import { SlidingIndicator } from "../motion/SlidingIndicator.jsx";
 import { NAV_SECTIONS, sectionIndexOf } from "../motion/navOrder.js";
+import { useActiveSession } from "../../context/ActiveSessionContext.jsx";
+import { getHiddenWorkoutBarId, subscribeHiddenWorkoutBar } from "../../lib/workoutBarHidden.js";
 
 const ICONS = {
   home: (
@@ -54,6 +56,12 @@ export function BottomNav() {
   const { pathname } = useLocation();
   const hostRef = useRef(null);
   const [tapped, setTapped] = useState(null);
+  const { activeSession } = useActiveSession();
+  const hiddenBarId = useSyncExternalStore(subscribeHiddenWorkoutBar, getHiddenWorkoutBarId);
+  /* The resume bar was swiped away: a square accent pixel on Home says the
+     workout is still there (MXF12). Home itself already shows the card. */
+  const workoutPip =
+    Boolean(activeSession) && hiddenBarId === String(activeSession.id) && pathname !== "/";
 
   if (!currentUser) return null;
 
@@ -95,6 +103,7 @@ export function BottomNav() {
           >
             {ICONS[key]}
           </svg>
+          {key === "home" && workoutPip ? <span className="bottom-nav__pip" aria-hidden="true" /> : null}
           <span className="bottom-nav__label">{label}</span>
         </NavLink>
       ))}

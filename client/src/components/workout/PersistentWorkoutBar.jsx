@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as sessionApi from "../../api/sessionApi.js";
 import { useActiveSession } from "../../context/ActiveSessionContext.jsx";
@@ -6,33 +6,20 @@ import { sessionDisplayTitle, sessionQuickExerciseLabel } from "../../lib/sessio
 import { ConfirmPanel } from "../ConfirmPanel.jsx";
 import { GlyphIcon } from "../GlyphIcon.jsx";
 import { useSwipeDismiss } from "../motion/useSwipeDismiss.js";
+import {
+  getHiddenWorkoutBarId,
+  setHiddenWorkoutBarId,
+  subscribeHiddenWorkoutBar,
+} from "../../lib/workoutBarHidden.js";
 import "../../styles/workout-bar.css";
 
 const DISCARD_ERROR = "Couldn't discard. Check your connection and try again.";
 
-/* MXF11: a sideways swipe HIDES the bar for this browsing session (the
-   workout itself is untouched - Home's resume card still has it). Keyed by
-   the session id, so a different workout brings the bar back. sessionStorage
-   ends with the tab / app, which is "until the next app open". A storage
-   throw means "not hidden". */
-const HIDDEN_KEY = "workoutdb-workout-bar-hidden";
-
-function readHiddenSessionId() {
-  try {
-    const raw = sessionStorage.getItem(HIDDEN_KEY);
-    return raw ? String(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeHiddenSessionId(id) {
-  try {
-    sessionStorage.setItem(HIDDEN_KEY, String(id));
-  } catch {
-    /* ignore - the in-memory state still hides it for this page */
-  }
-}
+/* MXF11: a sideways swipe HIDES the bar (the workout itself is untouched -
+   Home's resume card still has it). Keyed by the session id, so a different
+   workout brings the bar back. MXF12 (Seth, Nov 10): opening the live
+   workout brings it back too - resume, back out, and the bar is there
+   again. Otherwise it stays hidden until the next app open. */
 
 function canOfferDiscard(session) {
   return Boolean(session) && !session.completedAt && session.reopenedAt == null;
@@ -89,16 +76,23 @@ export function PersistentWorkoutBar() {
   const [discardOpen, setDiscardOpen] = useState(false);
   const [discardBusy, setDiscardBusy] = useState(false);
   const [discardError, setDiscardError] = useState(null);
-  const [hiddenSessionId, setHiddenSessionId] = useState(readHiddenSessionId);
+  const hiddenSessionId = useSyncExternalStore(subscribeHiddenWorkoutBar, getHiddenWorkoutBarId);
   const activeId = activeSession ? String(activeSession.id) : null;
   const { ref: swipeRef, handlers: swipeHandlers } = useSwipeDismiss({
     onDismiss: () => {
       if (activeId == null) return;
-      writeHiddenSessionId(activeId);
-      setHiddenSessionId(activeId);
+      setHiddenWorkoutBarId(activeId);
     },
     resetKey: activeId,
+    scatter: { toHome: true },
   });
+
+  /* Back in the live workout: the swipe is forgiven, so leaving the workout
+     shows the bar again. */
+  const onLiveWorkout = activeId != null && location.pathname === `/sessions/${activeId}`;
+  useEffect(() => {
+    if (onLiveWorkout && getHiddenWorkoutBarId() === activeId) setHiddenWorkoutBarId(null);
+  }, [onLiveWorkout, activeId]);
 
   useEffect(() => {
     if (!activeSession) return;
