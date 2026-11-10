@@ -1,52 +1,34 @@
 # HANDOFF — current state
 
-> **WHERE WE ARE (Nov 10): MOTION WAVE (MX) OPEN on `motion-wave` - mid-wave,
-> MX7-MX16 still TODO in ROADMAP.** Every smoke item through MXF10 PASSED
-> (Nov 9). Nov 10: a cloud Fable session built DIRECTLY at Seth's ask (no
-> Cursor blocks - the cloud box cannot reach the lane worktrees): MX-CI
-> crown intro, crown play, MXF12 (bar pixel exit + any-direction drag +
-> crown loader + loader->login hand-off), then MX7a (logger floor + the
-> Home saved moment, `a6338da`). All pushed, NONE phone-smoked;
-> verified only in headless Chromium at 400x860 against a mocked API
-> (normal + reduced motion, no page errors). Smoke list below.
-> Seth's direction: "wicked" motion and graphics, analytics first; Fable in
-> Cursor is the designer and its suggestions win; the Claude Code seat
-> writes briefs and audits. Motion stance: AGENTS.md.
-> - Design of record: `docs/design/mocks/motion/MOTION-DIRECTION.md`
->   (Seth's rulings at the top win: PR celebration RARE, milestones at
->   100/1,000/10,000 workouts, per-palette scenes) + `ROADMAP.md` (the
->   wave's state: MX1-MX16 + MX-S + SRV-1/2, "Last checkpoint" line) +
->   `IDEAS.md` (15 PARKED ideas; IDEAS 16 PROMOTED -> MXF11).
-> - LANDED: MX0 `f651c21`, MX1-4 `2cdeee0`, MX5-6 `d309919`, MXF1
->   `97d028d`, MXF2 `20daef5`, MXC1 `266554f`, MXF3 `ff2c4e0`, MXF4
->   `d6ae69b`, MXF5 `3378250`, MXF6 `f14762d` (SERVER-touching: coach
->   finish + save on disconnect, `POST /coach/stop`), MXF7 `fec6d06`,
->   MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6`
->   (exercise detail inline under the tapped row), MXF10 `f5826af` (coach
->   box above the Android keyboard), MXF11 `1bf3ee7` (swipe bars away).
->   QUEUE.md holds every audit.
-> - **Cursor models (Nov 9):** Fable 5.2 is live on the CLI
->   (`claude-fable-5-2-low|medium|high|xhigh|max`); 5.1 still listed.
->   Use 5.2 for the next design-heavy block (Seth: "a useful option").
-> - Previews (private Artifacts): analytics X52VRgnoGLer3gGgphQnBU, PR
->   2kWaZboR6dtMGXgwJqhPSN, navigation T5WpDyvFkAX5rdex1Y5k67, session
->   flow 7dk9zTUhc2nxAbjDLS9i2S, scenes PTk4q9Gww5xhBy5cHkgQBx
->   (claude.ai/artifact/<id>).
-> - Cursor caps are monthly per model (reset on the 18th): every Fable run
->   must leave ROADMAP.md current. The MX 5.1 chat is
->   `eb56cfff-dfbb-4abc-99f2-6d794c36b307` (`run-lane.ps1 -Resume`). Seth:
->   never dispatch the next unit until the current Fable run has fully
->   delivered; never stop a run mid-flight. Claude Code's low-memory
->   reaper can kill a background lane run - resume the same chat with a
->   salvage `-Note` (MXF9 precedent), don't ask.
-> - Staging Render serves `motion-wave` (probed Oct 11: `POST
->   /coach/stop` -> 401, a bogus path -> 404). No migrations on this
->   branch, so the deploy does not migrate.
-> - `main` = `b82ad8c` (QOL wave, live on prod). `quality-of-life-updates`
->   = main + docs; `motion-wave` was cut from it.
+> **WHERE WE ARE (Nov 10, end of the second cloud Fable session): MOTION
+> WAVE (MX) OPEN on `motion-wave`, and a NEW DIRECTION is pocketed - the
+> LogChamp Arena.** Seth: "we can absolutely work with this, lets pocket
+> this look for now and add onto it in another chat... I want the next
+> Fable chat to pick up right where we left off." Read PICK UP HERE item 0
+> first.
+> - Built directly at Seth's ask this session (no Cursor blocks - the
+>   cloud box cannot reach the lane worktrees), all pushed, NONE smoked on
+>   a phone except where noted: MX7a logger floor + Home saved moment
+>   `a6338da`; Champ Arena as the default scene `f669edd`; Arena view
+>   (beta) switch `fbc75f7` + phone zoom fix `c3feeaf` (Seth hit the zoom
+>   bug on his phone; the fix is verified under a Pixel profile only).
+> - The design to build from: `docs/design/mocks/motion/
+>   arena-final-draft.html` (Artifact AjNaPNfZrnogjXx3UV2H4n). Earlier
+>   steps, kept for reference: `champ-arena.html` (B89CfhvmvGiF86h7oN4AsE),
+>   `arena-ui-concepts.html` (DHV5E4bdodEXcwcsAVNBiL), `arena-ui-v2.html`
+>   (BTV11WBCvwDGG5zd653urq). Open as claude.ai/artifact/<id>.
+> - Motion wave design of record is unchanged: `MOTION-DIRECTION.md` +
+>   `ROADMAP.md` (MX7 PARTIAL, MX10 champ PARTIAL, MX8/9/11-16 TODO) +
+>   `IDEAS.md`. The arena is NOT in ROADMAP yet - it is its own wave.
+> - Still true from before: Seth's direction is "wicked" motion, analytics
+>   first; Fable is the designer; Fable 5.2 is on the Cursor CLI; Cursor
+>   caps reset on the 18th; staging Render serves `motion-wave`, no
+>   migrations on this branch; `main` = `b82ad8c` (QOL wave, live on prod).
+>   Landed-unit SHAs and audits: QUEUE.md + the archive.
 
-**Next action (human):** smoke the Nov 10 work on the phone (list below),
-say what feels off; then pick MX7 (recommended) or MX5b / MX10 next.
+**Next action (human):** open the next Fable chat and say what to add to
+the arena draft; smoke the Nov 10 work on the phone when convenient (lists
+below) - the Arena beta after `c3feeaf` first.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
@@ -64,48 +46,9 @@ Analytics):
 - Ask the coach something, leave, swipe the "working" bar away -> when
   the answer is ready the bar returns once as "Coach answered"; swipe it
   again -> gone for good. The answer is in History > Coach either way.
-MX-CI crown intro (Nov 10, built directly in a cloud Fable session at
-Seth's ask - no Cursor block; NOT yet smoked on a phone):
-- Sign in from the login screen: the login crown breaks into pixel
-  ribbons, builds a big crown, flashes, spins twice like a coin, drops
-  into the LOGCHAMP wordmark, and the screen dithers away to Home (~3 s).
-- Close the app fully and reopen while signed in: the shorter version
-  plays (~2 s). On a slow server wake the crown keeps spinning and
-  "Taking longer than usual..." appears after 4 s.
-- Tap anywhere during either: it wipes out at once.
-- Reduced motion on: no intro at all, sign-in and boot as before.
-- Signed out, open the app: straight to the login form, no intro.
-Crown play (Nov 10, same session, CSS-only, not yet smoked):
-- Login screen: the wordmark rises, the crown drops on with a bounce,
-  then glints every ~6 s. A wrong password shakes the error once.
-- Home: tap the masthead crown -> it flips like a coin. Five quick taps
-  -> it rains crowns for ~3 s (easter egg; one short buzz on Android).
-Round 3 (Nov 10, same session, not yet smoked):
-- Slow first load while signed out (server waking): the full-page wait
-  is now the pixel crown tossed and spinning over a pixel shadow with the
-  wordmark under it - no barbell.
-- MXF12 bar exit: start a workout, go to Analytics, swipe the resume bar
-  sideways -> it breaks into pixels the way it was thrown; the accent
-  pixels fly to the Home tab, Home pops, and a small square pip stays on
-  Home while the bar is hidden. Coach bar: same scatter, no fly-home.
-- Tap Home > Resume (or open the live workout any way), back out -> the
-  bar is there again and the pip is gone. Without resuming it stays
-  hidden until the next app open, as before.
-- Reduced motion: bar simply gone (pip still shows), crown holds still.
-- Loader -> login hand-off (round 4): signed out + slow server, when the
-  wait ends the big crown shrinks into the login wordmark's crown, flashes
-  and throws four pixels. Arriving at login any other way: the crown
-  drops on as before.
-- Any-direction bar drag (round 5, Seth: "omnidirectional" - REPLACES
-  the Nov 9 sideways-only ruling): drag the resume or coach bar any way;
-  it lags behind the finger and tilts; past ~72 px its edge lights, it
-  dims, buzzes once and sheds pixels; let go there (or flick) and it
-  scatters the way it was thrown. A short pull springs back. A drag that
-  starts on the bar no longer scrolls the page. Swipe it away, resume,
-  back out, swipe again - must work (was a bug, fixed).
-- Polish 1: every crown landing flashes + throws four pixels (loading
-  coin each loop, Home crown flip, login hand-off); the resume bar rises
-  in when it appears.
+First Nov 10 session (MX-CI crown intro, crown play, MXF12 bar exit and
+any-direction drag, loader hand-off, polish 1): STILL UNSMOKED on a phone;
+the item-by-item list moved verbatim to HANDOFF-ARCHIVE (Nov 10 entry).
 MX7a logger floor + saved moment (Nov 10, second cloud Fable session,
 built directly at Seth's ask; `a6338da`; headless-checked only, champ +
 crimson dark, champ + forest light, reduced motion):
@@ -211,24 +154,49 @@ sheet counts as Open anyway (the answer still saves) - fine?
 
 ## PICK UP HERE (next session)
 
-0. **Nov 10 follow-ups (after Seth's phone smoke of MX-CI / MXF12):**
-   - The MXF11 feel pass is ANSWERED by MXF12: Seth asked for the
-     preview's any-direction drag + pixel exit, and for the bar to return
-     after resuming. Sideways-only (Nov 9) is superseded. Reopen only if
-     the phone smoke says the drag feels wrong (numbers: `TETHER_PX`,
-     `ARM_PX` in `lib/swipeDismiss.js`).
-   - Seth asked for a polish pass over ALL the new animations; only
-     "polish 1" is done (shared landing flash + sparks, bar rise-in). Not
-     yet revisited: the crown intro itself, login arrival, crown rain,
-     error shake. Ask him what he wants pushed further before spending.
-   - Never exercised: the coach bar's scatter, the boot intro's slow-server
-     loop + "Taking longer..." text, a real touch drag (mouse only), any
-     palette beyond champ/forest/iron/crimson spot checks.
-   - Known and accepted: a drag starting on a bar no longer scrolls the
-     page; the boot intro covers the app ~2 s on every cold open (tap
-     skips); crown rain mounts (invisible) under reduced motion.
-   - None of this has a What's New entry yet - add at the wave's What's
-     New unit.
+0. **THE ARENA - pick up here (Seth, Nov 10).** He wants the next Fable
+   chat to continue from the final draft and "add onto it".
+   - **What exists.** (a) The design: `arena-final-draft.html` - one
+     continuous pixel arena, tabs are places (platform / scoreboard /
+     stands / coach's corner / rack / locker room), ONE sheet holds all
+     input; full logger with every setup option, block flow, and an
+     Advanced analytics view with real charts. Its page carries the
+     function map and a build order. (b) In the app, behind Profile >
+     Appearance > "Arena view (beta)": the stage, camera-by-route and
+     real workout signals (`components/arena/`, `lib/arenaPref.js`,
+     `lib/sceneSignal.js`) - but the PAGES are still the classic pages
+     under the stage.
+   - **Seth's rulings.** He prefers the prototype's arena-native sheet
+     over the beta's "old pages under a stage". Nothing built so far may
+     be lost: every feature keeps a home (the draft's map). Analytics
+     must keep its serious charts - "Advanced view" reuses the existing
+     analytics components, LogChamp-themed but "a tiny bit more serious".
+     Two permanent modes is NOT the goal: the switch is a trial that ends
+     in Arena-as-default or a cut.
+   - **First move next chat:** ask Seth what he wants to add to the
+     draft (he said "add onto it"), change the prototype first, and only
+     then plan the build. The build is a WAVE: needs his go, a ROADMAP
+     section and (on the laptop) Opus-authored blocks; from a cloud chat
+     it can only be built directly, as this session did.
+   - **Suggested build order (not yet agreed):** sheet + stage on Home
+     and the logger -> Analytics with the advanced view -> blocks at the
+     rack -> History, Coach, Profile.
+   - **Open design questions:** light-mode arena; long pages vs a thin
+     arena strip; desktop (sheet as a side panel?); the keyboard owning
+     the screen while typing; exercise search / rename inside the sheet
+     (not in the prototype); the coach page's keyboard fit under the
+     beta (never exercised).
+   - **Verification lesson (cost Seth a broken phone view):** a layout
+     change is not checked until `documentElement.scrollWidth` equals the
+     screen width under a PHONE device profile (Playwright `devices`).
+     Desktop-headless screenshots do not show an over-wide page.
+   - **Carried from the first Nov 10 session:** Seth asked for a polish
+     pass over all the new animations (only "polish 1" done); none of the
+     Nov 10 work has a What's New entry yet (add at the wave's unit).
+   - **Small fixes offered, not done:** bottom nav highlights History
+     while logging; exercise header truncates early; the logger's X means
+     discard; exercise-notes box open by default; RPE helper repeated per
+     set; two near-duplicate hint lines in the Finish dock.
 1. **Continue the MX wave** (opened Oct 9, see the top block):
    - next unit after 0 = the first non-DONE unit in `ROADMAP.md` (MX7
      logger floor, recommended to Seth Nov 9 - or MX5b / MX10 scenes if

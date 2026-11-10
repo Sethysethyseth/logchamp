@@ -1,3 +1,122 @@
+## ARCHIVED November 10, 2026 (cloud Fable session 2, end of session) - the
+## top block as it stood, the first Nov 10 session's smoke list (MX-CI,
+## crown play, MXF12 rounds 3-5, polish 1 - STILL UNSMOKED on a phone), and
+## PICK UP HERE item 0 as it stood; moved verbatim.
+
+Top block as it stood (Nov 10, before the arena work):
+
+> **WHERE WE ARE (Nov 10): MOTION WAVE (MX) OPEN on `motion-wave` - mid-wave,
+> MX7-MX16 still TODO in ROADMAP.** Every smoke item through MXF10 PASSED
+> (Nov 9). Nov 10: a cloud Fable session built DIRECTLY at Seth's ask (no
+> Cursor blocks - the cloud box cannot reach the lane worktrees): MX-CI
+> crown intro, crown play, MXF12 (bar pixel exit + any-direction drag +
+> crown loader + loader->login hand-off), then MX7a (logger floor + the
+> Home saved moment, `a6338da`). All pushed, NONE phone-smoked;
+> verified only in headless Chromium at 400x860 against a mocked API
+> (normal + reduced motion, no page errors). Smoke list below.
+> Seth's direction: "wicked" motion and graphics, analytics first; Fable in
+> Cursor is the designer and its suggestions win; the Claude Code seat
+> writes briefs and audits. Motion stance: AGENTS.md.
+> - Design of record: `docs/design/mocks/motion/MOTION-DIRECTION.md`
+>   (Seth's rulings at the top win: PR celebration RARE, milestones at
+>   100/1,000/10,000 workouts, per-palette scenes) + `ROADMAP.md` (the
+>   wave's state: MX1-MX16 + MX-S + SRV-1/2, "Last checkpoint" line) +
+>   `IDEAS.md` (15 PARKED ideas; IDEAS 16 PROMOTED -> MXF11).
+> - LANDED: MX0 `f651c21`, MX1-4 `2cdeee0`, MX5-6 `d309919`, MXF1
+>   `97d028d`, MXF2 `20daef5`, MXC1 `266554f`, MXF3 `ff2c4e0`, MXF4
+>   `d6ae69b`, MXF5 `3378250`, MXF6 `f14762d` (SERVER-touching: coach
+>   finish + save on disconnect, `POST /coach/stop`), MXF7 `fec6d06`,
+>   MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6`
+>   (exercise detail inline under the tapped row), MXF10 `f5826af` (coach
+>   box above the Android keyboard), MXF11 `1bf3ee7` (swipe bars away).
+>   QUEUE.md holds every audit.
+> - **Cursor models (Nov 9):** Fable 5.2 is live on the CLI
+>   (`claude-fable-5-2-low|medium|high|xhigh|max`); 5.1 still listed.
+>   Use 5.2 for the next design-heavy block (Seth: "a useful option").
+> - Previews (private Artifacts): analytics X52VRgnoGLer3gGgphQnBU, PR
+>   2kWaZboR6dtMGXgwJqhPSN, navigation T5WpDyvFkAX5rdex1Y5k67, session
+>   flow 7dk9zTUhc2nxAbjDLS9i2S, scenes PTk4q9Gww5xhBy5cHkgQBx
+>   (claude.ai/artifact/<id>).
+> - Cursor caps are monthly per model (reset on the 18th): every Fable run
+>   must leave ROADMAP.md current. The MX 5.1 chat is
+>   `eb56cfff-dfbb-4abc-99f2-6d794c36b307` (`run-lane.ps1 -Resume`). Seth:
+>   never dispatch the next unit until the current Fable run has fully
+>   delivered; never stop a run mid-flight. Claude Code's low-memory
+>   reaper can kill a background lane run - resume the same chat with a
+>   salvage `-Note` (MXF9 precedent), don't ask.
+> - Staging Render serves `motion-wave` (probed Oct 11: `POST
+>   /coach/stop` -> 401, a bogus path -> 404). No migrations on this
+>   branch, so the deploy does not migrate.
+> - `main` = `b82ad8c` (QOL wave, live on prod). `quality-of-life-updates`
+>   = main + docs; `motion-wave` was cut from it.
+
+
+Smoke list, first Nov 10 session (unsmoked when archived):
+
+MX-CI crown intro (Nov 10, built directly in a cloud Fable session at
+Seth's ask - no Cursor block; NOT yet smoked on a phone):
+- Sign in from the login screen: the login crown breaks into pixel
+  ribbons, builds a big crown, flashes, spins twice like a coin, drops
+  into the LOGCHAMP wordmark, and the screen dithers away to Home (~3 s).
+- Close the app fully and reopen while signed in: the shorter version
+  plays (~2 s). On a slow server wake the crown keeps spinning and
+  "Taking longer than usual..." appears after 4 s.
+- Tap anywhere during either: it wipes out at once.
+- Reduced motion on: no intro at all, sign-in and boot as before.
+- Signed out, open the app: straight to the login form, no intro.
+Crown play (Nov 10, same session, CSS-only, not yet smoked):
+- Login screen: the wordmark rises, the crown drops on with a bounce,
+  then glints every ~6 s. A wrong password shakes the error once.
+- Home: tap the masthead crown -> it flips like a coin. Five quick taps
+  -> it rains crowns for ~3 s (easter egg; one short buzz on Android).
+Round 3 (Nov 10, same session, not yet smoked):
+- Slow first load while signed out (server waking): the full-page wait
+  is now the pixel crown tossed and spinning over a pixel shadow with the
+  wordmark under it - no barbell.
+- MXF12 bar exit: start a workout, go to Analytics, swipe the resume bar
+  sideways -> it breaks into pixels the way it was thrown; the accent
+  pixels fly to the Home tab, Home pops, and a small square pip stays on
+  Home while the bar is hidden. Coach bar: same scatter, no fly-home.
+- Tap Home > Resume (or open the live workout any way), back out -> the
+  bar is there again and the pip is gone. Without resuming it stays
+  hidden until the next app open, as before.
+- Reduced motion: bar simply gone (pip still shows), crown holds still.
+- Loader -> login hand-off (round 4): signed out + slow server, when the
+  wait ends the big crown shrinks into the login wordmark's crown, flashes
+  and throws four pixels. Arriving at login any other way: the crown
+  drops on as before.
+- Any-direction bar drag (round 5, Seth: "omnidirectional" - REPLACES
+  the Nov 9 sideways-only ruling): drag the resume or coach bar any way;
+  it lags behind the finger and tilts; past ~72 px its edge lights, it
+  dims, buzzes once and sheds pixels; let go there (or flick) and it
+  scatters the way it was thrown. A short pull springs back. A drag that
+  starts on the bar no longer scrolls the page. Swipe it away, resume,
+  back out, swipe again - must work (was a bug, fixed).
+- Polish 1: every crown landing flashes + throws four pixels (loading
+  coin each loop, Home crown flip, login hand-off); the resume bar rises
+  in when it appears.
+
+PICK UP HERE item 0 as it stood:
+
+0. **Nov 10 follow-ups (after Seth's phone smoke of MX-CI / MXF12):**
+   - The MXF11 feel pass is ANSWERED by MXF12: Seth asked for the
+     preview's any-direction drag + pixel exit, and for the bar to return
+     after resuming. Sideways-only (Nov 9) is superseded. Reopen only if
+     the phone smoke says the drag feels wrong (numbers: `TETHER_PX`,
+     `ARM_PX` in `lib/swipeDismiss.js`).
+   - Seth asked for a polish pass over ALL the new animations; only
+     "polish 1" is done (shared landing flash + sparks, bar rise-in). Not
+     yet revisited: the crown intro itself, login arrival, crown rain,
+     error shake. Ask him what he wants pushed further before spending.
+   - Never exercised: the coach bar's scatter, the boot intro's slow-server
+     loop + "Taking longer..." text, a real touch drag (mouse only), any
+     palette beyond champ/forest/iron/crimson spot checks.
+   - Known and accepted: a drag starting on a bar no longer scrolls the
+     page; the boot intro covers the app ~2 s on every cold open (tap
+     skips); crown rain mounts (invisible) under reduced motion.
+   - None of this has a What's New entry yet - add at the wave's What's
+     New unit.
+
 ## ARCHIVED November 9, 2026 (Opus session, end of the Nov 9 session) - the
 ## Oct 10-11 session log, the Oct 11 / Nov 9 smoke-status paragraphs, the
 ## top block as it stood, and PICK UP HERE item 0 (coach keyboard - CLOSED by
