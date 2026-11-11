@@ -29,41 +29,25 @@
 >   (rain falls in the canvas), hold Start = the platform bar lifts,
 >   towers one at a time, set tick + wash, Finish glint, sliding tab mark,
 >   count-ups, board bars charge.
+> - **Second pass, same day** (Seth: full-to-half transition "can give a
+>   headache"): ONE MOTION - the room is drawn once, the camera only walks
+>   sideways, the canvas rides the sheet's top edge with the same curve;
+>   scrolling folds the stage 1:1 (padding cancels the scroll); folded,
+>   the strip is a flat scoreboard that fades in place; walks run at full
+>   frame rate. In-progress bar now drags any direction, tilts, arms at
+>   72px, scatters along the throw (matches the app's MXF12).
+> - **Seth's go, Nov 11: "I'm ready to transition over to this"; Cursor
+>   does the build.** ARENA wave opened: ROADMAP "ARENA wave (AR)", AR1 +
+>   AR2 QUEUED in `docs/tasks/` (MODEL opus), AR3-AR7 listed, not
+>   authored. NOT dispatched - a cloud session cannot reach the lanes.
 > - Checked headless under a Pixel 7 profile (scrollWidth 412 = screen, no
->   console errors, every flow driven). NOT yet seen by Seth on a phone.
-> - Open: light-mode arena (the one real design gap); build still needs
->   his go + a ROADMAP section.
+>   console errors, sheet-to-scene gap constant mid-transition, scroll 60
+>   moves content 60). NOT yet seen by Seth on a phone.
+> - Open: Seth's nitpick notes (feed AR3); light-mode arena (AR6).
 
-> **WHERE WE ARE (Nov 10, end of the second cloud Fable session): MOTION
-> WAVE (MX) OPEN on `motion-wave`, and a NEW DIRECTION is pocketed - the
-> LogChamp Arena.** Seth: "we can absolutely work with this, lets pocket
-> this look for now and add onto it in another chat... I want the next
-> Fable chat to pick up right where we left off." Read PICK UP HERE item 0
-> first.
-> - Built directly at Seth's ask this session (no Cursor blocks - the
->   cloud box cannot reach the lane worktrees), all pushed, NONE smoked on
->   a phone except where noted: MX7a logger floor + Home saved moment
->   `a6338da`; Champ Arena as the default scene `f669edd`; Arena view
->   (beta) switch `fbc75f7` + phone zoom fix `c3feeaf` (Seth hit the zoom
->   bug on his phone; the fix is verified under a Pixel profile only).
-> - The design to build from: `docs/design/mocks/motion/
->   arena-final-draft.html` (Artifact AjNaPNfZrnogjXx3UV2H4n). Earlier
->   steps, kept for reference: `champ-arena.html` (B89CfhvmvGiF86h7oN4AsE),
->   `arena-ui-concepts.html` (DHV5E4bdodEXcwcsAVNBiL), `arena-ui-v2.html`
->   (BTV11WBCvwDGG5zd653urq). Open as claude.ai/artifact/<id>.
-> - Motion wave design of record is unchanged: `MOTION-DIRECTION.md` +
->   `ROADMAP.md` (MX7 PARTIAL, MX10 champ PARTIAL, MX8/9/11-16 TODO) +
->   `IDEAS.md`. The arena is NOT in ROADMAP yet - it is its own wave.
-> - Still true from before: Seth's direction is "wicked" motion, analytics
->   first; Fable is the designer; Fable 5.2 is on the Cursor CLI; Cursor
->   caps reset on the 18th; staging Render serves `motion-wave`, no
->   migrations on this branch; `main` = `b82ad8c` (QOL wave, live on prod).
->   Landed-unit SHAs and audits: QUEUE.md + the archive.
-
-**Next action (human):** open Arena Draft 2 on the phone
-(claude.ai/artifact/BxNBepax8Fg99q3sUvaUaU), try the fold, the full view
-and the zoom, then give the nitpick notes; smoke the Nov 10 work when
-convenient (lists below) - the Arena beta after `c3feeaf` first.
+**Next action (human):** on the laptop, tell Claude Code "dispatch ar1"
+(then ar2 after it lands); meanwhile try Draft 2's new motion on the phone
+(claude.ai/artifact/BxNBepax8Fg99q3sUvaUaU) and send the nitpick notes.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 

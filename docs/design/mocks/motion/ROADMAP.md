@@ -679,6 +679,42 @@ Conventions for every unit below:
   crossed since last fetch, so the milestone takeover fires once per
   milestone without client bookkeeping.
 
+## ARENA wave (AR) - the look transformation (Seth's go, Nov 11, 2026)
+
+Seth, Nov 11: "I really like this, I think I'm ready to transition over
+to this." Design of record: `arena-draft-2.html` (Artifact
+BxNBepax8Fg99q3sUvaUaU). Cursor builds it; the frontier seat only authors
+blocks and gates. Rules for every AR unit: everything lives behind
+Profile > Appearance > "Arena view (beta)" until AR7; with the switch off
+the app is byte-for-byte today's; every MX guardrail above applies; a
+layout change is not checked until `scrollWidth === innerWidth` under a
+phone profile.
+
+The principle that came out of Seth's Nov 11 feedback ("full screen to
+half... can give a headache", "can't get in the way of the beautiful app
+behind it"): ONE MOTION. The room is drawn once, framed for the full
+view; its camera only walks sideways. Vertically the stage is a rigid
+piece that rides the sheet's top edge. Scrolling folds it 1:1. Folded,
+the strip is a flat scoreboard that fades in place.
+
+| Unit | What | Status |
+| --- | --- | --- |
+| AR1 | Stage v2: one motion, three sizes (tour / open / strip), scroll-linked fold, scoreboard strip, full view that sticks across tabs | QUEUED `docs/tasks/ar1-arena-stage-one-motion.md` |
+| AR2 | Look closer: hold / pinch zoom, the Log + up-close details, crown rain / hold-Start / tower sequence moved into the room. After AR1 (same files) | QUEUED `docs/tasks/ar2-arena-closer-look-and-eggs.md` |
+| AR3 | The sheet's skin under Arena view: squared panels, accent rules, display face on titles - one stylesheet over the existing pages, Home + logger first. Waits on Seth's nitpick notes | TODO - author after AR1 lands |
+| AR4 | Boards from real data: the four Analytics faces on the scoreboard, week faces with top set / top gain (from the WeeklyReport summary), the block on the rack's program board, coach answer headline on the chalkboard | TODO |
+| AR5 | Places: History seat follows the selected workout, banners from real milestones in the locker room, strip headlines for Library / Profile | TODO |
+| AR6 | Light-mode arena. DESIGN GAP - needs a frontier-seat prototype first, not a Cursor block | TODO (design) |
+| AR7 | Arena becomes the default (Seth's call after smoke), Classic stays as the switch; What's New unit | TODO |
+
+Already true in the app, no unit needed: the in-progress bar drags in any
+direction, tilts, arms at 72px and scatters to Home (MXF12); Last 7 days
+is on Home; saved moment, set tick, Finish glint, sliding tab mark,
+count-ups (MX2-MX7a). The prototype only had to catch up with these.
+
+AR1 -> AR2 serial (same engine files). AR3 is disjoint from AR2
+(stylesheets + pages vs `components/arena/`) and may run beside it.
+
 ## Order and parallelism
 
 MX1 -> (MX2 -> MX3 -> MX4) ; MX5 -> MX6 can run in a parallel lane after MX1
