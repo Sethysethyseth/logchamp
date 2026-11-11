@@ -1,5 +1,39 @@
 # HANDOFF — current state
 
+> **Nov 11 (third cloud Fable session): ARENA DRAFT 2 - PROTOTYPE ONLY,
+> nothing in the app changed.** `docs/design/mocks/motion/
+> arena-draft-2.html` (Artifact BxNBepax8Fg99q3sUvaUaU) supersedes
+> `arena-final-draft.html` as the design to build from, pending Seth's
+> notes (he has "a bunch of nitpicky notes" still to give - ask for them).
+> What it settles, from his Nov 11 asks:
+> - **The stage folds** (his "half the screen gone is a nuisance for coach
+>   and home workouts"): open on arrival; a strip once you scroll, type,
+>   log or ask the coach (the strip frames the scoreboard / chalkboard);
+>   back open for the start and finish moments; pull down or tap the grip
+>   to overrule. Sheet sizes: tour 13.5%, open ~42%, fold 82% (coach 77%).
+> - **Full view sticks**: tap the arena -> the page steps aside and STAYS
+>   aside across tabs until the arena is tapped again; one summary line
+>   per place. Hold / pinch zooms 3x, drag pans, tap steps back.
+> - **Easter eggs up close only** (drawn in thirds of a pixel): "the Log",
+>   a crowned log in the front row of the far stands (world 178,135) -
+>   tap it zoomed and it presses a tiny bar, the crowd does a wave, the
+>   board reads LOG CHAMP; chalkboard fine print; "1" on your locker.
+> - **Last 7 days is back on Home** in full (day strip, 4 stats, PR row,
+>   movers, note) and the board cycles the same numbers.
+> - **Audit of old flow vs the draft** is on the page ("What the app has
+>   that the last draft dropped" + "Still not drawn"). Added to the
+>   draft: saved-workout quick start, in-progress bar with swipe scatter
+>   + Home pip, saved card with crown stamp, past-workout detail, coach
+>   text box + Stop, exercise search, profile stats, three balance ratios.
+> - **Motion carried into the arena:** crown coin flip + five-tap rain
+>   (rain falls in the canvas), hold Start = the platform bar lifts,
+>   towers one at a time, set tick + wash, Finish glint, sliding tab mark,
+>   count-ups, board bars charge.
+> - Checked headless under a Pixel 7 profile (scrollWidth 412 = screen, no
+>   console errors, every flow driven). NOT yet seen by Seth on a phone.
+> - Open: light-mode arena (the one real design gap); build still needs
+>   his go + a ROADMAP section.
+
 > **WHERE WE ARE (Nov 10, end of the second cloud Fable session): MOTION
 > WAVE (MX) OPEN on `motion-wave`, and a NEW DIRECTION is pocketed - the
 > LogChamp Arena.** Seth: "we can absolutely work with this, lets pocket
@@ -26,9 +60,10 @@
 >   migrations on this branch; `main` = `b82ad8c` (QOL wave, live on prod).
 >   Landed-unit SHAs and audits: QUEUE.md + the archive.
 
-**Next action (human):** open the next Fable chat and say what to add to
-the arena draft; smoke the Nov 10 work on the phone when convenient (lists
-below) - the Arena beta after `c3feeaf` first.
+**Next action (human):** open Arena Draft 2 on the phone
+(claude.ai/artifact/BxNBepax8Fg99q3sUvaUaU), try the fold, the full view
+and the zoom, then give the nitpick notes; smoke the Nov 10 work when
+convenient (lists below) - the Arena beta after `c3feeaf` first.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
