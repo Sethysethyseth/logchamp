@@ -217,6 +217,10 @@ environment has none of that.
   start a new session on `logchamp`. CLI missing -> install it
   (`curl -fsSL https://cursor.com/install | bash`, user-local, no
   package files touched).
+- Cursor hosts on the environment allowlist must include
+  `agentn.global.api5.cursor.sh` and `agent.global.api5.cursor.sh` (Nov 11:
+  the CLI moved there; a missing host fails the run in ~20s with "HTTPS
+  proxy CONNECT failed: 403" in the stderr log).
 - Never move the key into a network secret for `api2.cursor.sh`: the CLI
   swaps the key for an access token and a proxy-injected secret
   overwrites that token on every call ("not logged in"). Verified Nov 11.

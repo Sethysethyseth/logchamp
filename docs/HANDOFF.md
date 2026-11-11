@@ -45,9 +45,20 @@
 >   moves content 60). NOT yet seen by Seth on a phone.
 > - Open: Seth's nitpick notes (feed AR3); light-mode arena (AR6).
 
-**Next action (human):** on the laptop, tell Claude Code "dispatch ar1"
-(then ar2 after it lands); meanwhile try Draft 2's new motion on the phone
-(claude.ai/artifact/BxNBepax8Fg99q3sUvaUaU) and send the nitpick notes.
+**Next action (human):** nothing blocked on you mid-wave - AR1 landed
+(eb2b5eb), AR2 dispatching from the cloud session; send the Draft 2
+nitpick notes (they feed AR3) whenever ready.
+
+> **Nov 11 (cloud relay session): AR1 LANDED eb2b5eb** - Channel B now
+> works from a cloud session (needed two new Cursor hosts on the
+> logchamp environment allowlist, added). Accepted deviation: the
+> stage ride uses position sticky, not a per-frame transform (0px
+> drift measured). AR1 smoke (carry to wave end, Arena view ON, phone):
+> scroll Home - room and page edge move together, fold to the
+> scoreboard strip, no swoop; Home -> Coach shrinks without a gap;
+> tap the room -> full view, switch tabs, still full view, tap -> back;
+> Coach typing box stays above the keyboard; Arena OFF looks unchanged.
+> Session branch: claude/inspiring-darwin-s2cr9p (motion-wave + AR).
 
 ## Smoke for the next round (carry forward - fill at each landing)
 

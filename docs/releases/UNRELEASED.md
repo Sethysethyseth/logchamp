@@ -31,3 +31,7 @@ Write what a lifter would notice. Internal-only work gets no entry.
 - [mxf9] Tap an exercise in Analytics and its details now open right under it, bigger and easier to read; tap another to switch, tap it again to close | Where: Analytics > Exercises | Files: client/src/components/analytics/ExercisesView.jsx, client/src/index.css
 - [mxf10] Typing to the coach on Android, the question box now really sits above the keyboard | Where: Coach (Home, top right) | Files: client/src/pages/CoachPage.jsx
 - [mxf11] Swipe the workout bar or the coach bar sideways to clear it off the screen; your workout stays on Home and the coach's answer still arrives | Where: the bars at the bottom of any page | Files: client/src/components/workout/PersistentWorkoutBar.jsx, client/src/components/coach/CoachWorkingBar.jsx, client/src/components/motion/useSwipeDismiss.js
+
+## Arena wave (AR) - motion-wave
+
+- [ar1] Arena view (beta) moves as one piece: the room rides the top of the page as you scroll and folds into a scoreboard strip, with no more swooping between sizes; tap the arena for a full view that stays put while you switch tabs | Where: Profile > Appearance > Arena view (beta), then any tab | Files: client/src/components/arena/ArenaStage.jsx, client/src/components/arena/arena.css, client/src/lib/arenaSheet.js
