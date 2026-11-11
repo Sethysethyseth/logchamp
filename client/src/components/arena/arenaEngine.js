@@ -1,18 +1,26 @@
 /* Arena view (beta) - the stage. One low-res canvas draws a continuous
  * arena; the camera sits on the place that matches the current route.
- * Ported from docs/design/mocks/motion/arena-ui-v2.html.
+ * Ported from docs/design/mocks/motion/arena-ui-v2.html and arena-draft-2.html.
  *
+ * - One motion: the canvas is always the full-view frame and the camera's
+ *   height never changes - the floor sits FLOOR_MARGIN rows above the
+ *   canvas's bottom edge. The stage element rides the sheet's edge; the
+ *   camera only walks sideways.
+ * - The strip: a second, flat canvas - the scoreboard on its own - shown
+ *   when the stage is down to strip height.
  * - Colours: a 9-step ramp mixed from --color-interactive at runtime, so
  *   every palette (and a custom one) relights the same room. No literals.
- * - Cost: nothing runs at rest. A frame loop exists only while the camera,
- *   the lights or a flash are moving; a live workout redraws once a second
- *   for the clock. Hidden tab or covered stage = no drawing.
+ * - Cost: nothing runs at rest. A frame loop exists only while the camera
+ *   walks, the lights ease or a flash runs; a clock redraws once a second.
+ *   Hidden tab or covered stage = no room drawing; a hidden strip = none.
  * - Reduced motion: the camera cuts, lights switch, nothing flickers.
  */
 
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
 
 const FLOOR = 150;
+const FLOOR_MARGIN = 7;
+const FACE_MS = 4200;
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
 const CROWN = ["....#....", "#...#...#", "##.###.##", "#########", "#########", ".#######."];
 const FONT = {
@@ -26,14 +34,14 @@ const FONT = {
   Z: "111001010100111", ":": "000010000010000",
 };
 
-/** Where each place sits in the world (x of its centre) and what the camera must keep in view. */
+/** Where each place sits in the world: the x of its centre. The camera never moves vertically. */
 export const ARENA_PLACES = {
-  history: { x: 46, top: null },
-  home: { x: 150, top: null },
-  analytics: { x: 150, top: 62 },
-  coach: { x: 254, top: 84 },
-  library: { x: 358, top: null },
-  profile: { x: 450, top: null },
+  history: { x: 46 },
+  home: { x: 150 },
+  analytics: { x: 150 },
+  coach: { x: 254 },
+  library: { x: 358 },
+  profile: { x: 450 },
 };
 
 const hash = (x, y) => {
@@ -70,27 +78,48 @@ function ledText(value, max) {
     .slice(0, max);
 }
 
-export function createArena(canvas) {
-  const g = canvas.getContext("2d");
+const clockText = (ms) => {
+  const t = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(t / 3600);
+  const m = Math.floor((t % 3600) / 60);
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}` : `${m}:${String(t % 60).padStart(2, "0")}`;
+};
+const restText = (left) => {
+  const sec = Math.ceil(left / 1000);
+  return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+};
+const inOut = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+
+export function createArena(canvas, strip) {
+  const roomG = canvas.getContext("2d");
+  const stripG = strip ? strip.getContext("2d") : null;
+  let g = roomG;
   let RAMP = readRamp();
   let W = 100;
   let H = 80;
+  let SH = 30;
   let raf = 0;
   let clock = 0;
+  let cycle = 0;
+  let lastT = 0;
+  let stripSig = "";
   let dead = false;
-  const cam = { x: 100, y: 60, ready: false };
+  const cam = { x: 100, y: 0, ready: false };
+  const walk = { from: 0, to: 0, t0: 0, dur: 0 };
   const ease = { power: 0.5, board: 0 };
   const s = {
     place: "home",
+    facet: null, // what the strip reads off the route: home | analytics | history | coach | null
     live: null, // { startedAtMs, sets }
     rest: null, // { startedAtMs, durationMs }
-    week: { days: [0, 0, 0, 0, 0, 0, 0], sets: 0 },
+    week: { days: [0, 0, 0, 0, 0, 0, 0], sets: 0, workouts: 0 },
     bars: [0, 0, 0, 0, 0, 0, 0, 0],
     seats: 0,
     savedUntil: 0,
     savedName: "",
     flashUntil: 0,
     covered: false,
+    strip: false,
   };
 
   let cx = 0;
@@ -108,7 +137,7 @@ export function createArena(canvas) {
       }
     });
   };
-  const mid = (str, m, y, c) => text(str, Math.round(m - (str.length * 4 - 1) / 2), y, c);
+  const mid = (str, m, y, c, k = 1) => text(str, Math.round(m - ((str.length * 4 - 1) * k) / 2), y, c, k);
   const crown = (x, y, c) =>
     CROWN.forEach((row, ry) =>
       [...row].forEach((ch, rx) => {
@@ -141,12 +170,10 @@ export function createArena(canvas) {
     return Math.max(0, s.rest.startedAtMs + s.rest.durationMs - now);
   }
 
-  function target() {
+  function targetX() {
     const place = ARENA_PLACES[s.place] || ARENA_PLACES.home;
-    const floorView = FLOOR - (H - 7);
     // Never look past the ends of the room; a view wider than the room centres it.
-    const x = W >= 500 ? 250 - W / 2 : Math.max(-4, Math.min(504 - W, place.x - W / 2));
-    return { x, y: place.top == null ? floorView : Math.min(floorView, place.top) };
+    return W >= 500 ? 250 - W / 2 : Math.max(-4, Math.min(504 - W, place.x - W / 2));
   }
 
   function draw(now) {
@@ -214,7 +241,8 @@ export function createArena(canvas) {
     const bw = Math.round(38 + 46 * b);
     const bh = Math.round(17 + 35 * b);
     const bx = Math.round(150 - bw / 2);
-    const by = 82 - Math.round(10 * b);
+    // It barely rises: the camera no longer lifts for it, so it stays inside Analytics' frame.
+    const by = 82 - Math.round(4 * b);
     px(bx + 4, by - 90, RAMP[3], 1, 90);
     px(bx + bw - 5, by - 90, RAMP[3], 1, 90);
     px(bx, by, RAMP[4], bw, bh);
@@ -234,14 +262,10 @@ export function createArena(canvas) {
       let l2 = `${s.week.sets} SETS`;
       const left = restLeft(now);
       if (left > 0) {
-        const sec = Math.ceil(left / 1000);
         l1 = "REST";
-        l2 = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+        l2 = restText(left);
       } else if (s.live) {
-        const t = Math.max(0, Math.floor((now - s.live.startedAtMs) / 1000));
-        const h = Math.floor(t / 3600);
-        const m = Math.floor((t % 3600) / 60);
-        l1 = h > 0 ? `${h}:${String(m).padStart(2, "0")}` : `${m}:${String(t % 60).padStart(2, "0")}`;
+        l1 = clockText(now - s.live.startedAtMs);
         l2 = `SET ${s.live.sets + 1}`;
       } else if (now < s.savedUntil) {
         l1 = "SAVED";
@@ -320,45 +344,115 @@ export function createArena(canvas) {
     });
   }
 
-  function frame() {
+  /* The strip: the scoreboard on its own, flat. First match wins. */
+  function stripFace(now) {
+    const left = restLeft(now);
+    if (left > 0) return { l1: "REST", l2: restText(left), bar: left / s.rest.durationMs };
+    if (s.live) return { l1: clockText(now - s.live.startedAtMs), l2: `SET ${s.live.sets + 1}` };
+    if (now < s.savedUntil) return { l1: "SAVED", l2: ledText(s.savedName, 9) };
+    if (s.facet === "coach") return { l1: "ASK ME", l2: "ANYTHING" };
+    if (s.facet === "home") {
+      const faces = [
+        ["7 DAYS", `${s.week.sets} SETS`],
+        ["WORKOUTS", String(s.week.workouts || 0)],
+      ];
+      const [l1, l2] = faces[prefersReducedMotion() ? 0 : Math.floor(now / FACE_MS) % faces.length];
+      return { l1, l2, lamps: true };
+    }
+    if (s.facet === "analytics") return { l1: "8 WEEKS", l2: `${s.bars.reduce((a, b) => a + b, 0)} SETS` };
+    if (s.facet === "history") return { l1: "HISTORY", l2: `${s.seats} WORKOUTS` };
+    return { l1: "LOGCHAMP", l2: "" };
+  }
+
+  /* Redrawn only when what it shows changes (a clock ticks once a second). */
+  function drawStrip(now) {
+    if (!stripG) return;
+    const face = stripFace(now);
+    const hot = now < s.flashUntil;
+    const l1 = ledText(face.l1, 9);
+    const l2 = ledText(face.l2, 9);
+    const barW = face.bar == null ? -1 : Math.round(W * face.bar);
+    const sig = [l1, l2, face.lamps ? s.week.days.join("") : "", barW, hot, W, SH].join("|");
+    if (sig === stripSig) return;
+    stripSig = sig;
+    const keep = [g, cx, cy];
+    g = stripG;
+    cx = 0;
+    cy = 0;
+    const m = W / 2;
+    const big = l1.length <= 8;
+    const h1 = big ? 10 : 5;
+    const gap = l2 ? 3 : 0;
+    const block = h1 + gap + (l2 ? 5 : 0) + (face.lamps ? 4 : 0);
+    let y = Math.max(1, Math.floor((SH - 1 - block) / 2));
+    px(0, 0, RAMP[0], W, SH);
+    px(0, SH - 1, RAMP[hot ? 8 : 4], W, 1);
+    crown(4, Math.round(SH / 2) - 3, RAMP[hot ? 8 : 7]);
+    mid(l1, m, y, RAMP[8], big ? 2 : 1);
+    y += h1 + gap;
+    if (l2) mid(l2, m, y, RAMP[6]);
+    y += l2 ? 5 : 0;
+    if (face.lamps) s.week.days.forEach((on, i) => px(Math.round(m) - 13 + i * 4, y + 2, on ? RAMP[8] : RAMP[3], 2, 2));
+    if (barW >= 0) px(0, SH - 2, RAMP[7], barW, 1);
+    [g, cx, cy] = keep;
+  }
+
+  function frame(t) {
     raf = 0;
     if (dead) return;
     const now = Date.now();
+    const tNow = typeof t === "number" ? t : performance.now();
+    const dt = lastT ? Math.min(64, tNow - lastT) : 16;
+    lastT = tNow;
     const reduced = prefersReducedMotion();
-    const t = target();
-    const k = reduced || !cam.ready ? 1 : 0.2;
+
+    // The camera only walks sideways: a time-based tween, one frame per animation frame.
+    const tx = targetX();
+    if (reduced || !cam.ready || s.covered) {
+      cam.x = tx;
+      walk.to = tx;
+      walk.dur = 0;
+    } else if (tx !== walk.to) {
+      walk.from = cam.x;
+      walk.to = tx;
+      walk.t0 = tNow;
+      walk.dur = Math.min(900, 380 + Math.abs(tx - cam.x) * 1.2);
+    }
+    if (walk.dur) {
+      const p = Math.min(1, (tNow - walk.t0) / walk.dur);
+      cam.x = walk.from + (walk.to - walk.from) * inOut(p);
+      if (p >= 1) walk.dur = 0;
+    }
+
+    const k = reduced || !cam.ready ? 1 : 1 - Math.exp(-dt / 80);
     const left = restLeft(now);
     const rest = left > 0 && s.rest ? 1 - left / s.rest.durationMs : 1;
     const wantPower = s.live ? 0.3 + 0.7 * rest : now < s.savedUntil ? 0.9 : 0.5;
     const wantBoard = s.place === "analytics" ? 1 : 0;
-    cam.x += (t.x - cam.x) * k;
-    cam.y += (t.y - cam.y) * k;
     ease.power += (wantPower - ease.power) * k;
     ease.board += (wantBoard - ease.board) * k;
     cam.ready = true;
-    const moving =
-      Math.abs(t.x - cam.x) > 0.3 ||
-      Math.abs(t.y - cam.y) > 0.3 ||
-      Math.abs(wantPower - ease.power) > 0.01 ||
-      Math.abs(wantBoard - ease.board) > 0.01;
-    if (!moving) {
-      cam.x = t.x;
-      cam.y = t.y;
+    const easing = Math.abs(wantPower - ease.power) > 0.01 || Math.abs(wantBoard - ease.board) > 0.01;
+    if (!easing) {
       ease.power = wantPower;
       ease.board = wantBoard;
     }
     if (!document.hidden && !s.covered) draw(now);
+    if (!document.hidden && s.strip) drawStrip(now);
     const flashing = now < s.flashUntil && !reduced;
-    if (moving || flashing) raf = window.requestAnimationFrame(frame);
+    if (walk.dur || easing || flashing) raf = window.requestAnimationFrame(frame);
+    else lastT = 0;
   }
 
   function kick() {
     if (!raf && !dead) raf = window.requestAnimationFrame(frame);
   }
 
-  /* The clock, the rest countdown and the SAVED face change once a second. */
+  /* The clock, the rest countdown and the SAVED face change once a second;
+     Home's strip turns its face every FACE_MS while it is showing. */
   function syncClock() {
-    const need = Boolean(s.live) || Date.now() < s.savedUntil;
+    const now = Date.now();
+    const need = Boolean(s.live) || now < s.savedUntil;
     if (need && !clock) {
       clock = window.setInterval(() => {
         if (!s.live && Date.now() >= s.savedUntil) syncClock();
@@ -367,6 +461,17 @@ export function createArena(canvas) {
     } else if (!need && clock) {
       window.clearInterval(clock);
       clock = 0;
+    }
+    const turn = s.strip && !need && s.facet === "home" && !prefersReducedMotion();
+    if (turn && !cycle) {
+      cycle = window.setTimeout(() => {
+        cycle = 0;
+        kick();
+        syncClock();
+      }, FACE_MS - (now % FACE_MS) + 20);
+    } else if (!turn && cycle) {
+      window.clearTimeout(cycle);
+      cycle = 0;
     }
   }
 
@@ -379,26 +484,39 @@ export function createArena(canvas) {
     flash(ms) {
       s.flashUntil = Date.now() + ms;
       kick();
+      // Reduced motion runs no flash frames: one more draw puts the edge back.
+      window.setTimeout(kick, ms + 20);
     },
     resize() {
       const cssW = canvas.clientWidth || 400;
-      const cssH = canvas.clientHeight || 300;
-      // Phone: 4 css px per pixel. Wide screens: finer, so the board stays in view.
-      const scale = Math.max(2, Math.min(Math.ceil(cssW / 240), Math.floor(cssH / 100)) || 4, cssW < 720 ? 4 : 2);
+      const cssH = canvas.clientHeight || 600;
+      // Phone: 4 css px per pixel. Wide screens: about 190 rows for the full view, so the open sizes keep the board in view.
+      const scale = cssW < 720 ? 4 : Math.max(2, Math.round(cssH / 190));
       W = Math.max(40, Math.round(cssW / scale));
       H = Math.max(24, Math.round(cssH / scale));
       canvas.width = W;
       canvas.height = H;
+      // Fixed for this frame size: the floor sits just above the stage's bottom edge.
+      cam.y = FLOOR + FLOOR_MARGIN - H;
+      cam.ready = false;
+      if (strip) {
+        SH = Math.max(12, Math.round((strip.clientHeight || 120) / scale));
+        strip.width = W;
+        strip.height = SH;
+        stripSig = "";
+      }
       kick();
     },
     recolor() {
       RAMP = readRamp();
+      stripSig = "";
       kick();
     },
     destroy() {
       dead = true;
       window.cancelAnimationFrame(raf);
       window.clearInterval(clock);
+      window.clearTimeout(cycle);
     },
   };
 }

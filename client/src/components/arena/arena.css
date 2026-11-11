@@ -1,18 +1,64 @@
-/* Arena view (beta). On only under html[data-arena]. The stage is fixed
-   behind the top of the page; .main is "the sheet": it starts below the
-   stage and rides the ordinary window scroll up over it. Nothing inside a
-   page changes. Tokens only. */
+/* Arena view (beta). On only under html[data-arena]. Tokens only.
+
+   One motion: the stage rides the sheet's top edge as one rigid piece.
+   .arena-spacer sits in the page flow right above the sheet, so the window
+   scroll carries both 1:1; `position: sticky` holds it once only the strip
+   height is left on screen. The room (.arena-stage) is always the full-view
+   frame, anchored to the spacer's bottom edge, so when a route changes the
+   stage's height the room and the sheet's edge move together - same
+   duration, same curve - and the room never moves against the edge.
+
+   --arena-h     the route's stage height (ArenaStage.jsx, from arenaSheet.js)
+   --arena-top   the desktop navbar's height; 0 on a phone (measured)
+   --arena-strip-h  the strip (ARENA_STRIP_SVH) */
+
+html[data-arena] {
+  --arena-strip-h: 18svh;
+  --arena-peek-h: 40px;
+  /* What the full view leaves of the sheet: the one line and the nav. */
+  --arena-tour-gap: calc(var(--arena-peek-h) + var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  --arena-room-h: calc(100svh - var(--arena-tour-gap));
+}
+
+.arena-spacer {
+  position: sticky;
+  top: calc(var(--arena-top, 0px) + var(--arena-strip-h) - var(--arena-h, 40svh));
+  height: var(--arena-h, 40svh);
+  transition:
+    height 440ms var(--mx-ease-out-expo),
+    top 440ms var(--mx-ease-out-expo);
+}
 
 .arena-stage {
-  position: fixed;
-  top: 0;
+  position: absolute;
   left: 0;
   right: 0;
-  height: calc(var(--arena-h, 40svh) + 2px);
-  z-index: 0;
-  pointer-events: none;
+  bottom: 0;
+  display: block;
+  width: 100%;
+  height: var(--arena-room-h);
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  appearance: none;
   background: var(--color-bg);
-  transition: height 440ms var(--mx-ease-out-expo);
+  cursor: zoom-in;
+  /* A vertical drag that starts on the stage still scrolls the page. */
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.arena-stage[aria-pressed="true"] {
+  cursor: zoom-out;
+}
+
+.arena-stage:focus-visible {
+  outline: 2px solid var(--color-interactive);
+  outline-offset: -4px;
 }
 
 .arena-stage__canvas {
@@ -22,10 +68,80 @@
   image-rendering: pixelated;
 }
 
-.arena-spacer {
+/* Probes for the target sizes in px (no transition), read on route change. */
+.arena-probe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
   height: var(--arena-h, 40svh);
+  visibility: hidden;
   pointer-events: none;
-  transition: height 440ms var(--mx-ease-out-expo);
+}
+
+.arena-probe--strip {
+  height: var(--arena-strip-h);
+}
+
+/* The strip: the scoreboard, flat, fixed at the top above the sheet. Its
+   opacity follows the scroll (ArenaStage.jsx); it fades, never slides. */
+.arena-strip {
+  position: fixed;
+  top: var(--arena-top, 0px);
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: var(--arena-strip-h);
+  opacity: 0;
+  pointer-events: none;
+  image-rendering: pixelated;
+  cursor: zoom-in;
+  touch-action: pan-y;
+}
+
+.arena-strip--full {
+  pointer-events: auto;
+}
+
+.arena-strip[data-fade="in"] {
+  transition: opacity 200ms linear 240ms;
+}
+
+.arena-strip[data-fade="out"] {
+  transition: opacity 160ms linear;
+}
+
+/* The full view's one line, above the nav. It is the way back. */
+.arena-peek {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  z-index: 4;
+  display: block;
+  width: 100%;
+  height: var(--arena-peek-h);
+  margin: 0;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: var(--arena-peek-h);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.arena-peek:focus-visible {
+  outline: 2px solid var(--color-interactive);
+  outline-offset: -4px;
 }
 
 /* The arena is the scene now: the bottom band and its lit layer step aside. */
@@ -37,10 +153,11 @@ html[data-arena]::after {
 /* The sheet: a full-width opaque surface that starts under the stage and
    carries the page. A real wrapper (Layout.jsx), NOT a shadow or an
    oversized pseudo-element: anything wider than the screen makes a phone
-   zoom the whole page out to fit it. */
+   zoom the whole page out to fit it. No z-index: it paints over the spacer
+   by order, and fixed things inside it (sheets, docks) stay free to rise
+   above the strip. */
 .arena-sheet {
   position: relative;
-  z-index: 1;
   min-height: calc(100svh - 96px);
   padding-top: 14px;
   background: var(--color-bg);
@@ -58,17 +175,29 @@ html[data-arena]::after {
   background: var(--color-border);
 }
 
-/* Desktop: the top navbar is in the flow above the spacer, so the stage
-   runs behind it too. */
+/* Full view: only the edge, the line and the nav are left of the sheet. */
+.arena-sheet--tour {
+  min-height: var(--arena-tour-gap);
+  padding-top: 0;
+}
+
+/* Desktop: no bottom nav; the top navbar is in the flow above the spacer,
+   and the room runs up behind it. */
 @media (min-width: 720px) {
-  .arena-stage {
-    height: calc(var(--arena-h, 40svh) + 60px);
+  html[data-arena] {
+    --arena-tour-gap: var(--arena-peek-h);
+  }
+
+  .arena-peek {
+    bottom: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .arena-stage,
-  .arena-spacer {
+  .arena-spacer,
+  .arena-strip,
+  .arena-strip[data-fade] {
     transition: none;
   }
 }

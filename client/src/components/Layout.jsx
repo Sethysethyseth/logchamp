@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useArenaView } from "../lib/arenaPref.js";
+import { useArenaTour } from "../lib/arenaTour.js";
 import { ArenaStage } from "./arena/ArenaStage.jsx";
 import { CoachWorkingBar } from "./coach/CoachWorkingBar.jsx";
 import { BottomNav } from "./layout/BottomNav.jsx";
@@ -9,9 +10,10 @@ import { PersistentWorkoutBar } from "./workout/PersistentWorkoutBar.jsx";
 import { WhatsNewGate } from "./whatsnew/WhatsNewGate.jsx";
 
 export function Layout() {
-  /* Arena view (beta, Appearance): the stage sits behind the top of every
+  /* Arena view (beta, Appearance): the stage sits above the top of every
      page and the page becomes the sheet. Off = today's layout, untouched. */
   const arena = useArenaView();
+  const tour = useArenaTour();
   useEffect(() => {
     document.documentElement.toggleAttribute("data-arena", arena);
     return () => document.documentElement.removeAttribute("data-arena");
@@ -29,12 +31,21 @@ export function Layout() {
     </>
   );
 
+  /* The full view puts the page away (hidden, inert) and keeps the nav;
+     the page stays mounted, so its state survives the trip. */
   return (
     <div className="app">
-      {arena ? <ArenaStage /> : null}
       <Navbar />
-      {arena ? <div className="arena-spacer" /> : null}
-      {arena ? <div className="arena-sheet">{page}</div> : page}
+      {arena ? <ArenaStage /> : null}
+      {arena ? (
+        <div className={`arena-sheet${tour ? " arena-sheet--tour" : ""}`}>
+          <div className="arena-sheet__page" hidden={tour} inert={tour}>
+            {page}
+          </div>
+        </div>
+      ) : (
+        page
+      )}
       <BottomNav />
       <WhatsNewGate />
     </div>
