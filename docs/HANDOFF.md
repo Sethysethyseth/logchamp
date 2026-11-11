@@ -45,9 +45,9 @@
 >   moves content 60). NOT yet seen by Seth on a phone.
 > - Open: Seth's nitpick notes (feed AR3); light-mode arena (AR6).
 
-**Next action (human):** nothing blocked on you mid-wave - AR1 landed
-(eb2b5eb), AR2 dispatching from the cloud session; send the Draft 2
-nitpick notes (they feed AR3) whenever ready.
+**Next action (human):** smoke AR1+AR2 on the phone (checklist in the
+Nov 11 cloud relay note below) once the code is on the staging deploy,
+and send the Draft 2 nitpick notes - AR3-AR7 still need authoring.
 
 > **Nov 11 (cloud relay session): AR1 LANDED eb2b5eb** - Channel B now
 > works from a cloud session (needed two new Cursor hosts on the
@@ -58,7 +58,16 @@ nitpick notes (they feed AR3) whenever ready.
 > scoreboard strip, no swoop; Home -> Coach shrinks without a gap;
 > tap the room -> full view, switch tabs, still full view, tap -> back;
 > Coach typing box stays above the keyboard; Arena OFF looks unchanged.
-> Session branch: claude/inspiring-darwin-s2cr9p (motion-wave + AR).
+> **AR2 LANDED 3efc76d** (clean first run). AR2 smoke: hold the arena
+> on Home -> full view + 3x zoom, drag pans, pinch in / tap steps back,
+> tab change steps back; find the crowned Log in the far stands, tap it
+> zoomed -> it presses a bar, crowd waves, board reads LOG CHAMP; zoomed
+> chalkboard fine print and "1" on the locker; tap the Home crown 5x ->
+> rain falls in the arena; hold Start empty workout -> bar lifts, let go
+> -> drops, and the press still starts a workout (check on Android);
+> Arena OFF: crown rain over the page and the dumbbell curl unchanged.
+> Session branch: claude/inspiring-darwin-s2cr9p (motion-wave + AR1-2);
+> not yet on motion-wave - awaiting Seth's call.
 
 ## Smoke for the next round (carry forward - fill at each landing)
 

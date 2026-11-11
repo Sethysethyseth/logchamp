@@ -35,3 +35,4 @@ Write what a lifter would notice. Internal-only work gets no entry.
 ## Arena wave (AR) - motion-wave
 
 - [ar1] Arena view (beta) moves as one piece: the room rides the top of the page as you scroll and folds into a scoreboard strip, with no more swooping between sizes; tap the arena for a full view that stays put while you switch tabs | Where: Profile > Appearance > Arena view (beta), then any tab | Files: client/src/components/arena/ArenaStage.jsx, client/src/components/arena/arena.css, client/src/lib/arenaSheet.js
+- [ar2] Look closer: hold or pinch the arena to zoom in and drag around; up close there are small surprises to find, crown rain now falls inside the arena, and holding Start lifts the bar on the platform | Where: Profile > Appearance > Arena view (beta), then hold the arena on Home | Files: client/src/components/arena/arenaEngine.js, client/src/components/arena/ArenaStage.jsx, client/src/components/workout/StartWorkoutHero.jsx
