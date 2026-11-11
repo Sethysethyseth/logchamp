@@ -13,14 +13,28 @@
  * - Cost: nothing runs at rest. A frame loop exists only while the camera
  *   walks, the lights ease or a flash runs; a clock redraws once a second.
  *   Hidden tab or covered stage = no room drawing; a hidden strip = none.
- * - Reduced motion: the camera cuts, lights switch, nothing flickers.
+ * - A closer look: every world coordinate goes through one scale (`zz`), so
+ *   detail authored in thirds of a pixel resolves only when zoomed in. The
+ *   lighting is sampled per canvas pixel, so the dither stays fine.
+ * - Reduced motion: the camera and the zoom cut, lights switch, nothing flickers.
  */
 
+import { ARENA_ZOOM, clampFocus, zoomView } from "../../lib/arenaSheet.js";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
 
 const FLOOR = 150;
 const FLOOR_MARGIN = 7;
 const FACE_MS = 4200;
+const ZOOM_MS = 520;
+const CHEER_MS = 2600;
+const RAIN_MS = 3200;
+const BLINK_MS = 3400;
+const BLINK_SHUT_MS = 150;
+const THUD_MS = 180;
+/* The Log: front row of the far stands, in thirds of a pixel. */
+const LOG = ["..#..#..#..", "..#######..", ".ooooooooo.", "obbbbbbbbbo", "obbwbbbwbbo", "obbbbbbbbbo", "obbbmmmbbbo", "obsbbbbbsbo", "obbbbbbbbbo", ".ooooooooo.", "..d.....d.."];
+const LOG_INK = { "#": 8, o: 4, b: 6, w: 8, m: 1, s: 5, d: 4 };
+const LOG_AT = { x: 178, y: 135 };
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
 const CROWN = ["....#....", "#...#...#", "##.###.##", "#########", "#########", ".#######."];
 const FONT = {
@@ -104,8 +118,11 @@ export function createArena(canvas, strip) {
   let lastT = 0;
   let stripSig = "";
   let dead = false;
+  let blink = 0;
+  let lift = 0;
   const cam = { x: 100, y: 0, ready: false };
   const walk = { from: 0, to: 0, t0: 0, dur: 0 };
+  const zoom = { z: 1, from: 1, to: 1, t0: 0, dur: 0, focus: { x: 150, y: 120 } };
   const ease = { power: 0.5, board: 0 };
   const s = {
     place: "home",
@@ -120,13 +137,22 @@ export function createArena(canvas, strip) {
     flashUntil: 0,
     covered: false,
     strip: false,
+    egg: 0, // the Log's cheer started (ms)
+    rain: 0, // five crown taps (ms)
+    rainTop: 0, // canvas rows above the screen when the rain started
+    holding: false, // a Start button is held on Home
+    thudUntil: 0,
+    towerAt: [0, 0], // a workout start lights the towers one at a time
   };
 
   let cx = 0;
   let cy = 0;
+  let zz = 1;
   const px = (x, y, c, w = 1, h = 1) => {
+    const X = Math.round((x - cx) * zz);
+    const Y = Math.round((y - cy) * zz);
     g.fillStyle = c;
-    g.fillRect(Math.round(x - cx), Math.round(y - cy), w, h);
+    g.fillRect(X, Y, Math.max(1, Math.round((x + w - cx) * zz) - X), Math.max(1, Math.round((y + h - cy) * zz) - Y));
   };
   const text = (str, x, y, c, k = 1) => {
     [...str].forEach((ch, i) => {
@@ -176,9 +202,44 @@ export function createArena(canvas, strip) {
     return W >= 500 ? 250 - W / 2 : Math.max(-4, Math.min(504 - W, place.x - W / 2));
   }
 
+  /** The world coordinate at the canvas's top-left, for the camera and the zoom as they stand. */
+  const view = () => zoomView({ camX: cam.x, camY: cam.y, viewW: W, viewH: H, focus: zoom.focus, zoom: zoom.z });
+
+  const cheering = (now) => now - s.egg < CHEER_MS;
+
+  /* The app's namesake. From the seats: one fan a little brighter. Up close: the Log. */
+  function logChamp(now, reduced) {
+    if (zz < 1.8) {
+      px(LOG_AT.x - 1, LOG_AT.y, RAMP[5], 3, 2);
+      px(LOG_AT.x, LOG_AT.y - 1, RAMP[7]);
+      return;
+    }
+    const on = cheering(now);
+    const u = 1 / 3;
+    const beat = on && !reduced ? Math.abs(Math.sin((now - s.egg) / 150)) : 0;
+    const x0 = 176.3;
+    const y0 = 134.3 - beat * 1.1;
+    const shut = !on && !reduced && now % BLINK_MS < BLINK_SHUT_MS;
+    LOG.forEach((row, ry) =>
+      [...row].forEach((ch, rx) => {
+        if (ch !== ".") px(x0 + rx * u, y0 + ry * u, RAMP[ch === "w" && shut ? 6 : LOG_INK[ch]], u, u);
+      })
+    );
+    if (!on) return;
+    // a tiny bar, pressed overhead
+    const by = y0 - 1.4 - beat * 0.7;
+    px(x0 - u, by, RAMP[6], u, y0 + 5 * u - by);
+    px(x0 + 11 * u, by, RAMP[6], u, y0 + 5 * u - by);
+    px(x0 - 1.4, by, RAMP[8], 11 * u + 2.8, u);
+    for (const ex of [x0 - 1.4, x0 + 11 * u + 0.8]) px(ex, by - 2 * u, RAMP[7], 2 * u, 5 * u);
+  }
+
   function draw(now) {
-    cx = cam.x;
-    cy = cam.y;
+    const reduced = prefersReducedMotion();
+    const v0 = view();
+    cx = v0.x;
+    cy = v0.y;
+    zz = zoom.z;
     const at = (p) => s.place === p;
     const lights = [
       light(112, 88, 150, 148, 0.44, ease.power),
@@ -187,27 +248,35 @@ export function createArena(canvas, strip) {
       light(254, 84, 254, 150, 0.62, at("coach") ? 0.85 : 0.4),
       light(358, 84, 358, 150, 0.7, at("library") ? 0.8 : 0.35),
       light(450, 84, 450, 150, 0.7, at("profile") ? 0.8 : 0.35),
-    ].filter((l) => l.x > cx - 70 && l.x < cx + W + 70);
+    ].filter((l) => l.x > cx - 70 && l.x < cx + W / zz + 70);
     const lit = ease.power > 0.85;
     const flashing = now < s.flashUntil;
 
+    // The light is sampled per canvas pixel, so the dither stays fine at any zoom.
     for (let y = 0; y < H; y += 1) {
       for (let x = 0; x < W; x += 1) {
-        const v = Math.max(0, Math.min(0.999, field(x + cx, y + cy, lights))) * (RAMP.length - 2);
+        const v = Math.max(0, Math.min(0.999, field(x / zz + cx, y / zz + cy, lights))) * (RAMP.length - 2);
         const lo = Math.floor(v);
         g.fillStyle = RAMP[v - lo > BAYER[(y & 3) * 4 + (x & 3)] ? lo + 1 : lo];
         g.fillRect(x, y, 1, 1);
       }
     }
 
-    // far stands behind the platform
+    // far stands behind the platform; when the Log cheers, a wave runs through them twice
+    const wave = cheering(now) && !reduced ? 98 + (((now - s.egg) % (CHEER_MS / 2)) / (CHEER_MS / 2)) * 106 : -99;
     for (let row = 0; row < 6; row += 1) {
       for (let x = 98; x < 204; x += 2) {
         const on = hash(x, row) < 0.3;
-        px(x, FLOOR - 34 + row * 4, flashing && Math.random() < 0.07 ? RAMP[8] : on ? RAMP[4] : RAMP[2]);
+        const up = Math.abs(x - wave) < 6;
+        px(
+          x,
+          FLOOR - 34 + row * 4 - (up ? 1 : 0),
+          up ? RAMP[7] : flashing && Math.random() < 0.07 ? RAMP[8] : on ? RAMP[4] : RAMP[2]
+        );
       }
     }
     px(96, FLOOR - 9, RAMP[3], 110, 1);
+    logChamp(now, reduced);
 
     // near stands (History): one lit seat per finished workout
     for (let tier = 0; tier < 22; tier += 1) {
@@ -219,22 +288,26 @@ export function createArena(canvas, strip) {
     SEATS.forEach((seat, i) => px(seat.x, seat.y, i < s.seats ? (i === s.seats - 1 ? RAMP[8] : RAMP[6]) : RAMP[2]));
 
     px(-400, FLOOR, RAMP[4], 1400, 1);
+    // the bar just dropped: the floor under the platform flashes once
+    if (now < s.thudUntil) px(128, FLOOR, RAMP[8], 44, 1);
 
-    // platform and bar; plates load as sets are logged
+    // platform and bar; plates load as sets are logged; holding Start lifts it off the floor
     px(132, FLOOR - 2, RAMP[5], 36, 2);
     px(134, FLOOR, RAMP[3], 32, 2);
-    px(134, FLOOR - 6, lit ? RAMP[8] : RAMP[6], 32, 1);
+    const up = Math.round(lift * 9 + (s.holding && lift > 0.8 && !reduced ? Math.sin(now / 170) : 0));
+    px(134, FLOOR - 6 - up, lit || up ? RAMP[8] : RAMP[6], 32, 1);
     const plates = s.live ? Math.min(4, 1 + Math.floor(s.live.sets / 3)) : 1;
     for (let i = 0; i < plates; i += 1) {
       for (const x of [137 + i * 3, 161 - i * 3]) {
-        px(x, FLOOR - 10 + i, i ? RAMP[5] : lit ? RAMP[7] : RAMP[5], 2, 9 - i * 2);
+        px(x, FLOOR - 10 + i - up, i ? RAMP[5] : lit ? RAMP[7] : RAMP[5], 2, 9 - i * 2);
       }
     }
-    for (const tx of [112, 188]) {
+    [112, 188].forEach((tx, t) => {
+      const on = lit && now >= s.towerAt[t];
       px(tx, 90, RAMP[4], 1, FLOOR - 90);
       px(tx - 3, 86, RAMP[2], 7, 4);
-      for (let k = 0; k < 3; k += 1) px(tx - 2 + k * 2, 87, lit || k === 1 ? RAMP[8] : RAMP[5], 1, 2);
-    }
+      for (let k = 0; k < 3; k += 1) px(tx - 2 + k * 2, 87, on || k === 1 ? RAMP[8] : RAMP[5], 1, 2);
+    });
 
     // scoreboard; on Analytics it drops and widens into the weekly board
     const b = ease.board;
@@ -270,6 +343,9 @@ export function createArena(canvas, strip) {
       } else if (now < s.savedUntil) {
         l1 = "SAVED";
         l2 = ledText(s.savedName, 9);
+      } else if (cheering(now)) {
+        l1 = "LOG";
+        l2 = "CHAMP";
       }
       mid(ledText(l1, 9), 150, by + 3, RAMP[8]);
       mid(ledText(l2, 9), 150, by + 10, RAMP[6]);
@@ -284,6 +360,7 @@ export function createArena(canvas, strip) {
     crown(250, 88, at("coach") ? RAMP[8] : RAMP[6]);
     mid("ASK ME", 254.5, 103, RAMP[8]);
     mid("ANYTHING", 254.5, 111, RAMP[7]);
+    if (zz > 2.2) text("LOG IT OR IT DIDNT HAPPEN", 238, 121.4, RAMP[5], 1 / 3);
     px(282, 140, RAMP[5], 9, 2);
     px(283, 142, RAMP[4], 1, 8);
     px(289, 142, RAMP[4], 1, 8);
@@ -325,7 +402,10 @@ export function createArena(canvas, strip) {
       px(x + 2, 116, RAMP[4], 3, 1);
       px(x + 2, 118, RAMP[4], 3, 1);
       px(x + 4, 131, RAMP[6], 1, 2);
-      if (mine) px(x + 2, 122, RAMP[8], 3, 3);
+      if (mine) {
+        px(x + 2, 122, RAMP[8], 3, 3);
+        if (zz > 2.2) text("1", x + 3, 122.7, RAMP[1], 1 / 3);
+      }
     }
     px(428, 144, RAMP[5], 44, 2);
     px(431, 146, RAMP[4], 1, 4);
@@ -342,6 +422,16 @@ export function createArena(canvas, strip) {
       if (earned && !label) crown(x + 3, y + 4, hiP ? RAMP[8] : RAMP[7]);
       else mid(label || "1", x + 7.5, y + 5, RAMP[earned ? 8 : hiP ? 5 : 4]);
     });
+
+    // five taps on the Home crown: it rains crowns in here, and they land on the floor
+    if (!reduced && now - s.rain < RAIN_MS) {
+      const top = cy + s.rainTop / zz - 8;
+      for (let i = 0; i < 16; i += 1) {
+        const t = (now - s.rain - i * 120) / 1100;
+        if (t < 0 || t > 1.5) continue;
+        crown(cx + 2 + hash(i, 7) * (W / zz - 13), top + Math.min(1, t * t) * (FLOOR - 6 - top), RAMP[t > 1 ? 6 : 8]);
+      }
+    }
   }
 
   /* The strip: the scoreboard on its own, flat. First match wins. */
@@ -350,6 +440,7 @@ export function createArena(canvas, strip) {
     if (left > 0) return { l1: "REST", l2: restText(left), bar: left / s.rest.durationMs };
     if (s.live) return { l1: clockText(now - s.live.startedAtMs), l2: `SET ${s.live.sets + 1}` };
     if (now < s.savedUntil) return { l1: "SAVED", l2: ledText(s.savedName, 9) };
+    if (cheering(now)) return { l1: "LOG", l2: "CHAMP" };
     if (s.facet === "coach") return { l1: "ASK ME", l2: "ANYTHING" };
     if (s.facet === "home") {
       const faces = [
@@ -375,10 +466,11 @@ export function createArena(canvas, strip) {
     const sig = [l1, l2, face.lamps ? s.week.days.join("") : "", barW, hot, W, SH].join("|");
     if (sig === stripSig) return;
     stripSig = sig;
-    const keep = [g, cx, cy];
+    const keep = [g, cx, cy, zz];
     g = stripG;
     cx = 0;
     cy = 0;
+    zz = 1;
     const m = W / 2;
     const big = l1.length <= 8;
     const h1 = big ? 10 : 5;
@@ -394,7 +486,7 @@ export function createArena(canvas, strip) {
     y += l2 ? 5 : 0;
     if (face.lamps) s.week.days.forEach((on, i) => px(Math.round(m) - 13 + i * 4, y + 2, on ? RAMP[8] : RAMP[3], 2, 2));
     if (barW >= 0) px(0, SH - 2, RAMP[7], barW, 1);
-    [g, cx, cy] = keep;
+    [g, cx, cy, zz] = keep;
   }
 
   function frame(t) {
@@ -423,11 +515,27 @@ export function createArena(canvas, strip) {
       cam.x = walk.from + (walk.to - walk.from) * inOut(p);
       if (p >= 1) walk.dur = 0;
     }
+    // The zoom eases the way the camera walks; reduced motion or a covered stage cuts.
+    const visible = !document.hidden && !s.covered;
+    if (reduced || !visible) zoom.dur = 0;
+    if (zoom.dur) {
+      const p = Math.max(0, Math.min(1, (tNow - zoom.t0) / zoom.dur));
+      zoom.z = zoom.from + (zoom.to - zoom.from) * inOut(p);
+      if (p >= 1) zoom.dur = 0;
+    } else {
+      zoom.z = zoom.to;
+    }
 
     const k = reduced || !cam.ready ? 1 : 1 - Math.exp(-dt / 80);
+    const wantLift = s.holding ? 1 : 0;
+    if (reduced || !visible) lift = wantLift;
+    else {
+      lift += (wantLift - lift) * (1 - Math.exp(-dt / (s.holding ? 300 : 70)));
+      if (Math.abs(wantLift - lift) < 0.01) lift = wantLift;
+    }
     const left = restLeft(now);
     const rest = left > 0 && s.rest ? 1 - left / s.rest.durationMs : 1;
-    const wantPower = s.live ? 0.3 + 0.7 * rest : now < s.savedUntil ? 0.9 : 0.5;
+    const wantPower = s.live ? 0.3 + 0.7 * rest : now < s.savedUntil ? 0.9 : s.holding ? 1 : 0.5;
     const wantBoard = s.place === "analytics" ? 1 : 0;
     ease.power += (wantPower - ease.power) * k;
     ease.board += (wantBoard - ease.board) * k;
@@ -437,15 +545,56 @@ export function createArena(canvas, strip) {
       ease.power = wantPower;
       ease.board = wantBoard;
     }
-    if (!document.hidden && !s.covered) draw(now);
+    if (visible) draw(now);
     if (!document.hidden && s.strip) drawStrip(now);
     const flashing = now < s.flashUntil && !reduced;
-    if (walk.dur || easing || flashing) raf = window.requestAnimationFrame(frame);
+    // Zoom, cheer, rain and lift run frames only while something in them moves, and only on screen.
+    const moving =
+      visible &&
+      !reduced &&
+      (zoom.dur > 0 ||
+        cheering(now) ||
+        now - s.rain < RAIN_MS ||
+        lift !== wantLift ||
+        s.holding ||
+        now < s.towerAt[1]);
+    if (walk.dur || easing || flashing || moving) raf = window.requestAnimationFrame(frame);
     else lastT = 0;
+    syncBlink(now, reduced);
   }
 
   function kick() {
     if (!raf && !dead) raf = window.requestAnimationFrame(frame);
+  }
+
+  /* Up close, the Log blinks: two redraws per blink from a timer, never a frame loop. */
+  function syncBlink(now, reduced) {
+    const need = !raf && !dead && !reduced && zoom.to >= 1.8 && !document.hidden && !s.covered;
+    if (!need) {
+      window.clearTimeout(blink);
+      blink = 0;
+      return;
+    }
+    if (blink) return;
+    const into = now % BLINK_MS;
+    blink = window.setTimeout(
+      () => {
+        blink = 0;
+        if (!raf && !dead) frame(performance.now());
+      },
+      (into < BLINK_SHUT_MS ? BLINK_SHUT_MS : BLINK_MS) - into + 5
+    );
+  }
+
+  function zoomTo(z) {
+    if (z === zoom.to) return;
+    zoom.from = zoom.z;
+    zoom.to = z;
+    zoom.t0 = performance.now();
+    zoom.dur = ZOOM_MS;
+    window.clearTimeout(blink);
+    blink = 0;
+    kick();
   }
 
   /* The clock, the rest countdown and the SAVED face change once a second;
@@ -475,8 +624,16 @@ export function createArena(canvas, strip) {
     }
   }
 
+  const later = (ms) => window.setTimeout(kick, ms + 20);
+
   return {
     set(patch) {
+      // A workout starting while the room is up: the towers come on left, then right,
+      // both before the logger's strip covers the room (SETTLE_MS in ArenaStage).
+      if (patch.live && !s.live && cam.ready && !prefersReducedMotion()) {
+        const now = Date.now();
+        s.towerAt = [now + 60, now + 300];
+      }
       Object.assign(s, patch);
       syncClock();
       kick();
@@ -485,7 +642,62 @@ export function createArena(canvas, strip) {
       s.flashUntil = Date.now() + ms;
       kick();
       // Reduced motion runs no flash frames: one more draw puts the edge back.
-      window.setTimeout(kick, ms + 20);
+      later(ms);
+    },
+    /** Look closer, centred on a world point. */
+    look(point) {
+      zoom.focus = clampFocus(point);
+      zoomTo(ARENA_ZOOM);
+    },
+    /** Step back to the full view at 1x. */
+    back() {
+      zoomTo(1);
+    },
+    zoomed() {
+      return zoom.to > 1;
+    },
+    focus() {
+      return { ...zoom.focus };
+    },
+    /** Drag while zoomed: the room follows the finger. `dx`/`dy` are fractions of the canvas since `from`. */
+    pan(from, dx, dy) {
+      zoom.focus = clampFocus({ x: from.x - (dx * W) / zoom.z, y: from.y - (dy * H) / zoom.z });
+      kick();
+    },
+    /** The world point under a spot on the canvas, given as fractions of its size. */
+    toWorld(fx, fy) {
+      const v = view();
+      return { x: v.x + (fx * W) / zoom.z, y: v.y + (fy * H) / zoom.z };
+    },
+    /** A tap up close: the Log answers it. Returns whether it did. */
+    tapLog(point) {
+      if (zoom.to <= 1 || Math.abs(point.x - LOG_AT.x) >= 6 || Math.abs(point.y - LOG_AT.y) >= 6) return false;
+      s.egg = Date.now();
+      try {
+        navigator.vibrate?.(20);
+      } catch {
+        /* no haptics here - fine */
+      }
+      kick();
+      later(CHEER_MS);
+      return true;
+    },
+    /** Five crown taps. `hiddenTop`: the share of the canvas above the screen, so the crowns start where you can see them. */
+    rain(hiddenTop = 0) {
+      if (prefersReducedMotion()) return;
+      s.rain = Date.now();
+      s.rainTop = Math.max(0, Math.min(1, hiddenTop)) * H;
+      kick();
+    },
+    /** A Start button held on Home: the bar leaves the floor; letting go drops it with a thud. */
+    hold(on) {
+      if (Boolean(on) === s.holding) return;
+      s.holding = Boolean(on);
+      if (!s.holding) {
+        s.thudUntil = Date.now() + THUD_MS;
+        later(THUD_MS);
+      }
+      kick();
     },
     resize() {
       const cssW = canvas.clientWidth || 400;
@@ -517,6 +729,7 @@ export function createArena(canvas, strip) {
       window.cancelAnimationFrame(raf);
       window.clearInterval(clock);
       window.clearTimeout(cycle);
+      window.clearTimeout(blink);
     },
   };
 }

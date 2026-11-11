@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { sceneSignal } from "../../lib/sceneSignal.js";
 import "./crown-play.css";
 
 const RAIN_TAPS = 5;
@@ -18,8 +19,9 @@ function makeDrops() {
 
 /**
  * The Home masthead crown, as a quiet easter egg (MX). A tap flips it like
- * an 8-bit coin; five quick taps make it rain crowns. Pure decoration: it
- * stays out of the tab order and the accessibility tree, like the plain
+ * an 8-bit coin; five quick taps make it rain crowns - over the page, or
+ * under Arena view inside the arena, landing on its floor. Pure decoration:
+ * it stays out of the tab order and the accessibility tree, like the plain
  * crown it replaces. Reduced motion: the CSS does nothing, taps are inert.
  */
 export function CrownEgg() {
@@ -39,7 +41,8 @@ export function CrownEgg() {
     taps.current = [...taps.current.filter((t) => now - t < RAIN_WINDOW_MS), now];
     if (taps.current.length >= RAIN_TAPS) {
       taps.current = [];
-      setRain({ id: now, drops: makeDrops() });
+      if (document.documentElement.hasAttribute("data-arena")) sceneSignal("rain");
+      else setRain({ id: now, drops: makeDrops() });
       try {
         navigator.vibrate?.(24);
       } catch {

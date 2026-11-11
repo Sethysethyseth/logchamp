@@ -1,7 +1,37 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { sceneSignal } from "../../lib/sceneSignal.js";
 import { PixelCrown } from "../motion/PixelCrown.jsx";
 import "../../styles/blocks/bk-run.css";
 import "../../styles/workout-saved.css";
+
+const LIFT_HOLD_MS = 380;
+
+/* Under Arena view, holding Start lifts the bar in the room ("lift"), letting
+   go drops it ("drop"). Signals only: a press still starts exactly as before. */
+function useLiftHold() {
+  const timer = useRef(0);
+  const lifting = useRef(false);
+  const drop = () => {
+    window.clearTimeout(timer.current);
+    if (!lifting.current) return;
+    lifting.current = false;
+    sceneSignal("drop");
+  };
+  useEffect(() => drop, []);
+  return {
+    onPointerDown: (e) => {
+      if (e.button > 0 || !document.documentElement.hasAttribute("data-arena")) return;
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        lifting.current = true;
+        sceneSignal("lift");
+      }, LIFT_HOLD_MS);
+    },
+    onPointerUp: drop,
+    onPointerCancel: drop,
+    onPointerLeave: drop,
+  };
+}
 
 /**
  * Home's first card when nothing is in progress.
@@ -23,6 +53,7 @@ export function StartWorkoutHero({
   /* The last saved workout stays on the face while it fades back out. */
   const [shown, setShown] = useState(saved);
   if (saved && saved !== shown) setShown(saved);
+  const liftHold = useLiftHold();
   if (loading) {
     return (
       <section
@@ -93,6 +124,7 @@ export function StartWorkoutHero({
         className="btn workout-hero__cta"
         disabled={startingEmpty}
         onClick={() => void onStartEmpty?.()}
+        {...liftHold}
       >
         {startingEmpty ? "Starting…" : "Start empty workout"}
       </button>

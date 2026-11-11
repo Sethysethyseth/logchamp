@@ -49,11 +49,19 @@ html[data-arena] {
   touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 
+/* Full view: nothing behind the stage scrolls, so a drag or a pinch on it
+   belongs to the room (a closer look pans; a pinch zooms). */
 .arena-stage[aria-pressed="true"] {
   cursor: zoom-out;
+  touch-action: none;
+}
+
+.arena-stage[data-zoom] {
+  cursor: grab;
 }
 
 .arena-stage:focus-visible {

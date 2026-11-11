@@ -8,7 +8,12 @@
 
 let cheerTimer = 0;
 
-/** Arena view (beta) listens for these: "finish", "rest", "set". */
+/**
+ * Arena view (beta) listens for these: "finish", "rest", "set", and the
+ * easter eggs it carries into the room - "rain" (five taps on the Home
+ * crown), "lift" / "drop" (a Start button on Home held, then let go).
+ * Senders never import the arena; with it off nobody is listening.
+ */
 export const SCENE_SIGNAL_EVENT = "workoutdb-scene-signal";
 
 export function sceneSignal(kind) {

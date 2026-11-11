@@ -122,6 +122,117 @@ function measureStage(st) {
   root.setProperty("--arena-top", `${top}px`);
 }
 
+const HOLD_MS = 480;
+/* Css px a press may wander and still count as a tap or a hold. */
+const TAP_PX = 10;
+
+/* Look closer. Hold or pinch out to zoom in where you pressed (it turns the
+   full view on first); drag to look around; a tap steps back, unless it
+   lands on the Log; pinch in steps back. A tap at 1x is left to the button's
+   click, which toggles the full view. Returns the cleanup. */
+function bindLook(st, stage, canvas) {
+  const ptrs = new Map();
+  let press = null;
+  let pinch = null;
+  let hold = 0;
+  const at = (e) => {
+    const r = canvas.getBoundingClientRect();
+    return st.arena.toWorld((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+  };
+  const zoomIn = (point) => {
+    setArenaTour(true);
+    st.look(point);
+  };
+  const down = (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    ptrs.set(e.pointerId, e);
+    window.clearTimeout(hold);
+    if (ptrs.size === 1) st.swallow = false;
+    if (ptrs.size >= 2) {
+      const [a, b] = [...ptrs.values()];
+      pinch = pinch || { d0: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) || 1, done: false };
+      press = null;
+      st.swallow = true;
+      return;
+    }
+    press = { x0: e.clientX, y0: e.clientY, from: st.arena.focus(), moved: 0, dead: false, point: at(e) };
+    if (st.arena.zoomed()) {
+      try {
+        stage.setPointerCapture(e.pointerId);
+      } catch {
+        /* already released */
+      }
+      return;
+    }
+    hold = window.setTimeout(() => {
+      if (!press || press.moved >= TAP_PX) return;
+      press.dead = true;
+      st.swallow = true;
+      zoomIn(press.point);
+      try {
+        navigator.vibrate?.(12);
+      } catch {
+        /* no haptics here - fine */
+      }
+    }, HOLD_MS);
+  };
+  const move = (e) => {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.set(e.pointerId, e);
+    if (pinch) {
+      if (ptrs.size < 2 || pinch.done) return;
+      const [a, b] = [...ptrs.values()];
+      const k = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.d0;
+      if (k > 1.3 && !st.arena.zoomed()) {
+        pinch.done = true;
+        zoomIn(at({ clientX: (a.clientX + b.clientX) / 2, clientY: (a.clientY + b.clientY) / 2 }));
+      } else if (k < 0.77 && st.arena.zoomed()) {
+        pinch.done = true;
+        st.back();
+      }
+      return;
+    }
+    if (!press) return;
+    const dx = e.clientX - press.x0;
+    const dy = e.clientY - press.y0;
+    press.moved = Math.max(press.moved, Math.hypot(dx, dy));
+    if (press.dead || !st.arena.zoomed()) return;
+    const r = canvas.getBoundingClientRect();
+    st.arena.pan(press.from, dx / r.width, dy / r.height);
+  };
+  const up = (e) => {
+    const had = ptrs.delete(e.pointerId);
+    window.clearTimeout(hold);
+    if (pinch) {
+      if (ptrs.size === 0) pinch = null;
+      press = null;
+      return;
+    }
+    const p = press;
+    press = null;
+    if (!had || !p || p.dead || !st.arena.zoomed()) return;
+    // Up close a tap never toggles the full view: the Log answers it, anything else steps back.
+    st.swallow = true;
+    if (e.type === "pointerup" && p.moved < TAP_PX && !st.arena.tapLog(p.point)) st.back();
+  };
+  const block = (e) => e.preventDefault();
+  stage.addEventListener("pointerdown", down);
+  stage.addEventListener("pointermove", move);
+  stage.addEventListener("pointerup", up);
+  stage.addEventListener("pointercancel", up);
+  stage.addEventListener("contextmenu", block);
+  stage.addEventListener("selectstart", block);
+  return () => {
+    window.clearTimeout(hold);
+    stage.removeEventListener("pointerdown", down);
+    stage.removeEventListener("pointermove", move);
+    stage.removeEventListener("pointerup", up);
+    stage.removeEventListener("pointercancel", up);
+    stage.removeEventListener("contextmenu", block);
+    stage.removeEventListener("selectstart", block);
+  };
+}
+
 /**
  * Arena view (beta). The stage sits in the page flow above the sheet and
  * moves with the sheet's top edge as one piece: the window scroll carries
@@ -132,6 +243,7 @@ function measureStage(st) {
  */
 export function ArenaStage() {
   const canvasRef = useRef(null);
+  const stageBtnRef = useRef(null);
   const stripRef = useRef(null);
   const probeRef = useRef(null);
   const stripProbeRef = useRef(null);
@@ -154,9 +266,20 @@ export function ArenaStage() {
       stripProbe: stripProbeRef.current,
       geom: { openPx: 0, stripPx: 0, reveal: -1, covered: false, strip: false },
       coverTimer: 0,
+      swallow: false, // the next click belongs to a closer-look gesture, not the full-view toggle
+    };
+    const stage = stageBtnRef.current;
+    st.look = (point) => {
+      arena.look(point);
+      stage.dataset.zoom = "";
+    };
+    st.back = () => {
+      arena.back();
+      delete stage.dataset.zoom;
     };
     arenaRef.current = arena;
     stageRef.current = st;
+    const unbindLook = bindLook(st, stage, canvas);
     arena.resize();
     const ro = new ResizeObserver(() => {
       arena.resize();
@@ -185,6 +308,7 @@ export function ArenaStage() {
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisible);
     return () => {
+      unbindLook();
       ro.disconnect();
       navMo.disconnect();
       mo.disconnect();
@@ -219,6 +343,14 @@ export function ArenaStage() {
   useEffect(() => {
     arenaRef.current?.set({ place, facet });
   }, [place, facet]);
+
+  /* A closer look ends with the full view, and on any change of tab. */
+  useEffect(() => {
+    stageRef.current?.back();
+  }, [pathname]);
+  useEffect(() => {
+    if (!tour) stageRef.current?.back();
+  }, [tour]);
 
   const midnight = useSyncExternalStore(subscribeDay, nextMidnight, nextMidnight);
   const facts = useMemo(() => roomFacts(sessions, midnight), [sessions, midnight]);
@@ -273,6 +405,15 @@ export function ArenaStage() {
         arena.flash(2000);
       } else if (kind === "rest") {
         arena.flash(300);
+      } else if (kind === "rain") {
+        // The crowns start at the top of what is on screen, below the desktop navbar.
+        const r = canvasRef.current?.getBoundingClientRect();
+        const top = parseFloat(document.documentElement.style.getPropertyValue("--arena-top")) || 0;
+        arena.rain(r && r.height ? (top - r.top) / r.height : 0);
+      } else if (kind === "lift") {
+        arena.hold(true);
+      } else if (kind === "drop") {
+        arena.hold(false);
       }
     };
     window.addEventListener(SCENE_SIGNAL_EVENT, onSignal);
@@ -285,11 +426,20 @@ export function ArenaStage() {
     <>
       <div className="arena-spacer">
         <button
+          ref={stageBtnRef}
           type="button"
           className="arena-stage"
           aria-label="Full view of the arena"
           aria-pressed={tour}
-          onClick={() => setArenaTour(!tour)}
+          onClick={(e) => {
+            const st = stageRef.current;
+            // A keyboard click (detail 0) always toggles.
+            if (st?.swallow && e.detail !== 0) {
+              st.swallow = false;
+              return;
+            }
+            setArenaTour(!tour);
+          }}
         >
           <canvas ref={canvasRef} className="arena-stage__canvas" aria-hidden="true" />
         </button>
