@@ -37,6 +37,9 @@ per unit is the crash/hand-relay fallback, not the design.
   (`C:\Users\Sethy\AppData\Local\cursor-agent\cursor-agent.ps1`;
   PATH may be stale the same way). Rung unavailable -> descend the
   ladder (section 3), never stall.
+- **Cloud session? (Linux, `/home/user/logchamp`)** Channel B runs HERE
+  too - use section 2d, not the Windows paths above. Do NOT conclude
+  "no route to Cursor" before running 2d's health check.
 
 ## 1. Channel A - cloud agent
 
@@ -198,6 +201,43 @@ Full grain: spec, "Fan-out (relay v5.2)". The mechanics here:
   units keep full QUEUE bookkeeping regardless of parallelism.
 - Progress messaging: announce a parallel dispatch as ONE message;
   "n/N" counts LANDINGS, not dispatches.
+
+## 2d. Channel B in the cloud (Claude Code cloud sessions, Nov 11)
+
+Seth can run the relay from a Claude Code cloud session, off the laptop.
+Same Channel B, same included-pool billing, same block and footer -
+only the paths differ. Requires the session to run on the **`logchamp`
+cloud environment** (Cursor hosts allowed, `CURSOR_API_KEY` set as an
+environment VARIABLE, setup script installs the CLI). The Default
+environment has none of that.
+
+- Health check (one line, never print the key):
+  `[ -n "$CURSOR_API_KEY" ] && ~/.local/bin/cursor-agent --version`.
+  Key missing -> the session is on the wrong environment: tell Seth to
+  start a new session on `logchamp`. CLI missing -> install it
+  (`curl -fsSL https://cursor.com/install | bash`, user-local, no
+  package files touched).
+- Never move the key into a network secret for `api2.cursor.sh`: the CLI
+  swaps the key for an access token and a proxy-injected secret
+  overwrites that token on every call ("not logged in"). Verified Nov 11.
+- Lane worktrees: `/home/user/worktrees/cursor-lane` (`-2`, `-3` for
+  fan-out), created per session (the container is ephemeral):
+  `git worktree add /home/user/worktrees/cursor-lane -b cursor/<unit>
+  <wave-branch>`, then `npm install` in `client/` (and `server/` if the
+  block needs it) inside the worktree.
+- Run as a BACKGROUND Bash task: `bash scripts/run-lane.sh cursor-lane
+  <unit> <model> <timeout-min> [resume-id] [note]` - the Linux twin of
+  `run-lane.ps1` (stream-json log in `/tmp/cursor-lanes/`, process-group
+  kill on timeout, prints the PID). Pair it with a Monitor that exits
+  when DELIVERY.md appears and warns on ~12 min of log silence, exactly
+  as on Windows. `--model` stays explicit.
+- No Relay HUD in the cloud (gui-hub is laptop-only) - skip that step;
+  the wave task list / status messages carry progress.
+- The container is reclaimed when idle: land each delivery (commit +
+  push via `land-unit`) before ending the session - an unlanded
+  delivery in a cloud lane worktree dies with the container.
+- Everything else (QUEUE bookkeeping, ladder, hard stops, land-unit
+  local-relay mode pointed at the worktree) is unchanged.
 
 ## 3. The fallback ladder
 
