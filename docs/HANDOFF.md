@@ -1,5 +1,17 @@
 # HANDOFF — current state
 
+> **Nov 12, later - Seth's first phone smoke of the ARENA wave (sign-off
+> RESET):** (1) DEFECT - Coach: "you can't type, can only use recs" -
+> the ask box is not on screen (his shot: Arena ON, live workout
+> running, strip shows the live clock, no composer anywhere above the
+> nav). Lead hypothesis, unverified: `.coach-page` is sized to 100dvh
+> minus the nav, so under Arena the stage strip (and the workout bar)
+> push the composer below the bottom nav. -> diagnosis block first.
+> (2) DESIGN - "the weird timer background isn't crazy appealing" (the
+> strip scoreboard: huge LED clock on near-black) and "not sure what to
+> do from here in terms of creativity" - Seth floated handing the
+> creative call to a Fable design pass. Not decided yet.
+
 > **Nov 12 (cloud session, Opus seat): ARENA WAVE AR3-AR5 LANDED -
 > 6/6 complete, STOPPED for Seth's phone smoke.** Run per
 > `docs/tasks/AR-WAVE-BRIEF.md` on `claude/inspiring-darwin-s2cr9p`
