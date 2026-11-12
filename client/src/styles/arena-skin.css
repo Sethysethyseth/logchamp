@@ -1,0 +1,450 @@
+/* Arena view (beta): the sheet's skin. On only under html[data-arena];
+   with the switch off nothing here matches. Design of record:
+   docs/design/mocks/motion/arena-draft-2.html - squared, outlined panels on
+   the sheet field, accent-mixed rules, square dark inputs, the display face
+   on titles and numbers. Tokens only. No motion: no keyframes, no
+   transitions, no geometry on the stage / sheet / strip / peek (ar1's).
+
+   Every rule is scoped `html[data-arena] #root` so it outranks the page and
+   component stylesheets that load after this file, without !important.
+   Portaled surfaces (sheets, confirm panels outside #root) stay as today. */
+
+/* ---------- the sheet field ---------- */
+
+html[data-arena] .arena-sheet {
+  background-color: var(--color-surface-1);
+}
+
+/* ---------- squared panels ---------- */
+
+html[data-arena] #root .card,
+html[data-arena] #root .bk-card,
+html[data-arena] #root .sub-card,
+html[data-arena] #root .settings-group,
+html[data-arena] #root .loading-state,
+html[data-arena] #root .coach-leave-note,
+html[data-arena] #root .training-prefs-strip {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* The logger's outer form card holds the exercise panels; in the prototype
+   they sit straight on the sheet, so its frame steps back (no doubled rule). */
+html[data-arena] #root .session-log-workout-form {
+  border-color: transparent;
+}
+
+html[data-arena] #root .card.error {
+  border-color: var(--color-error-border);
+  background: var(--color-error-bg);
+}
+
+/* Home's star-glints sit behind the cards; with unfilled panels they would
+   land inside them. The sheet is a flat field. */
+html[data-arena] #root .workout-tab.stack::after {
+  content: none;
+}
+
+/* The notched hero drops its stepped clip, glow and repainted face. */
+html[data-arena] #root .card--notched {
+  clip-path: none;
+  filter: none;
+}
+
+html[data-arena] #root .card--notched::before {
+  content: none;
+}
+
+/* Feature cards: the hero / summary card of a page, the live card. */
+html[data-arena] #root .workout-hero,
+html[data-arena] #root .bk-up-next,
+html[data-arena] #root .weekly-report,
+html[data-arena] #root .bk-run-day,
+html[data-arena] #root .coach-launch,
+html[data-arena] #root .session-exercise-block--active {
+  border: 1px solid color-mix(in srgb, var(--color-interactive) 45%, var(--color-border));
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* The saved card (prototype .card.saved). */
+html[data-arena] #root .workout-hero.is-saved {
+  border-color: var(--color-interactive);
+  background: var(--color-surface-2);
+}
+
+/* card--live keeps its one meaning: the accent L-bar, nothing else. */
+html[data-arena] #root .card--live {
+  box-shadow: inset 3px 0 0 0 var(--color-interactive);
+}
+
+/* The in-progress bar (prototype .wbar): accent outline on surface-2. */
+html[data-arena] #root .persistent-workout-bar {
+  border: 1px solid var(--color-interactive);
+  border-radius: 0;
+  background: var(--color-surface-2);
+}
+
+html[data-arena] #root .persistent-workout-bar__eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-interactive-ink);
+}
+
+html[data-arena] #root .persistent-workout-bar__elapsed {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Skeletons keep their shimmer; only the corners square off. */
+html[data-arena] #root .skeleton__row,
+html[data-arena] #root .skeleton__tile,
+html[data-arena] #root .skeleton__block,
+html[data-arena] #root .skeleton__title {
+  border-radius: 0;
+}
+
+/* ---------- lists and rules ---------- */
+
+html[data-arena] #root .recent-row,
+html[data-arena] #root .history-row,
+html[data-arena] #root .bk-run-ex {
+  border-top-color: var(--color-border);
+}
+
+html[data-arena] #root th,
+html[data-arena] #root td {
+  border-bottom: 1px solid var(--color-border);
+}
+
+html[data-arena] #root .history-row__date {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html[data-arena] #root .coach-page-suggest__row {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html[data-arena] #root .coach-page__mark {
+  border-radius: 0;
+}
+
+/* ---------- logger ---------- */
+
+html[data-arena] #root .session-exercise-heading-sticky {
+  border-radius: 0;
+  background-color: var(--color-surface-2);
+}
+
+html[data-arena] #root .session-exercise-heading-toggle {
+  border-radius: 0;
+}
+
+html[data-arena] #root .session-exercise-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+html[data-arena] #root .session-set-row-card--logged input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+  border-color: color-mix(in srgb, var(--color-interactive) 40%, var(--color-border));
+}
+
+html[data-arena] #root .session-finish-dock {
+  border-top: 1px solid var(--color-border);
+  box-shadow: none;
+}
+
+/* ---------- controls ---------- */
+
+html[data-arena] #root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-arena] #root select,
+html[data-arena] #root textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background-color: var(--color-bg);
+  box-shadow: none;
+}
+
+html[data-arena] #root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+html[data-arena] #root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
+html[data-arena] #root select:focus,
+html[data-arena] #root select:focus-visible,
+html[data-arena] #root textarea:focus,
+html[data-arena] #root textarea:focus-visible {
+  border-color: var(--color-interactive);
+  outline: none;
+  box-shadow: none;
+}
+
+html[data-arena] #root input[type="number"],
+html[data-arena] #root input[inputmode="decimal"],
+html[data-arena] #root input[inputmode="numeric"] {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The primary call to action stays round (prototype .go). */
+html[data-arena] #root .btn,
+html[data-arena] #root .bk-lib-btn--primary,
+html[data-arena] #root .coach-page__send {
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+/* Plain buttons: square, surface-2, outlined, body face 600. */
+html[data-arena] #root .btn.btn-secondary,
+html[data-arena] #root .bk-lib-btn--secondary,
+html[data-arena] #root .settings-logout-btn {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background-color: var(--color-surface-2);
+  box-shadow: none;
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+html[data-arena] #root .btn.btn-ghost,
+html[data-arena] #root .btn.btn--toolbar,
+html[data-arena] #root .bk-lib-btn--ghost,
+html[data-arena] #root .session-discard-x,
+html[data-arena] #root .logger-exercise-more {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Segmented controls (prototype .seg): square cells; the pressed one is
+   accent outline + accent ink + surface-2. */
+html[data-arena] #root .view-mode-toggle-buttons .btn {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+html[data-arena] #root .view-mode-toggle-buttons .btn:not(.btn-secondary) {
+  border-color: var(--color-interactive);
+  background-color: var(--color-surface-2);
+  color: var(--color-interactive-ink);
+}
+
+html[data-arena] #root .analytics-view-tabs,
+html[data-arena] #root .history-view-tabs,
+html[data-arena] #root .bk-segmented {
+  border-color: var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html[data-arena] #root .analytics-view-tab,
+html[data-arena] #root .history-view-tab,
+html[data-arena] #root .bk-segmented__option {
+  border-radius: 0;
+}
+
+html[data-arena] #root .analytics-view-tabs > .mx-slide-ind,
+html[data-arena] #root .history-view-tabs > .mx-slide-ind {
+  border: 1px solid var(--color-interactive);
+  border-radius: 0;
+  background: var(--color-surface-2);
+  box-shadow: none;
+}
+
+html[data-arena] #root .analytics-view-tab.is-active,
+html[data-arena] #root .history-view-tab.is-active {
+  color: var(--color-interactive-ink);
+}
+
+html[data-arena] #root .bk-segmented__option--selected {
+  background: var(--color-surface-2);
+  box-shadow: inset 0 0 0 1px var(--color-interactive);
+  color: var(--color-interactive-ink);
+}
+
+html[data-arena] #root .bk-lib-type-tab {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html[data-arena] #root .bk-lib-type-tab--active {
+  border-color: var(--color-interactive);
+  background: var(--color-surface-2);
+  color: var(--color-interactive-ink);
+}
+
+/* ---------- type ---------- */
+
+html[data-arena] #root h1,
+html[data-arena] #root h2,
+html[data-arena] #root h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+html[data-arena] #root .bk-up-next__title,
+html[data-arena] #root .bk-run-empty__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+html[data-arena] #root .weekly-report__stat-value,
+html[data-arena] #root .stat-tile-value,
+html[data-arena] #root .profile-hub-stat-tile__value,
+html[data-arena] #root .history-row__day,
+html[data-arena] #root .week-strip__date,
+html[data-arena] #root .logger-live__clock,
+html[data-arena] #root .logger-live__count {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Small labels (prototype .body small). */
+html[data-arena] #root .weekly-report__stat-label,
+html[data-arena] #root .weekly-report__digest-label,
+html[data-arena] #root .stat-tile-label,
+html[data-arena] #root .profile-hub-stat-tile__label,
+html[data-arena] #root .session-set-field-label,
+html[data-arena] #root .logger-name__label,
+html[data-arena] #root .history-row__fact-label,
+html[data-arena] #root .week-strip__label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* Section headings that read as labels. */
+html[data-arena] #root .history-group__label,
+html[data-arena] #root .settings-section-heading {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  border: 0;
+  border-radius: 0;
+  background: var(--color-surface-1);
+}
+
+html[data-arena] #root .history-group__label {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* An eyebrow over a section takes the accent (prototype .eyebrow). */
+html[data-arena] #root .workout-hero__eyebrow,
+html[data-arena] #root .bk-up-next__eyebrow,
+html[data-arena] #root .bk-run-day__eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-interactive-ink);
+}
+
+html[data-arena] #root .bk-run-day__name {
+  font-family: var(--font-display);
+}
+
+/* ---------- meters, lamps, the PR chip ---------- */
+
+html[data-arena] #root .workout-hero__sets-bar,
+html[data-arena] #root .meter,
+html[data-arena] #root .balance-track {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-bg);
+}
+
+html[data-arena] #root .workout-hero__sets-fill,
+html[data-arena] #root .meter-fill,
+html[data-arena] #root .balance-fill,
+html[data-arena] #root .balance-zone {
+  border-radius: 0;
+}
+
+html[data-arena] #root .workout-hero__sets-fill {
+  background: var(--color-interactive);
+}
+
+/* Block day pips: square lamps. */
+html[data-arena] #root .bk-up-next__seg {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-bg);
+  box-shadow: none;
+}
+
+html[data-arena] #root .bk-up-next__seg--done {
+  border-color: var(--color-interactive);
+  background: var(--color-interactive);
+}
+
+html[data-arena] #root .bk-up-next__seg--current {
+  border-color: var(--color-interactive);
+}
+
+/* Week day lamps (prototype .lamps): square, dark well; trained = lit. */
+html[data-arena] #root .week-strip__day {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-bg);
+}
+
+html[data-arena] #root .week-strip__day--trained {
+  border-color: var(--color-accent-fill);
+  background: var(--color-accent-fill);
+}
+
+html[data-arena] #root .week-strip__day--trained .week-strip__label,
+html[data-arena] #root .week-strip__day--trained .week-strip__date {
+  color: var(--color-on-interactive);
+}
+
+html[data-arena] #root .week-strip__day--today {
+  border-color: var(--color-interactive);
+}
+
+html[data-arena] #root .session-set-pr-chip {
+  border: 0;
+  border-radius: 0;
+  background: var(--color-accent-fill);
+  color: var(--color-on-interactive);
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+html[data-arena] #root .legend-swatch {
+  border-radius: 0;
+}
+
+/* ---------- bottom nav ---------- */
+
+html[data-arena] #root .bottom-nav {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+}
+
+html[data-arena] #root .bottom-nav > .mx-slide-ind::before {
+  border-radius: 0;
+}
