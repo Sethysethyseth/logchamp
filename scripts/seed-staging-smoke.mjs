@@ -16,7 +16,7 @@
 // Gotchas this encodes: set `order` is unique per SESSION (not per exercise);
 // the start-session response relation is `sessionExercises`.
 
-const BASE = "https://workout-db-staging.onrender.com";
+const BASE = process.env.SMOKE_BASE || "https://workout-db-staging.onrender.com";
 const USERNAME = "smoke_b8";
 const EMAIL = "smoke-b8@example.com";
 const PASSWORD = "SmokeTest-B8-2026";

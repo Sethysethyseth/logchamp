@@ -45,9 +45,41 @@
 >   moves content 60). NOT yet seen by Seth on a phone.
 > - Open: Seth's nitpick notes (feed AR3); light-mode arena (AR6).
 
-**Next action (human):** smoke AR1+AR2 on the phone (checklist in the
-Nov 11 cloud relay note below) once the code is on the staging deploy,
-and send the Draft 2 nitpick notes - AR3-AR7 still need authoring.
+**Next action (human):** the SHORT phone smoke below (the rest of AR1+AR2
+was smoked headless Nov 12), and send the Draft 2 nitpick notes -
+AR3-AR7 still need authoring.
+
+> **Nov 12 (cloud session): AR1+AR2 HEADLESS SMOKE - no defects.** Run
+> in the new cloud smoke rig (REFERENCE, "Cloud smoke rig"; scripts
+> `cloud-smoke-up.sh` + `smoke-rig.cjs`), Pixel 7 profile, champ dark.
+> No app code changed. PASSED with numbers: page width 412 = screen on
+> Home, Analytics, History, Coach, Library, Profile, live logger, and
+> zoomed; room-to-page gap 0px at every scroll position and at 8 samples
+> through Home -> Coach; strip fades in from 70% of the ride; full view
+> survives all five tabs with the right line each, tap returns; workout
+> bar hidden in full view; hold from the open size -> full view + 3x;
+> drag pans; tap elsewhere, pinch in and tab change step back; pinch out
+> zooms; the Log blinks, lifts its bar when tapped, the wave runs; "1"
+> on the locker; crown rain lands on the arena floor; hold Start lifts
+> the bar with both towers at full, release starts the workout; live
+> clock, REST countdown with the draining bar (follows to Analytics),
+> SAVED + name; coach box stays above a 300px keyboard; Arena OFF: no
+> arena elements, rain over the page; reduced motion: no transitions;
+> zero frames at rest after every one of these. Crimson, forest, iron,
+> chill render.
+> **Polish notes for AR3 (not defects):** (1) Home strip's second face
+> reads WORKOUTS huge and the number tiny under it - the number should
+> lead; (2) SAVED cuts the name mid-word ("QUADFOCUS" for Quad-Focused
+> Leg Day) - cut at a word; (3) zoomed on the Log the board is off
+> screen, so LOG CHAMP is never seen - show it on the line above the nav
+> or pull the camera back for the cheer; (4) the Analytics board always
+> says 8 WK while the page may be on 4 weeks; (5) strip text sits high,
+> crown is not centred on it; (6) full view: the top ~45% is empty dark;
+> (7) light mode is still the dark room over a white page (AR6).
+> Not AR: page text shows through the bottom nav with Arena off too.
+> **Left for Seth's phone (headless cannot judge):** does the fold and
+> the tab walk FEEL smooth, any stutter at 3x, the haptic ticks, holding
+> Start on real Android (context menu? still starts?), pinch feel.
 
 > **Nov 11 (cloud relay session): AR1 LANDED eb2b5eb** - Channel B now
 > works from a cloud session (needed two new Cursor hosts on the

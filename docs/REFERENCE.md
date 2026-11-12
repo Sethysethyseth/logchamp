@@ -84,6 +84,20 @@
 - **Main-tree `node_modules` is CURRENT** (Sept 26: the `zod` install also
   pulled in `express-rate-limit` and `@cursor/sdk`; unit lane 324/324 there).
 
+## Cloud smoke rig (Nov 12, 2026)
+
+A Claude Code cloud session cannot reach staging, but it can run the whole
+app itself and smoke it in a phone-profile browser. `bash
+scripts/cloud-smoke-up.sh` stands up local Postgres + the real API + the
+seeded smoke account (dates slid so "last 7 days" has data) + the Vite
+client; `scripts/smoke-rig.cjs` is the driver (Pixel 7 profile, logged in,
+screenshots, contact sheets, stage/sheet geometry, rAF-at-rest counter,
+raw touches for holds / drags / pinches). Throwaway local DB only - never
+staging, never prod. Use: at wave end the cloud session runs the smoke
+list headless FIRST and hands Seth only what a headless browser cannot
+judge (feel, frame rate on the phone, haptics, real long-press). It does
+not replace his sign-off (CLAUDE.md workflow step 6).
+
 ## Lane worktree lessons
 
 **Check lane cleanliness by DELIVERY.md TIMESTAMP, not `git status`** - it is
