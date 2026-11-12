@@ -45,9 +45,30 @@
 >   moves content 60). NOT yet seen by Seth on a phone.
 > - Open: Seth's nitpick notes (feed AR3); light-mode arena (AR6).
 
-**Next action (human):** the SHORT phone smoke below (the rest of AR1+AR2
-was smoked headless Nov 12), and send the Draft 2 nitpick notes -
-AR3-AR7 still need authoring.
+**Next action (human):** phone smoke of AR2f on the staging deploy (list
+just below), answer the two open calls (Coach open-then-fold or always
+strip; swipe-to-walk the room), and send the Draft 2 nitpick notes for AR3.
+
+> **Nov 12 (cloud session, later): AR2f LANDED af50434.** Seth's phone
+> smoke of AR1+AR2: History and Library "don't show the full picture",
+> and "not sure it fully 1 to 1s the artifacts". Root cause: the
+> prototype's `PLACES[..].sheet` is the SHEET's share (42-46%), the ar1
+> block wrote it down as the ROOM's. Fixed: room 54-62svh at the open
+> size; a live workout folds Home; polish notes 1-5 below are done
+> (note 6 empty top, note 7 light mode stay open). Report lane
+> `docs/tasks/ar-fid-FINDINGS.md`: prototype vs app, ranked top ten -
+> fuel for AR3-AR5. Open calls for Seth: Coach opens tall until the
+> first question (prototype) or stays on the strip (today); swipe to
+> walk the room in full view (prototype has it, no unit planned).
+> **AR2f phone smoke (Arena view ON):** History shows the stands to the
+> top row; Library the whole PROGRAMS board and rack; Profile the three
+> banners and lockers; Home and Analytics the board with its crown.
+> Scroll any of them: still folds with the page, no swoop. Start a
+> workout, go Home: scoreboard strip, not the big room; finish: room is
+> back with SAVED. Scroll Home: strip reads 7 DAYS over sets, then over
+> workouts. Analytics on 4 weeks: board shows four bars and 4 WK. Full
+> view, zoom on the Log, tap it: the line above the tabs reads LOG
+> CHAMP. Does the bigger room on arrival feel right, or too much?
 
 > **Nov 12 (cloud session): AR1+AR2 HEADLESS SMOKE - no defects.** Run
 > in the new cloud smoke rig (REFERENCE, "Cloud smoke rig"; scripts
