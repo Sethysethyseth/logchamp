@@ -15,8 +15,14 @@ const ON_PLAN = "executed right on plan";
 const BLOCK_WEEKS = 8;
 const CHALK_CHARS = 9;
 
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
 const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const list = (value) => (Array.isArray(value) ? value : []);
+const finishedAt = (session) => {
+  const t = new Date(session?.completedAt || NaN).getTime();
+  return Number.isNaN(t) ? null : t;
+};
 
 /* One decimal at most, `.0` dropped: 225 -> "225", 102.5 -> "102.5". */
 function weightText(n) {
@@ -185,4 +191,47 @@ export function blockBoard(block) {
     total,
     cells: all.slice(start, start + BLOCK_WEEKS),
   };
+}
+
+/**
+ * The selected workout's seat: its index among completed sessions, oldest
+ * first. A missing or unfinished selection is the newest seat; -1 with none.
+ */
+export function seatIndex(sessions, selectedId) {
+  const done = list(sessions)
+    .filter((session) => finishedAt(session) != null)
+    .sort((a, b) => finishedAt(a) - finishedAt(b));
+  if (!done.length) return -1;
+  const i = selectedId == null ? -1 : done.findIndex((session) => String(session?.id) === String(selectedId));
+  return i >= 0 ? i : done.length - 1;
+}
+
+/** History's strip: the selected workout's date and title, else the count. Line 2 is fitted by the strip. */
+export function historyStrip({ seats = 0, selected = null } = {}) {
+  const d = selected ? new Date(selected.completedAt) : null;
+  if (!d || Number.isNaN(d.getTime())) return ["HISTORY", count(seats, "WORKOUT", "WORKOUTS")];
+  return [`${MONTHS[d.getMonth()]} ${d.getDate()}`, String(selected.title ?? "")];
+}
+
+/** Library's strip: the running block (`blockBoard` result), else the saved-workout count. */
+export function libraryStrip({ block = null, workouts = null } = {}) {
+  if (block) return [block.label, `${block.done} OF ${block.total} DAYS`];
+  if (workouts == null) return ["LIBRARY", ""];
+  return ["LIBRARY", count(workouts, "WORKOUT", "WORKOUTS")];
+}
+
+/** Profile's strip: the week streak, else the workout count. */
+export function profileStrip({ streak = 0, workouts = 0 } = {}) {
+  if (streak >= 1) return ["STREAK", count(streak, "WEEK", "WEEKS")];
+  return ["PROFILE", count(workouts, "WORKOUT", "WORKOUTS")];
+}
+
+/** The rafters' banners: first workout, 100, 1000. */
+export function banners(workouts) {
+  const w = Number(workouts) || 0;
+  return [
+    { label: "", earned: w >= 1 },
+    { label: "100", earned: w >= 100 },
+    { label: "1K", earned: w >= 1000 },
+  ];
 }

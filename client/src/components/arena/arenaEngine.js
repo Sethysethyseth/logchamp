@@ -19,6 +19,7 @@
  * - Reduced motion: the camera and the zoom cut, lights switch, nothing flickers.
  */
 
+import { banners } from "../../lib/arenaBoards.js";
 import { ARENA_ZOOM, clampFocus, ledFit, zoomView } from "../../lib/arenaSheet.js";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
 
@@ -69,12 +70,14 @@ const hash = (x, y) => {
   return n - Math.floor(n);
 };
 
-/* Seats in the near stands, front row first: one lights per finished workout. */
+/* Seats in the near stands, front row of the stand first: workout k (oldest first) sits in seat k. */
 const SEATS = [];
 for (let tier = 0; tier < 22; tier += 1) {
   const reach = Math.round(92 - tier * 2.6);
   for (let x = reach - 3; x > 0; x -= 2) SEATS.push({ x, y: FLOOR - 2 - tier * 4 });
 }
+/* Front-row lamps on the floor edge at x 80 - i*4: as many as fit. */
+const FRONT_ROW = 21;
 
 function readRamp() {
   const probe = document.createElement("span");
@@ -127,7 +130,7 @@ export function createArena(canvas, strip) {
   const ease = { power: 0.5, board: 0 };
   const s = {
     place: "home",
-    facet: null, // what the strip reads off the route: home | analytics | history | coach | null
+    facet: null, // what the strip reads off the route: home | analytics | history | coach | library | profile | null
     live: null, // { startedAtMs, sets }
     rest: null, // { startedAtMs, durationMs }
     week: { days: [0, 0, 0, 0, 0, 0, 0], sets: 0, workouts: 0 },
@@ -149,6 +152,8 @@ export function createArena(canvas, strip) {
     board: null, // the Analytics view's face (arenaBoards.analyticsFaces); null = the weekly sets chart
     block: null, // the program board (arenaBoards.blockBoard); null = PROGRAMS
     chalk: null, // { thinking, lines } - the coach's chalkboard; null = ASK ME / ANYTHING
+    seat: -1, // the selected workout's seat (arenaBoards.seatIndex); -1 = no workouts, no marker
+    placeLines: null, // { history, library, profile }: [line1, line2] for those strips (arenaBoards)
   };
 
   let cx = 0;
@@ -363,14 +368,24 @@ export function createArena(canvas, strip) {
     px(96, FLOOR - 9, RAMP[3], 110, 1);
     logChamp(now, reduced);
 
-    // near stands (History): one lit seat per finished workout
+    // near stands (History): a fixed crowd; the front row lights one seat per workout this week, newest brightest
     for (let tier = 0; tier < 22; tier += 1) {
       const y = FLOOR - 4 - tier * 4;
       const reach = Math.round(92 - tier * 2.6);
       px(0, y, RAMP[1], reach, 4);
       px(0, y, RAMP[3], reach, 1);
+      for (let x = 1; x < reach - 1; x += 2) {
+        const h = hash(x, tier);
+        px(x, y + 2, h < 0.05 ? RAMP[7] : h < 0.36 ? RAMP[5] : RAMP[2]);
+      }
     }
-    SEATS.forEach((seat, i) => px(seat.x, seat.y, i < s.seats ? (i === s.seats - 1 ? RAMP[8] : RAMP[6]) : RAMP[2]));
+    const front = Math.min(s.week.workouts || 0, FRONT_ROW);
+    for (let i = 0; i < front; i += 1) px(80 - i * 4, FLOOR - 2, i === 0 ? RAMP[8] : RAMP[6], 2, 2);
+    // the selected workout's seat (the newest without one); steady
+    if (s.seat >= 0) {
+      const seat = SEATS[Math.min(s.seat, SEATS.length - 1)];
+      px(seat.x - 1, seat.y - 1, RAMP[8], 3, 3);
+    }
 
     px(-400, FLOOR, RAMP[4], 1400, 1);
     // the bar just dropped: the floor under the platform flashes once
@@ -515,7 +530,7 @@ export function createArena(canvas, strip) {
     px(428, 144, RAMP[5], 44, 2);
     px(431, 146, RAMP[4], 1, 4);
     px(468, 146, RAMP[4], 1, 4);
-    [["", s.seats >= 1], ["100", s.seats >= 100], ["1K", s.seats >= 1000]].forEach(([label, earned], i) => {
+    banners(s.seats).forEach(({ label, earned }, i) => {
       const x = 424 + i * 24;
       const y = 62;
       px(x + 2, y - 70, RAMP[3], 1, 70);
@@ -524,8 +539,8 @@ export function createArena(canvas, strip) {
       px(x + 1, y + 1, RAMP[earned ? 2 : 1], 12, 12);
       px(x + 1, y + 13, RAMP[earned ? 2 : 1], 5, 2);
       px(x + 8, y + 13, RAMP[earned ? 2 : 1], 5, 2);
-      if (earned && !label) crown(x + 3, y + 4, hiP ? RAMP[8] : RAMP[7]);
-      else mid(label || "1", x + 7.5, y + 5, RAMP[earned ? 8 : hiP ? 5 : 4]);
+      if (earned) crown(x + 3, y + 4, hiP ? RAMP[8] : RAMP[7]);
+      else mid(label, x + 7.5, y + 5, RAMP[hiP ? 5 : 4]);
     });
 
     // five taps on the Home crown: it rains crowns in here, and they land on the floor
@@ -560,6 +575,8 @@ export function createArena(canvas, strip) {
       const bars = shownBars();
       return { l1: `${bars.length} WEEKS`, l2: count(bars.reduce((a, b) => a + b, 0), "SET", "SETS") };
     }
+    const lines = s.placeLines?.[s.facet];
+    if (lines) return { l1: lines[0], l2: lines[1] };
     if (s.facet === "history") return { l1: "HISTORY", l2: count(s.seats, "WORKOUT", "WORKOUTS") };
     return { l1: "LOGCHAMP", l2: "" };
   }

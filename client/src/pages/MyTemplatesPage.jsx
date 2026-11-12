@@ -241,6 +241,10 @@ export function MyTemplatesPage() {
   }, []);
 
   useEffect(() => {
+    if (workoutsStatus === "ready") publishArenaFacts({ library: { workouts: workouts.length } });
+  }, [workouts, workoutsStatus]);
+
+  useEffect(() => {
     if (area === "community") {
       setRunsReady(true);
       return undefined;

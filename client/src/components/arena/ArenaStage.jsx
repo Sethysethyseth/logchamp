@@ -3,7 +3,19 @@ import { useLocation } from "react-router-dom";
 import { useActiveSession } from "../../context/ActiveSessionContext.jsx";
 import { useCoachSession } from "../../context/CoachSessionContext.jsx";
 import { loadAnalyticsWeeks } from "../../lib/analyticsRangePref.js";
-import { analyticsFaces, blockBoard, chalkLines, chalkSentence, weekFaces } from "../../lib/arenaBoards.js";
+import { countCompleted, weekStreak } from "../../lib/profileStats.js";
+import {
+  analyticsFaces,
+  banners,
+  blockBoard,
+  chalkLines,
+  chalkSentence,
+  historyStrip,
+  libraryStrip,
+  profileStrip,
+  seatIndex,
+  weekFaces,
+} from "../../lib/arenaBoards.js";
 import { resetArenaFacts, useArenaFacts } from "../../lib/arenaFacts.js";
 import { ARENA_STRIP_SVH, arenaSize, stageRide, stripReveal } from "../../lib/arenaSheet.js";
 import { setArenaTour, useArenaTour } from "../../lib/arenaTour.js";
@@ -24,14 +36,21 @@ function placeFor(pathname, activeId) {
   if (pathname === "/") return ["home", "home"];
   if (pathname.startsWith("/analytics")) return ["analytics", "analytics"];
   if (pathname.startsWith("/coach")) return ["coach", "coach"];
-  if (pathname.startsWith("/profile")) return ["profile", null];
+  if (pathname.startsWith("/profile")) return ["profile", "profile"];
   if (pathname.startsWith("/sessions/")) {
     const live = activeId != null && pathname === `/sessions/${activeId}`;
     return live ? ["home", null] : ["history", "history"];
   }
   if (pathname.startsWith("/sessions")) return ["history", "history"];
   if (pathname.startsWith("/log-workout")) return ["home", null];
-  return ["library", null];
+  return ["library", "library"];
+}
+
+/* The workout a History route has open: `/sessions/:id`, not the live one. */
+function selectedIdFor(pathname, activeId) {
+  const m = pathname.match(/^\/sessions\/([^/]+)/);
+  if (!m || (activeId != null && m[1] === String(activeId))) return null;
+  return m[1];
 }
 
 const setsOf = (session) => session?._count?.sets ?? (Array.isArray(session?.sets) ? session.sets.length : 0);
@@ -91,8 +110,18 @@ function latestAnswer(thread) {
 }
 
 /** The one line the full view keeps on screen, per place, from the same facts as the strip. */
-function peekLine(place, facts, live, weeks) {
+function peekLine(place, facts, live, weeks, here) {
   if (live && place === "home") return `In progress · ${plural(live.sets, "set", "sets")} logged`;
+  if (place === "history" && here.selected) {
+    return `${here.selected.title} · seat ${here.seat + 1} of ${facts.seats}`;
+  }
+  if (place === "library" && here.block) {
+    return `${here.block.name || "Your block"} · week ${here.block.week} of ${here.block.weeks}`;
+  }
+  if (place === "profile") {
+    const lead = here.streak >= 1 ? `${here.streak} week streak` : `${plural(facts.seats, "workout", "workouts")} logged`;
+    return `${lead} · ${here.hung} of 3 banners hung`;
+  }
   if (place === "home") {
     return `Last 7 days: ${plural(facts.week.workouts, "workout", "workouts")} · ${plural(facts.week.sets, "set", "sets")}`;
   }
@@ -431,6 +460,48 @@ export function ArenaStage() {
     arenaRef.current?.set({ block });
   }, [block]);
 
+  /* History follows the workout you have open; with none, the newest seat. */
+  const selectedId = selectedIdFor(pathname, activeId);
+  const seat = useMemo(() => seatIndex(sessions, selectedId), [sessions, selectedId]);
+  const selected = useMemo(() => {
+    if (selectedId == null) return null;
+    const session = (sessions || []).find((x) => String(x?.id) === selectedId && doneAt(x) != null);
+    return session ? { title: sessionDisplayTitle(session), completedAt: session.completedAt } : null;
+  }, [sessions, selectedId]);
+  useEffect(() => {
+    arenaRef.current?.set({ seat });
+  }, [seat]);
+
+  const streak = useMemo(() => weekStreak(sessions, new Date(midnight - 1)), [sessions, midnight]);
+  const workoutCount = useMemo(() => countCompleted(sessions), [sessions]);
+  const libraryWorkouts = published.library?.workouts ?? null;
+  const placeLines = useMemo(
+    () => ({
+      history: historyStrip({ seats: facts.seats, selected }),
+      library: libraryStrip({ block, workouts: libraryWorkouts }),
+      profile: profileStrip({ streak, workouts: workoutCount }),
+    }),
+    [facts.seats, selected, block, libraryWorkouts, streak, workoutCount]
+  );
+  useEffect(() => {
+    arenaRef.current?.set({ placeLines });
+  }, [placeLines]);
+
+  const progress = published.block?.progress;
+  const here = {
+    selected,
+    seat,
+    streak,
+    hung: banners(workoutCount).filter((b) => b.earned).length,
+    block: block
+      ? {
+          name: published.block?.name,
+          week: progress?.currentWeekOrder ?? 1,
+          weeks: Array.isArray(progress?.weeks) ? progress.weeks.length : 0,
+        }
+      : null,
+  };
+
   const { thread, streaming } = useCoachSession();
   const answer = useMemo(() => latestAnswer(thread), [thread]);
   const chalk = useMemo(() => ({ thinking: Boolean(streaming), lines: chalkLines(answer) }), [streaming, answer]);
@@ -501,7 +572,7 @@ export function ArenaStage() {
   }, []);
 
   const live = activeId != null ? { sets: liveSets } : null;
-  let peek = peekLine(place, facts, live, weeks);
+  let peek = peekLine(place, facts, live, weeks, here);
   if (cheer) peek = "LOG CHAMP";
   else if (place === "coach" && streaming) peek = "The coach is thinking";
   else if (place === "coach" && answer) peek = chalkSentence(answer, 60);
