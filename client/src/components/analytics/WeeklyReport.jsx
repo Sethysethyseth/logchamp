@@ -7,6 +7,7 @@ import { formatEffort } from "../../lib/effortDisplay.js";
 import { formatRepsValue } from "../../lib/repsDisplay.js";
 import { formatEstimate, formatWeight } from "../../lib/weightDisplay.js";
 import { buildExecutionVerdict } from "../../lib/executionVerdict.js";
+import { publishArenaFacts } from "../../lib/arenaFacts.js";
 
 /** Current + prior 7 local-day windows as ISO datetimes (end-of-local-day). */
 export function weeklyReportWindows(now = new Date()) {
@@ -293,6 +294,7 @@ export function WeeklyReport({ weekStrip = null }) {
         if (!cancelled) {
           setCurrentSummary(current);
           setPriorSummary(prior);
+          publishArenaFacts({ week: { summary: current } });
         }
       } catch (err) {
         console.error("WeeklyReport: failed to load summaries", err);

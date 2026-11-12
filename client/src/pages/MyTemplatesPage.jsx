@@ -17,6 +17,7 @@ import {
 } from "../components/library/index.js";
 import { pickLatestActiveSession } from "../lib/activeSession.js";
 import { readCurrentProgram, writeCurrentProgram } from "../lib/currentProgramStorage.js";
+import { publishArenaFacts } from "../lib/arenaFacts.js";
 import { sessionDisplayTitle } from "../lib/sessionDisplay.js";
 import "../styles/blocks/bk-library.css";
 
@@ -122,6 +123,9 @@ export function MyTemplatesPage() {
   }
 
   function applyRunPayload(runData, leftOffData) {
+    publishArenaFacts({
+      block: runData?.run ? { name: runData.block?.name || "", progress: runData.progress ?? null } : null,
+    });
     if (runData?.run) {
       const progressWeeks = Array.isArray(runData.progress?.weeks)
         ? runData.progress.weeks.length

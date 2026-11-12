@@ -38,6 +38,7 @@ import { formatEffort } from "../lib/effortDisplay.js";
 import { formatRepsValue } from "../lib/repsDisplay.js";
 import { loadWeightUnit } from "../lib/weightUnitPref.js";
 import { loadAnalyticsWeeks, saveAnalyticsWeeks } from "../lib/analyticsRangePref.js";
+import { publishArenaFacts } from "../lib/arenaFacts.js";
 import { formatHonestyNote } from "../lib/honestyNoteCopy.js";
 import { formatEstimate, formatWeight } from "../lib/weightDisplay.js";
 import { buildExecutionVerdict, formatPlanActual, formatPlannedSummary, formatActualSummary } from "../lib/executionVerdict.js";
@@ -822,6 +823,10 @@ export function AnalyticsPage() {
   useEffect(() => {
     if (summary) markEntrancePlayed();
   }, [summary]);
+
+  useEffect(() => {
+    publishArenaFacts({ analytics: { weeks: summaryWeeks, summary } });
+  }, [summary, summaryWeeks]);
 
   const isEmpty =
     summary &&

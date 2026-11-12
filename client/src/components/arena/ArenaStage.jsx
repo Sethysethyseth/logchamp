@@ -1,13 +1,17 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLocation } from "react-router-dom";
 import { useActiveSession } from "../../context/ActiveSessionContext.jsx";
+import { useCoachSession } from "../../context/CoachSessionContext.jsx";
 import { loadAnalyticsWeeks } from "../../lib/analyticsRangePref.js";
+import { analyticsFaces, blockBoard, chalkLines, chalkSentence, weekFaces } from "../../lib/arenaBoards.js";
+import { resetArenaFacts, useArenaFacts } from "../../lib/arenaFacts.js";
 import { ARENA_STRIP_SVH, arenaSize, stageRide, stripReveal } from "../../lib/arenaSheet.js";
 import { setArenaTour, useArenaTour } from "../../lib/arenaTour.js";
 import { REST_TIMER_EVENT, readRestRun } from "../../lib/restTimer.js";
 import { SCENE_SIGNAL_EVENT } from "../../lib/sceneSignal.js";
 import { sessionDisplayTitle } from "../../lib/sessionDisplay.js";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
+import { loadWeightUnit } from "../../lib/weightUnitPref.js";
 import { CHEER_MS, createArena } from "./arenaEngine.js";
 import "./arena.css";
 
@@ -71,6 +75,20 @@ function roomFacts(sessions, midnight) {
 }
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+/* The Analytics page's views, in its tab order, as its tabs name them. */
+const ANALYTICS_VIEWS = ["muscles", "strength", "exercises", "execution"];
+const VIEW_LABELS = ["Muscles", "Strength", "Exercises", "Execution"];
+const viewIndex = (search) => Math.max(0, ANALYTICS_VIEWS.indexOf(new URLSearchParams(search).get("view")));
+
+/** The coach's latest finished answer, or "". */
+function latestAnswer(thread) {
+  for (let i = (thread?.length ?? 0) - 1; i >= 0; i -= 1) {
+    const m = thread[i];
+    if (m?.role === "assistant" && !m.pending && !m.error && String(m.content ?? "").trim()) return m.content;
+  }
+  return "";
+}
 
 /** The one line the full view keeps on screen, per place, from the same facts as the strip. */
 function peekLine(place, facts, live, weeks) {
@@ -258,7 +276,7 @@ export function ArenaStage() {
   const stripProbeRef = useRef(null);
   const arenaRef = useRef(null);
   const stageRef = useRef(null);
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const tour = useArenaTour();
   const { sessions, activeSession } = useActiveSession();
   const activeId = activeSession?.id ?? null;
@@ -268,6 +286,8 @@ export function ArenaStage() {
   const cheerTimer = useRef(0);
 
   useLayoutEffect(() => {
+    // Facts published before this stage existed may belong to another account; pages publish again on their next load.
+    resetArenaFacts();
     const canvas = canvasRef.current;
     const arena = createArena(canvas, stripRef.current);
     const st = {
@@ -382,6 +402,42 @@ export function ArenaStage() {
     arenaRef.current?.set({ weeks });
   }, [weeks]);
 
+  /* The boards read what the pages already hold (arenaFacts); until a page publishes, its board keeps today's face. */
+  const published = useArenaFacts();
+  const unit = loadWeightUnit() === "kg" ? "KG" : "LB";
+  const weekSummary = published.week?.summary ?? null;
+  const homeFaces = useMemo(
+    () => weekFaces({ sets: facts.week.sets, workouts: facts.week.workouts, summary: weekSummary }, { unit }),
+    [facts.week.sets, facts.week.workouts, weekSummary, unit]
+  );
+  useEffect(() => {
+    arenaRef.current?.set({ homeFaces });
+  }, [homeFaces]);
+
+  // A summary published for another range than the page's is not shown.
+  const analytics = published.analytics;
+  const faces = useMemo(
+    () => (analytics && analytics.weeks === weeks ? analyticsFaces(analytics.summary) : null),
+    [analytics, weeks]
+  );
+  const view = viewIndex(search);
+  const board = faces ? faces[view] : null;
+  useEffect(() => {
+    arenaRef.current?.set({ board });
+  }, [board]);
+
+  const block = useMemo(() => blockBoard(published.block), [published.block]);
+  useEffect(() => {
+    arenaRef.current?.set({ block });
+  }, [block]);
+
+  const { thread, streaming } = useCoachSession();
+  const answer = useMemo(() => latestAnswer(thread), [thread]);
+  const chalk = useMemo(() => ({ thinking: Boolean(streaming), lines: chalkLines(answer) }), [streaming, answer]);
+  useEffect(() => {
+    arenaRef.current?.set({ chalk });
+  }, [chalk]);
+
   const liveStart = activeSession ? new Date(activeSession.startedAt || activeSession.performedAt).getTime() : null;
   const liveSets = setsOf(activeSession);
   const lastTitle = useMemo(() => {
@@ -445,6 +501,11 @@ export function ArenaStage() {
   }, []);
 
   const live = activeId != null ? { sets: liveSets } : null;
+  let peek = peekLine(place, facts, live, weeks);
+  if (cheer) peek = "LOG CHAMP";
+  else if (place === "coach" && streaming) peek = "The coach is thinking";
+  else if (place === "coach" && answer) peek = chalkSentence(answer, 60);
+  else if (place === "analytics" && faces) peek = `${VIEW_LABELS[view]} · last ${weeks} weeks`;
 
   return (
     <>
@@ -473,7 +534,7 @@ export function ArenaStage() {
       <canvas ref={stripRef} className="arena-strip" aria-hidden="true" onClick={() => setArenaTour(true)} />
       {tour ? (
         <button type="button" className="arena-peek" onClick={() => setArenaTour(false)}>
-          {cheer ? "LOG CHAMP" : peekLine(place, facts, live, weeks)}
+          {peek}
         </button>
       ) : null}
     </>

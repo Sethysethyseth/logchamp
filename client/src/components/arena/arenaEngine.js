@@ -46,8 +46,13 @@ const FONT = {
   K: "101101110101101", L: "100100100100111", M: "101111111101101", N: "111101101101101", O: "111101101101111",
   P: "111101111100100", Q: "111101101111001", R: "111101110101101", S: "111100111001111", T: "111010010010010",
   U: "101101101101111", V: "101101101101010", W: "101101111111101", X: "101101010101101", Y: "101101010010010",
-  Z: "111001010100111", ":": "000010000010000",
+  Z: "111001010100111", ":": "000010000010000", "+": "000010111010000", ".": "000000000000010",
+  "-": "000000111000000",
 };
+/* The chalkboard's thinking dots step this often while an answer streams. */
+const DOTS_MS = 280;
+/* The Analytics board's views, in the page's tab order. */
+const VIEW_TITLES = ["MUSCLES", "STRENGTH", "EXERCISES", "EXECUTION"];
 
 /** Where each place sits in the world: the x of its centre. The camera never moves vertically. */
 export const ARENA_PLACES = {
@@ -114,6 +119,7 @@ export function createArena(canvas, strip) {
   let stripSig = "";
   let dead = false;
   let blink = 0;
+  let dots = 0;
   let lift = 0;
   const cam = { x: 100, y: 0, ready: false };
   const walk = { from: 0, to: 0, t0: 0, dur: 0 };
@@ -139,6 +145,10 @@ export function createArena(canvas, strip) {
     holding: false, // a Start button is held on Home
     thudUntil: 0,
     towerAt: [0, 0], // a workout start lights the towers one at a time
+    homeFaces: null, // [[line1, line2], ...] Home's week faces (arenaBoards.weekFaces); null = sets / workouts
+    board: null, // the Analytics view's face (arenaBoards.analyticsFaces); null = the weekly sets chart
+    block: null, // the program board (arenaBoards.blockBoard); null = PROGRAMS
+    chalk: null, // { thinking, lines } - the coach's chalkboard; null = ASK ME / ANYTHING
   };
 
   let cx = 0;
@@ -203,11 +213,23 @@ export function createArena(canvas, strip) {
 
   const cheering = (now) => now - s.egg < CHEER_MS;
 
-  /* Home's board: `7 DAYS` stays; the second line turns between sets and workouts. */
-  const weekLine = (now) =>
-    !prefersReducedMotion() && Math.floor(now / FACE_MS) % 2
-      ? count(s.week.workouts || 0, "WORKOUT", "WORKOUTS")
-      : count(s.week.sets || 0, "SET", "SETS");
+  /* Home's week faces, one at a time every FACE_MS; reduced motion keeps the first. */
+  const weekFacesNow = () =>
+    s.homeFaces && s.homeFaces.length
+      ? s.homeFaces
+      : [
+          ["7 DAYS", count(s.week.sets || 0, "SET", "SETS")],
+          ["7 DAYS", count(s.week.workouts || 0, "WORKOUT", "WORKOUTS")],
+        ];
+  const weekFace = (now) => {
+    const faces = weekFacesNow();
+    return faces[prefersReducedMotion() ? 0 : Math.floor(now / FACE_MS) % faces.length];
+  };
+
+  /* Thinking dots: 1-3 stepping while an answer streams, 3 steady under reduced motion. */
+  const thinking = () => Boolean(s.chalk?.thinking);
+  const dotCount = (now, reduced) => (reduced ? 3 : 1 + (Math.floor(now / DOTS_MS) % 3));
+  const chalk = () => (s.chalk?.lines?.length ? s.chalk.lines : ["ASK ME", "ANYTHING"]);
 
   /* The last n weekly bars, n = the Analytics range (at most the eight there are). */
   const shownBars = () => s.bars.slice(-Math.max(1, Math.min(s.bars.length, s.weeks || 8)));
@@ -237,6 +259,64 @@ export function createArena(canvas, strip) {
     px(x0 + 11 * u, by, RAMP[6], u, y0 + 5 * u - by);
     px(x0 - 1.4, by, RAMP[8], 11 * u + 2.8, u);
     for (const ex of [x0 - 1.4, x0 + 11 * u + 0.8]) px(ex, by - 2 * u, RAMP[7], 2 * u, 5 * u);
+  }
+
+  /* The open Analytics board: the view the page is on. `gr` charges bars and columns in as it opens. */
+  function viewBoard(face, bx, by, bw, bh, gr) {
+    text(face.title, bx + 3, by + 3, RAMP[6]);
+    const view = VIEW_TITLES.indexOf(face.title);
+    if (view === 0) {
+      const peak = Math.max(1e-9, ...face.rows.map((r) => r.value));
+      const room = bw - 21;
+      face.rows.forEach((r, i) => {
+        const y = by + 11 + i * 8;
+        text(r.label, bx + 3, y, RAMP[5]);
+        px(bx + 17, y, i === 0 ? RAMP[8] : RAMP[6], Math.max(1, Math.round((r.value / peak) * room * gr)), 5);
+      });
+    } else if (view === 1) {
+      if (face.e1rm == null) {
+        mid("--", bx + bw / 2, by + 24, RAMP[5]);
+        return;
+      }
+      const head = `E1RM ${face.e1rm}`;
+      text(head, bx + bw - 2 - head.length * 4, by + 3, RAMP[8]);
+      const lo = Math.min(...face.spark);
+      const hi = Math.max(...face.spark);
+      const x0 = bx + Math.round((bw - face.spark.length * 7) / 2);
+      face.spark.forEach((v, i) => {
+        const h0 = hi > lo ? 4 + Math.round(((v - lo) / (hi - lo)) * 23) : 14;
+        const h = Math.max(1, Math.round(h0 * gr));
+        px(x0 + i * 7, by + bh - 5 - h, RAMP[i === face.spark.length - 1 ? 8 : 7], 7, 1);
+        px(x0 + i * 7, by + bh - 4 - h, RAMP[3], 7, h);
+      });
+    } else if (view === 2) {
+      face.rows.forEach((r, i) => {
+        const y = by + 12 + i * 9;
+        text(ledFit(r.name, Math.floor((bw - 10 - r.set.length * 4) / 4)), bx + 3, y, RAMP[7]);
+        text(r.set, bx + bw - 3 - r.set.length * 4, y, RAMP[5]);
+      });
+      if (!face.rows.length) mid("--", bx + bw / 2, by + 24, RAMP[5]);
+    } else if (view === 3) {
+      const num = face.pct == null ? "--" : String(face.pct);
+      text(num, bx + 6, by + 14, face.pct == null ? RAMP[5] : RAMP[8], 4);
+      text("ON PLAN", Math.max(bx + 44, bx + 10 + num.length * 16 - 4), by + 18, RAMP[6]);
+      px(bx + 6, by + 40, RAMP[3], bw - 12, 4);
+      if (face.pct) px(bx + 6, by + 40, RAMP[7], Math.max(1, Math.round(((bw - 12) * face.pct * gr) / 100)), 4);
+    }
+  }
+
+  /* The rack's program board: the running block's weeks, done days bright, the next day mid, the rest dark. Steady. */
+  function programBoard(block) {
+    mid(block.label, 362.5, 93, RAMP[6]);
+    const weeks = Math.max(1, block.cells.length);
+    const days = Math.max(1, ...block.cells.map((c) => c.length));
+    const sx = Math.min(7, Math.floor(41 / weeks));
+    const sy = Math.min(5, Math.max(1, Math.floor(15 / days)));
+    const ch = Math.max(1, sy - (sy >= 4 ? 2 : 1));
+    const x0 = 341 + Math.round((43 - (weeks * sx - 2)) / 2);
+    block.cells.forEach((week, w) =>
+      week.forEach((cell, d) => px(x0 + w * sx, 100 + d * sy, RAMP[cell === 2 ? 8 : cell === 1 ? 6 : 3], Math.max(1, sx - 2), ch))
+    );
   }
 
   function draw(now) {
@@ -316,12 +396,8 @@ export function createArena(canvas, strip) {
 
     // scoreboard; on Analytics it drops and widens into the weekly board
     const b = ease.board;
-    // Nine characters fit in 38; the board widens for a longer count face (`12 WORKOUTS`) and keeps that width for both faces.
-    const chars = Math.max(
-      9,
-      count(s.week.sets || 0, "SET", "SETS").length,
-      count(s.week.workouts || 0, "WORKOUT", "WORKOUTS").length
-    );
+    // Nine characters fit in 38; the board widens for a longer face (`12 WORKOUTS`) and keeps that width for every face.
+    const chars = Math.max(9, ...weekFacesNow().map((f) => f[1].length));
     const bw0 = Math.max(38, 2 * Math.ceil((chars * 4 + 4) / 2));
     const bw = Math.round(bw0 + (84 - bw0) * b);
     const bh = Math.round(17 + 35 * b);
@@ -333,7 +409,9 @@ export function createArena(canvas, strip) {
     px(bx, by, RAMP[4], bw, bh);
     px(bx + 1, by + 1, RAMP[0], bw - 2, bh - 2);
     crown(146, by - 7, lit ? RAMP[8] : RAMP[7]);
-    if (b > 0.85) {
+    if (b > 0.85 && s.board) {
+      viewBoard(s.board, bx, by, bw, bh, reduced ? 1 : Math.min(1, (b - 0.85) / 0.14));
+    } else if (b > 0.85) {
       const bars = shownBars();
       const head = `${bars.length} WK`;
       text("SETS", bx + 3, by + 3, RAMP[6]);
@@ -349,8 +427,7 @@ export function createArena(canvas, strip) {
       });
       px(bx + 3, by + bh - 4, RAMP[4], bw - 6, 1);
     } else if (b < 0.15) {
-      let l1 = "7 DAYS";
-      let l2 = weekLine(now);
+      let [l1, l2] = weekFace(now);
       const left = restLeft(now);
       if (left > 0) {
         l1 = "REST";
@@ -364,9 +441,11 @@ export function createArena(canvas, strip) {
       } else if (cheering(now)) {
         l1 = "LOG";
         l2 = "CHAMP";
+      } else if (s.place === "analytics" && s.board) {
+        [l1, l2] = s.board.lines;
       }
-      mid(ledFit(l1, 9), 150, by + 3, RAMP[8]);
-      mid(ledFit(l2, chars), 150, by + 10, RAMP[6]);
+      mid(l1, 150, by + 3, RAMP[8]);
+      mid(l2, 150, by + 10, RAMP[6]);
       s.week.days.forEach((on, i) => px(137 + i * 4, by + bh + 2, on ? RAMP[8] : RAMP[3], 2, 2));
     }
 
@@ -376,9 +455,14 @@ export function createArena(canvas, strip) {
     px(234, 96, RAMP[at("coach") ? 6 : 4], 41, 29);
     px(235, 97, RAMP[1], 39, 27);
     crown(250, 88, at("coach") ? RAMP[8] : RAMP[6]);
-    mid("ASK ME", 254.5, 103, RAMP[8]);
-    mid("ANYTHING", 254.5, 111, RAMP[7]);
-    if (zz > 2.2) text("LOG IT OR IT DIDNT HAPPEN", 238, 121.4, RAMP[5], 1 / 3);
+    const chalkLines = thinking() ? [] : chalk();
+    if (thinking()) {
+      for (let i = 0; i < dotCount(now, reduced); i += 1) px(249 + i * 5, 109, RAMP[8], 2, 2);
+    } else {
+      const y0 = chalkLines.length === 1 ? 107 : 103;
+      chalkLines.forEach((ln, i) => mid(ln, 254.5, y0 + i * 8, i ? RAMP[7] : RAMP[8]));
+    }
+    if (zz > 2.2 && chalkLines.length < 3) text("LOG IT OR IT DIDNT HAPPEN", 238, 121.4, RAMP[5], 1 / 3);
     px(282, 140, RAMP[5], 9, 2);
     px(283, 142, RAMP[4], 1, 8);
     px(289, 142, RAMP[4], 1, 8);
@@ -407,8 +491,11 @@ export function createArena(canvas, strip) {
     }
     px(340, 90, RAMP[hiR ? 6 : 4], 45, 27);
     px(341, 91, RAMP[1], 43, 25);
-    text("PROGRAMS", 347, 93, RAMP[6]);
-    for (let wk = 0; wk < 6; wk += 1) for (let d = 0; d < 3; d += 1) px(344 + wk * 7, 101 + d * 5, RAMP[3], 5, 3);
+    if (s.block) programBoard(s.block);
+    else {
+      text("PROGRAMS", 347, 93, RAMP[6]);
+      for (let wk = 0; wk < 6; wk += 1) for (let d = 0; d < 3; d += 1) px(344 + wk * 7, 101 + d * 5, RAMP[3], 5, 3);
+    }
 
     // the locker room (Profile), banners in the rafters
     const hiP = at("profile");
@@ -459,9 +546,17 @@ export function createArena(canvas, strip) {
     if (s.live) return { l1: clockText(now - s.live.startedAtMs), l2: `SET ${s.live.sets + 1}` };
     if (now < s.savedUntil) return { l1: "SAVED", l2: s.savedName };
     if (cheering(now)) return { l1: "LOG", l2: "CHAMP" };
-    if (s.facet === "coach") return { l1: "ASK ME", l2: "ANYTHING" };
-    if (s.facet === "home") return { l1: "7 DAYS", l2: weekLine(now), lamps: true };
+    if (s.facet === "coach") {
+      if (thinking()) return { l1: "", l2: "", dots: dotCount(now, prefersReducedMotion()) };
+      const [l1, l2 = ""] = chalk();
+      return { l1, l2, raw: true };
+    }
+    if (s.facet === "home") {
+      const [l1, l2] = weekFace(now);
+      return { l1, l2, lamps: true, raw: true };
+    }
     if (s.facet === "analytics") {
+      if (s.board) return { l1: s.board.lines[0], l2: s.board.lines[1], raw: true };
       const bars = shownBars();
       return { l1: `${bars.length} WEEKS`, l2: count(bars.reduce((a, b) => a + b, 0), "SET", "SETS") };
     }
@@ -475,10 +570,11 @@ export function createArena(canvas, strip) {
     const face = stripFace(now);
     const hot = now < s.flashUntil;
     // The crown takes x 4-12; line 2 may run to the same margin on the right.
-    const l1 = ledFit(face.l1, 9);
-    const l2 = ledFit(face.l2, Math.max(9, Math.floor((W - 2 * 13 + 1) / 4)));
+    // Faces from arenaBoards are already LED-ready (`+15 LB`, `--`); the rest are fitted here.
+    const l1 = face.raw ? face.l1 : ledFit(face.l1, 9);
+    const l2 = face.raw ? face.l2 : ledFit(face.l2, Math.max(9, Math.floor((W - 2 * 13 + 1) / 4)));
     const barW = face.bar == null ? -1 : Math.round(W * face.bar);
-    const sig = [l1, l2, face.lamps ? s.week.days.join("") : "", barW, hot, W, SH].join("|");
+    const sig = [l1, l2, face.lamps ? s.week.days.join("") : "", barW, hot, W, SH, face.dots || 0].join("|");
     if (sig === stripSig) return;
     stripSig = sig;
     const keep = [g, cx, cy, zz];
@@ -487,6 +583,15 @@ export function createArena(canvas, strip) {
     cy = 0;
     zz = 1;
     const m = W / 2;
+    if (face.dots) {
+      const top = Math.max(1, Math.round((SH - 1 - 3) / 2));
+      px(0, 0, RAMP[0], W, SH);
+      px(0, SH - 1, RAMP[hot ? 8 : 4], W, 1);
+      crown(4, Math.round(top + 1.5 - CROWN.length / 2), RAMP[hot ? 8 : 7]);
+      for (let i = 0; i < face.dots; i += 1) px(Math.round(m) - 8 + i * 6, top, RAMP[8], 3, 3);
+      [g, cx, cy, zz] = keep;
+      return;
+    }
     const big = l1.length <= 8;
     const h1 = big ? 10 : 5;
     const gap = l2 ? 3 : 0;
@@ -578,6 +683,23 @@ export function createArena(canvas, strip) {
     if (walk.dur || easing || flashing || moving) raf = window.requestAnimationFrame(frame);
     else lastT = 0;
     syncBlink(now, reduced);
+    syncDots();
+  }
+
+  /* While an answer streams, the dots step: one redraw per step from a timer, only
+     while the chalkboard or the Coach strip is on screen. The only loop at rest. */
+  function syncDots() {
+    let need = !dead && thinking() && !prefersReducedMotion() && !document.hidden;
+    if (need) {
+      const v = view();
+      const boardSeen = !s.covered && v.x < 275 && v.x + W / zoom.z > 234;
+      need = boardSeen || (s.strip && s.facet === "coach");
+    }
+    if (need && !dots) dots = window.setInterval(kick, DOTS_MS);
+    else if (!need && dots) {
+      window.clearInterval(dots);
+      dots = 0;
+    }
   }
 
   function kick() {
@@ -615,7 +737,7 @@ export function createArena(canvas, strip) {
   }
 
   /* The clock, the rest countdown and the SAVED face change once a second;
-     Home's board (room or strip) turns its second line every FACE_MS while
+     Home's board (room or strip) turns to its next week face every FACE_MS while
      it is showing - one direct redraw from a timer, never a frame loop. */
   function syncClock() {
     const now = Date.now();
@@ -654,6 +776,7 @@ export function createArena(canvas, strip) {
       }
       Object.assign(s, patch);
       syncClock();
+      syncDots();
       kick();
     },
     flash(ms) {
@@ -748,6 +871,7 @@ export function createArena(canvas, strip) {
       window.clearInterval(clock);
       window.clearTimeout(cycle);
       window.clearTimeout(blink);
+      window.clearInterval(dots);
     },
   };
 }
