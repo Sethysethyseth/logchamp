@@ -1,13 +1,14 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLocation } from "react-router-dom";
 import { useActiveSession } from "../../context/ActiveSessionContext.jsx";
+import { loadAnalyticsWeeks } from "../../lib/analyticsRangePref.js";
 import { ARENA_STRIP_SVH, arenaSize, stageRide, stripReveal } from "../../lib/arenaSheet.js";
 import { setArenaTour, useArenaTour } from "../../lib/arenaTour.js";
 import { REST_TIMER_EVENT, readRestRun } from "../../lib/restTimer.js";
 import { SCENE_SIGNAL_EVENT } from "../../lib/sceneSignal.js";
 import { sessionDisplayTitle } from "../../lib/sessionDisplay.js";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
-import { createArena } from "./arenaEngine.js";
+import { CHEER_MS, createArena } from "./arenaEngine.js";
 import "./arena.css";
 
 const DAY_MS = 86400000;
@@ -41,6 +42,10 @@ function subscribeDay(onChange) {
   const id = window.setInterval(onChange, 60000);
   return () => window.clearInterval(id);
 }
+function subscribeStorage(onChange) {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
 
 /** What the room shows from real training: the week, eight weeks of sets, one seat per workout. */
 function roomFacts(sessions, midnight) {
@@ -68,13 +73,14 @@ function roomFacts(sessions, midnight) {
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 /** The one line the full view keeps on screen, per place, from the same facts as the strip. */
-function peekLine(place, facts, live) {
+function peekLine(place, facts, live, weeks) {
   if (live && place === "home") return `In progress · ${plural(live.sets, "set", "sets")} logged`;
   if (place === "home") {
     return `Last 7 days: ${plural(facts.week.workouts, "workout", "workouts")} · ${plural(facts.week.sets, "set", "sets")}`;
   }
   if (place === "analytics") {
-    return `Last 8 weeks: ${plural(facts.bars.reduce((a, b) => a + b, 0), "set", "sets")}`;
+    const n = Math.min(weeks, facts.bars.length);
+    return `Last ${n} weeks: ${plural(facts.bars.slice(-n).reduce((a, b) => a + b, 0), "set", "sets")}`;
   }
   if (place === "history") return `${plural(facts.seats, "workout", "workouts")} · one lit seat each`;
   if (place === "coach") return "Ask the coach anything";
@@ -213,7 +219,10 @@ function bindLook(st, stage, canvas) {
     if (!had || !p || p.dead || !st.arena.zoomed()) return;
     // Up close a tap never toggles the full view: the Log answers it, anything else steps back.
     st.swallow = true;
-    if (e.type === "pointerup" && p.moved < TAP_PX && !st.arena.tapLog(p.point)) st.back();
+    if (e.type === "pointerup" && p.moved < TAP_PX) {
+      if (st.arena.tapLog(p.point)) st.onCheer();
+      else st.back();
+    }
   };
   const block = (e) => e.preventDefault();
   stage.addEventListener("pointerdown", down);
@@ -254,7 +263,9 @@ export function ArenaStage() {
   const { sessions, activeSession } = useActiveSession();
   const activeId = activeSession?.id ?? null;
   const [place, facet] = placeFor(pathname, activeId);
-  const size = arenaSize({ pathname, tour });
+  const size = arenaSize({ pathname, tour, live: activeId != null });
+  const [cheer, setCheer] = useState(false);
+  const cheerTimer = useRef(0);
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -276,6 +287,12 @@ export function ArenaStage() {
     st.back = () => {
       arena.back();
       delete stage.dataset.zoom;
+    };
+    // Zoomed in on the Log the scoreboard is off screen: the line carries the cheer.
+    st.onCheer = () => {
+      window.clearTimeout(cheerTimer.current);
+      setCheer(true);
+      cheerTimer.current = window.setTimeout(() => setCheer(false), CHEER_MS);
     };
     arenaRef.current = arena;
     stageRef.current = st;
@@ -315,6 +332,7 @@ export function ArenaStage() {
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisible);
       window.clearTimeout(st.coverTimer);
+      window.clearTimeout(cheerTimer.current);
       arena.destroy();
       arenaRef.current = null;
       stageRef.current = null;
@@ -357,6 +375,12 @@ export function ArenaStage() {
   useEffect(() => {
     arenaRef.current?.set(facts);
   }, [facts]);
+
+  /* Analytics follows the page's range: read on every render (so on entering it) and when another tab changes it. */
+  const weeks = useSyncExternalStore(subscribeStorage, loadAnalyticsWeeks, loadAnalyticsWeeks);
+  useEffect(() => {
+    arenaRef.current?.set({ weeks });
+  }, [weeks]);
 
   const liveStart = activeSession ? new Date(activeSession.startedAt || activeSession.performedAt).getTime() : null;
   const liveSets = setsOf(activeSession);
@@ -449,7 +473,7 @@ export function ArenaStage() {
       <canvas ref={stripRef} className="arena-strip" aria-hidden="true" onClick={() => setArenaTour(true)} />
       {tour ? (
         <button type="button" className="arena-peek" onClick={() => setArenaTour(false)}>
-          {peekLine(place, facts, live)}
+          {cheer ? "LOG CHAMP" : peekLine(place, facts, live, weeks)}
         </button>
       ) : null}
     </>

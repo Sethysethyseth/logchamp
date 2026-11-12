@@ -4,25 +4,49 @@
  *
  * - tour: the arena has the screen; the sheet keeps one line and the nav.
  * - open: arrival size on the browsing routes.
- * - strip: the scoreboard strip, on every working route.
+ * - strip: the scoreboard strip, on every working route, and on Home while
+ *   a workout is in progress.
  */
 
 export const ARENA_STRIP_SVH = 18;
 
+/* The room's share at the open size: what the prototype's sheet leaves
+   (arena-draft-2.html, PLACES[..].sheet). */
 const OPEN_SVH = {
-  "/": 42,
-  "/analytics": 38,
-  "/sessions": 34,
-  "/templates": 30,
-  "/profile": 28,
+  "/": 58,
+  "/analytics": 62,
+  "/sessions": 56,
+  "/templates": 54,
+  "/profile": 58,
 };
 
 /** @returns {{ mode: "tour" | "open" | "strip", svh: number }} */
-export function arenaSize({ pathname, tour }) {
+export function arenaSize({ pathname, tour, live }) {
   if (tour) return { mode: "tour", svh: 100 };
   const path = String(pathname || "/").replace(/\/+$/, "") || "/";
-  const svh = OPEN_SVH[path];
+  const svh = live && path === "/" ? 0 : OPEN_SVH[path];
   return svh ? { mode: "open", svh } : { mode: "strip", svh: ARENA_STRIP_SVH };
+}
+
+/**
+ * A name for the LED board: uppercase, only A-Z 0-9 : and spaces, cut at a
+ * word to fit `max` characters. A first word longer than `max` is cut at `max`.
+ */
+export function ledFit(value, max) {
+  const clean = String(value ?? "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9: ]/g, " ")
+    .replace(/ +/g, " ")
+    .trim();
+  if (clean.length <= max) return clean;
+  const words = clean.split(" ");
+  if (words[0].length > max) return words[0].slice(0, max);
+  let out = words[0];
+  for (const word of words.slice(1)) {
+    if (out.length + 1 + word.length > max) break;
+    out += ` ${word}`;
+  }
+  return out;
 }
 
 /** Px the stage has moved up with the sheet: 1:1 with the scroll, holding at strip height. */

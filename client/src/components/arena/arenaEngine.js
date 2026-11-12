@@ -19,14 +19,15 @@
  * - Reduced motion: the camera and the zoom cut, lights switch, nothing flickers.
  */
 
-import { ARENA_ZOOM, clampFocus, zoomView } from "../../lib/arenaSheet.js";
+import { ARENA_ZOOM, clampFocus, ledFit, zoomView } from "../../lib/arenaSheet.js";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
 
 const FLOOR = 150;
 const FLOOR_MARGIN = 7;
 const FACE_MS = 4200;
 const ZOOM_MS = 520;
-const CHEER_MS = 2600;
+/** How long the Log cheers. */
+export const CHEER_MS = 2600;
 const RAIN_MS = 3200;
 const BLINK_MS = 3400;
 const BLINK_SHUT_MS = 150;
@@ -84,13 +85,7 @@ function readRamp() {
   return ramp;
 }
 
-function ledText(value, max) {
-  return String(value || "")
-    .toUpperCase()
-    .replace(/[^A-Z0-9: ]/g, "")
-    .trim()
-    .slice(0, max);
-}
+const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 const clockText = (ms) => {
   const t = Math.max(0, Math.floor(ms / 1000));
@@ -131,6 +126,7 @@ export function createArena(canvas, strip) {
     rest: null, // { startedAtMs, durationMs }
     week: { days: [0, 0, 0, 0, 0, 0, 0], sets: 0, workouts: 0 },
     bars: [0, 0, 0, 0, 0, 0, 0, 0],
+    weeks: 8, // the Analytics page's range, capped at the bars there are
     seats: 0,
     savedUntil: 0,
     savedName: "",
@@ -206,6 +202,15 @@ export function createArena(canvas, strip) {
   const view = () => zoomView({ camX: cam.x, camY: cam.y, viewW: W, viewH: H, focus: zoom.focus, zoom: zoom.z });
 
   const cheering = (now) => now - s.egg < CHEER_MS;
+
+  /* Home's board: `7 DAYS` stays; the second line turns between sets and workouts. */
+  const weekLine = (now) =>
+    !prefersReducedMotion() && Math.floor(now / FACE_MS) % 2
+      ? count(s.week.workouts || 0, "WORKOUT", "WORKOUTS")
+      : count(s.week.sets || 0, "SET", "SETS");
+
+  /* The last n weekly bars, n = the Analytics range (at most the eight there are). */
+  const shownBars = () => s.bars.slice(-Math.max(1, Math.min(s.bars.length, s.weeks || 8)));
 
   /* The app's namesake. From the seats: one fan a little brighter. Up close: the Log. */
   function logChamp(now, reduced) {
@@ -311,7 +316,14 @@ export function createArena(canvas, strip) {
 
     // scoreboard; on Analytics it drops and widens into the weekly board
     const b = ease.board;
-    const bw = Math.round(38 + 46 * b);
+    // Nine characters fit in 38; the board widens for a longer count face (`12 WORKOUTS`) and keeps that width for both faces.
+    const chars = Math.max(
+      9,
+      count(s.week.sets || 0, "SET", "SETS").length,
+      count(s.week.workouts || 0, "WORKOUT", "WORKOUTS").length
+    );
+    const bw0 = Math.max(38, 2 * Math.ceil((chars * 4 + 4) / 2));
+    const bw = Math.round(bw0 + (84 - bw0) * b);
     const bh = Math.round(17 + 35 * b);
     const bx = Math.round(150 - bw / 2);
     // It barely rises: the camera no longer lifts for it, so it stays inside Analytics' frame.
@@ -322,17 +334,23 @@ export function createArena(canvas, strip) {
     px(bx + 1, by + 1, RAMP[0], bw - 2, bh - 2);
     crown(146, by - 7, lit ? RAMP[8] : RAMP[7]);
     if (b > 0.85) {
+      const bars = shownBars();
+      const head = `${bars.length} WK`;
       text("SETS", bx + 3, by + 3, RAMP[6]);
-      text("8 WK", bx + bw - 18, by + 3, RAMP[5]);
-      const peak = Math.max(1, ...s.bars);
-      s.bars.forEach((v, i) => {
+      text(head, bx + bw - 2 - head.length * 4, by + 3, RAMP[5]);
+      const peak = Math.max(1, ...bars);
+      // Eight bars fill the board at 9 px a slot; fewer widen up to 12 px and stay centred.
+      const slot = Math.floor(72 / bars.length);
+      const barW = Math.min(12, slot - 3);
+      const x0 = bx + Math.round((bw - (bars.length - 1) * slot - barW) / 2);
+      bars.forEach((v, i) => {
         const h = Math.round((v / peak) * (bh - 16));
-        px(bx + 5 + i * 9, by + bh - 4 - h, i === 7 ? RAMP[8] : RAMP[6], 6, h);
+        px(x0 + i * slot, by + bh - 4 - h, i === bars.length - 1 ? RAMP[8] : RAMP[6], barW, h);
       });
       px(bx + 3, by + bh - 4, RAMP[4], bw - 6, 1);
     } else if (b < 0.15) {
       let l1 = "7 DAYS";
-      let l2 = `${s.week.sets} SETS`;
+      let l2 = weekLine(now);
       const left = restLeft(now);
       if (left > 0) {
         l1 = "REST";
@@ -342,13 +360,13 @@ export function createArena(canvas, strip) {
         l2 = `SET ${s.live.sets + 1}`;
       } else if (now < s.savedUntil) {
         l1 = "SAVED";
-        l2 = ledText(s.savedName, 9);
+        l2 = ledFit(s.savedName, 9);
       } else if (cheering(now)) {
         l1 = "LOG";
         l2 = "CHAMP";
       }
-      mid(ledText(l1, 9), 150, by + 3, RAMP[8]);
-      mid(ledText(l2, 9), 150, by + 10, RAMP[6]);
+      mid(ledFit(l1, 9), 150, by + 3, RAMP[8]);
+      mid(ledFit(l2, chars), 150, by + 10, RAMP[6]);
       s.week.days.forEach((on, i) => px(137 + i * 4, by + bh + 2, on ? RAMP[8] : RAMP[3], 2, 2));
     }
 
@@ -439,19 +457,15 @@ export function createArena(canvas, strip) {
     const left = restLeft(now);
     if (left > 0) return { l1: "REST", l2: restText(left), bar: left / s.rest.durationMs };
     if (s.live) return { l1: clockText(now - s.live.startedAtMs), l2: `SET ${s.live.sets + 1}` };
-    if (now < s.savedUntil) return { l1: "SAVED", l2: ledText(s.savedName, 9) };
+    if (now < s.savedUntil) return { l1: "SAVED", l2: s.savedName };
     if (cheering(now)) return { l1: "LOG", l2: "CHAMP" };
     if (s.facet === "coach") return { l1: "ASK ME", l2: "ANYTHING" };
-    if (s.facet === "home") {
-      const faces = [
-        ["7 DAYS", `${s.week.sets} SETS`],
-        ["WORKOUTS", String(s.week.workouts || 0)],
-      ];
-      const [l1, l2] = faces[prefersReducedMotion() ? 0 : Math.floor(now / FACE_MS) % faces.length];
-      return { l1, l2, lamps: true };
+    if (s.facet === "home") return { l1: "7 DAYS", l2: weekLine(now), lamps: true };
+    if (s.facet === "analytics") {
+      const bars = shownBars();
+      return { l1: `${bars.length} WEEKS`, l2: count(bars.reduce((a, b) => a + b, 0), "SET", "SETS") };
     }
-    if (s.facet === "analytics") return { l1: "8 WEEKS", l2: `${s.bars.reduce((a, b) => a + b, 0)} SETS` };
-    if (s.facet === "history") return { l1: "HISTORY", l2: `${s.seats} WORKOUTS` };
+    if (s.facet === "history") return { l1: "HISTORY", l2: count(s.seats, "WORKOUT", "WORKOUTS") };
     return { l1: "LOGCHAMP", l2: "" };
   }
 
@@ -460,8 +474,9 @@ export function createArena(canvas, strip) {
     if (!stripG) return;
     const face = stripFace(now);
     const hot = now < s.flashUntil;
-    const l1 = ledText(face.l1, 9);
-    const l2 = ledText(face.l2, 9);
+    // The crown takes x 4-12; line 2 may run to the same margin on the right.
+    const l1 = ledFit(face.l1, 9);
+    const l2 = ledFit(face.l2, Math.max(9, Math.floor((W - 2 * 13 + 1) / 4)));
     const barW = face.bar == null ? -1 : Math.round(W * face.bar);
     const sig = [l1, l2, face.lamps ? s.week.days.join("") : "", barW, hot, W, SH].join("|");
     if (sig === stripSig) return;
@@ -476,10 +491,12 @@ export function createArena(canvas, strip) {
     const h1 = big ? 10 : 5;
     const gap = l2 ? 3 : 0;
     const block = h1 + gap + (l2 ? 5 : 0) + (face.lamps ? 4 : 0);
-    let y = Math.max(1, Math.floor((SH - 1 - block) / 2));
+    // The text block is centred in the rows above the edge line, and the crown on the block.
+    const top = Math.max(1, Math.round((SH - 1 - block) / 2));
+    let y = top;
     px(0, 0, RAMP[0], W, SH);
     px(0, SH - 1, RAMP[hot ? 8 : 4], W, 1);
-    crown(4, Math.round(SH / 2) - 3, RAMP[hot ? 8 : 7]);
+    crown(4, Math.round(top + block / 2 - CROWN.length / 2), RAMP[hot ? 8 : 7]);
     mid(l1, m, y, RAMP[8], big ? 2 : 1);
     y += h1 + gap;
     if (l2) mid(l2, m, y, RAMP[6]);
@@ -598,7 +615,8 @@ export function createArena(canvas, strip) {
   }
 
   /* The clock, the rest countdown and the SAVED face change once a second;
-     Home's strip turns its face every FACE_MS while it is showing. */
+     Home's board (room or strip) turns its second line every FACE_MS while
+     it is showing - one direct redraw from a timer, never a frame loop. */
   function syncClock() {
     const now = Date.now();
     const need = Boolean(s.live) || now < s.savedUntil;
@@ -611,11 +629,11 @@ export function createArena(canvas, strip) {
       window.clearInterval(clock);
       clock = 0;
     }
-    const turn = s.strip && !need && s.facet === "home" && !prefersReducedMotion();
+    const turn = (s.strip || !s.covered) && !need && s.facet === "home" && !prefersReducedMotion();
     if (turn && !cycle) {
       cycle = window.setTimeout(() => {
         cycle = 0;
-        kick();
+        if (!raf && !dead) frame(performance.now());
         syncClock();
       }, FACE_MS - (now % FACE_MS) + 20);
     } else if (!turn && cycle) {
