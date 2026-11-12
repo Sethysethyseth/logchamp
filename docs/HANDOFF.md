@@ -12,6 +12,19 @@
 > panels, accent rule on feature cards, square dark inputs, display face
 > on titles / numbers, 8px primary button, chips stay round. Arena OFF
 > pixel-identical on Home + logger. Accepted calls in QUEUE.
+> **AR4 LANDED 38362ef** (clean first run): the boards read real data
+> through `client/src/lib/arenaFacts.js` (pages publish what they already
+> fetched) and `arenaBoards.js` (pure faces). No new requests (lists
+> identical ON/OFF). **AR4 smoke (Arena view ON, phone):** Analytics -
+> switch Muscles / Strength / Exercises / Execution, the board follows
+> and the bars charge in once; scroll - the strip reads the view's
+> headline; Home - board and strip cycle 7 DAYS sets / workouts / TOP
+> SET / TOP GAIN / RECORDS (is "RECORDS 22"-style counting of every PR
+> row what you want, or distinct lifts?); Library with a running block -
+> the rack board reads BLOCK W<n> with done days lit; Coach - ask
+> something: dots on the board and strip, then the answer's first words
+> in chalk; full view on Coach while it thinks reads "The coach is
+> thinking".
 > **AR3 smoke (Arena view ON, phone):** Home - cards square and
 > outlined, Last 7 days lamps square, PR chip readable, Resume /
 > Start button rounded; live workout - square inputs, numbers in the
