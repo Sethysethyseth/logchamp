@@ -702,9 +702,9 @@ the strip is a flat scoreboard that fades in place.
 | AR1 | Stage v2: one motion, three sizes (tour / open / strip), scroll-linked fold, scoreboard strip, full view that sticks across tabs | QUEUED `docs/tasks/ar1-arena-stage-one-motion.md` |
 | AR2 | Look closer: hold / pinch zoom, the Log + up-close details, crown rain / hold-Start / tower sequence moved into the room. After AR1 (same files) | QUEUED `docs/tasks/ar2-arena-closer-look-and-eggs.md` |
 | AR2f | Open size back to the prototype's (the room gets 54-62% - AR1 wrote the sheet's share down as the room's), live workout folds Home, strip and board polish. From Seth's Nov 12 phone smoke | LANDED `af50434` |
-| AR3 | The sheet's skin under Arena view: squared panels, accent rules, display face on titles - one stylesheet over the existing pages, Home + logger first. Waits on Seth's nitpick notes | TODO - author after AR1 lands |
-| AR4 | Boards from real data: the four Analytics faces on the scoreboard, week faces with top set / top gain (from the WeeklyReport summary), the block on the rack's program board, coach answer headline on the chalkboard | TODO |
-| AR5 | Places: History seat follows the selected workout, banners from real milestones in the locker room, strip headlines for Library / Profile | TODO |
+| AR3 | The sheet's skin under Arena view: squared panels, accent rules, display face on titles - one stylesheet over the existing pages, Home + logger first. Waits on Seth's nitpick notes | LANDED `cfc6da7` (`ar3-arena-sheet-skin.md`) |
+| AR4 | Boards from real data: the four Analytics faces on the scoreboard, week faces with top set / top gain (from the WeeklyReport summary), the block on the rack's program board, coach answer headline on the chalkboard | LANDED `38362ef` (`ar4-arena-boards-from-real-data.md`) |
+| AR5 | Places: History seat follows the selected workout, banners from real milestones in the locker room, strip headlines for Library / Profile | LANDED `a152bf9` (`ar5-arena-places.md`) |
 | AR6 | Light-mode arena. DESIGN GAP - needs a frontier-seat prototype first, not a Cursor block | TODO (design) |
 | AR7 | Arena becomes the default (Seth's call after smoke), Classic stays as the switch; What's New unit | TODO |
 

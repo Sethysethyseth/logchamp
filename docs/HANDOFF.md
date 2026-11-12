@@ -1,160 +1,103 @@
 # HANDOFF — current state
 
-> **Nov 12 (cloud session, Opus seat, AR3 -> wave end per
-> `docs/tasks/AR-WAVE-BRIEF.md`): IN PROGRESS.** Seth: no Draft 2 notes,
-> build AR3 from the prototype; What's New BOOKMARKED for pre-launch
-> (not in this run - covers MX + AR ledger sections). N = 6 (AR1, AR2,
-> AR2f, AR3, AR4, AR5). Units run serially (the smoke rig binds ports
-> 3000/5173, so AR3 did not run beside AR4).
-> **AR3 LANDED cfc6da7** (clean first run): one stylesheet
-> `client/src/styles/arena-skin.css`, every selector under
-> `html[data-arena]`, + one import in `main.jsx`. Squared outlined
-> panels, accent rule on feature cards, square dark inputs, display face
-> on titles / numbers, 8px primary button, chips stay round. Arena OFF
-> pixel-identical on Home + logger. Accepted calls in QUEUE.
-> **AR4 LANDED 38362ef** (clean first run): the boards read real data
-> through `client/src/lib/arenaFacts.js` (pages publish what they already
-> fetched) and `arenaBoards.js` (pure faces). No new requests (lists
-> identical ON/OFF). **AR4 smoke (Arena view ON, phone):** Analytics -
-> switch Muscles / Strength / Exercises / Execution, the board follows
-> and the bars charge in once; scroll - the strip reads the view's
-> headline; Home - board and strip cycle 7 DAYS sets / workouts / TOP
-> SET / TOP GAIN / RECORDS (is "RECORDS 22"-style counting of every PR
-> row what you want, or distinct lifts?); Library with a running block -
-> the rack board reads BLOCK W<n> with done days lit; Coach - ask
-> something: dots on the board and strip, then the answer's first words
-> in chalk; full view on Coach while it thinks reads "The coach is
-> thinking".
-> **AR3 smoke (Arena view ON, phone):** Home - cards square and
-> outlined, Last 7 days lamps square, PR chip readable, Resume /
-> Start button rounded; live workout - square inputs, numbers in the
-> display face, done tick unchanged, Finish rounded; walk Analytics,
-> History, Coach, Library, Profile - nothing broken or unreadable; open
-> a running block (`/blocks/current`) - NOT seen headless (seed has no
-> block), check it looks right; try iron and light mode once; Arena OFF
-> looks exactly as before.
+> **Nov 12 (cloud session, Opus seat): ARENA WAVE AR3-AR5 LANDED -
+> 6/6 complete, STOPPED for Seth's phone smoke.** Run per
+> `docs/tasks/AR-WAVE-BRIEF.md` on `claude/inspiring-darwin-s2cr9p`
+> (motion-wave + AR1-AR5; not merged anywhere, no PR). Seth's calls this
+> session: no Draft 2 nitpick notes - AR3 built from the prototype; What's
+> New BOOKMARKED for pre-launch (not authored; QUEUE DRAFT line - covers
+> the MX + AR ledger sections). All three units ran Channel B named rung
+> (`claude-opus-5-5-medium`, lane `/home/user/worktrees/cursor-lane`),
+> serially (the smoke rig binds ports 3000/5173), clean first runs, no
+> bounces. Audits: fresh lanes (unit 587/587, build, check-hex), block
+> contract node checks, contact sheets vs the prototype. Accepted calls
+> per unit are in QUEUE.
+> - **AR3 `cfc6da7`** - the page's skin: `client/src/styles/arena-skin.css`
+>   (every selector under `html[data-arena]`) + one import in `main.jsx`.
+>   Squared outlined panels, accent rule on feature cards, square dark
+>   inputs, display face on titles / numbers. Arena OFF pixel-identical.
+> - **AR4 `38362ef`** - boards from real data: `lib/arenaFacts.js`
+>   (pages publish what they already fetched) + `lib/arenaBoards.js`
+>   (pure faces). Four Analytics faces, Home week faces, BLOCK Wn board,
+>   chalkboard dots + answer lines. No new requests (ON/OFF lists equal).
+> - **AR5 `a152bf9`** - places: hashed crowd + front row (last 7 days) +
+>   steady marker on the selected workout; past-workout strip (date +
+>   name); earned banners as crowns; Library / Profile strip headlines and
+>   full-view lines.
+> - Not in this run (brief): AR6 light-mode arena (design gap), AR7 Arena
+>   as default (Seth's call after smoke). Open calls still defaulted:
+>   Coach stays on the strip; no swipe-to-walk.
+> - Older AR session notes (Draft 2, AR1/AR2/AR2f landings, the headless
+>   smoke) moved verbatim to HANDOFF-ARCHIVE.md (Nov 12 entry).
 
-> **Nov 11 (third cloud Fable session): ARENA DRAFT 2 - PROTOTYPE ONLY,
-> nothing in the app changed.** `docs/design/mocks/motion/
-> arena-draft-2.html` (Artifact BxNBepax8Fg99q3sUvaUaU) supersedes
-> `arena-final-draft.html` as the design to build from, pending Seth's
-> notes (he has "a bunch of nitpicky notes" still to give - ask for them).
-> What it settles, from his Nov 11 asks:
-> - **The stage folds** (his "half the screen gone is a nuisance for coach
->   and home workouts"): open on arrival; a strip once you scroll, type,
->   log or ask the coach (the strip frames the scoreboard / chalkboard);
->   back open for the start and finish moments; pull down or tap the grip
->   to overrule. Sheet sizes: tour 13.5%, open ~42%, fold 82% (coach 77%).
-> - **Full view sticks**: tap the arena -> the page steps aside and STAYS
->   aside across tabs until the arena is tapped again; one summary line
->   per place. Hold / pinch zooms 3x, drag pans, tap steps back.
-> - **Easter eggs up close only** (drawn in thirds of a pixel): "the Log",
->   a crowned log in the front row of the far stands (world 178,135) -
->   tap it zoomed and it presses a tiny bar, the crowd does a wave, the
->   board reads LOG CHAMP; chalkboard fine print; "1" on your locker.
-> - **Last 7 days is back on Home** in full (day strip, 4 stats, PR row,
->   movers, note) and the board cycles the same numbers.
-> - **Audit of old flow vs the draft** is on the page ("What the app has
->   that the last draft dropped" + "Still not drawn"). Added to the
->   draft: saved-workout quick start, in-progress bar with swipe scatter
->   + Home pip, saved card with crown stamp, past-workout detail, coach
->   text box + Stop, exercise search, profile stats, three balance ratios.
-> - **Motion carried into the arena:** crown coin flip + five-tap rain
->   (rain falls in the canvas), hold Start = the platform bar lifts,
->   towers one at a time, set tick + wash, Finish glint, sliding tab mark,
->   count-ups, board bars charge.
-> - **Second pass, same day** (Seth: full-to-half transition "can give a
->   headache"): ONE MOTION - the room is drawn once, the camera only walks
->   sideways, the canvas rides the sheet's top edge with the same curve;
->   scrolling folds the stage 1:1 (padding cancels the scroll); folded,
->   the strip is a flat scoreboard that fades in place; walks run at full
->   frame rate. In-progress bar now drags any direction, tilts, arms at
->   72px, scatters along the throw (matches the app's MXF12).
-> - **Seth's go, Nov 11: "I'm ready to transition over to this"; Cursor
->   does the build.** ARENA wave opened: ROADMAP "ARENA wave (AR)", AR1 +
->   AR2 QUEUED in `docs/tasks/` (MODEL opus), AR3-AR7 listed, not
->   authored. NOT dispatched - a cloud session cannot reach the lanes.
-> - Checked headless under a Pixel 7 profile (scrollWidth 412 = screen, no
->   console errors, sheet-to-scene gap constant mid-transition, scroll 60
->   moves content 60). NOT yet seen by Seth on a phone.
-> - Open: Seth's nitpick notes (feed AR3); light-mode arena (AR6).
+**Next action (human):** phone smoke of the whole ARENA wave on the
+staging deploy of `claude/inspiring-darwin-s2cr9p` - the checklist just
+below - then sign off (or send defects); also answer: RECORDS counts
+every PR row or distinct lifts? Coach open-then-fold or always strip?
+Swipe-to-walk the room?
 
-**Next action (human):** nothing blocked on you mid-wave - the Opus seat
-is landing AR3-AR5; wait for the one consolidated phone smoke checklist
-at wave end.
+## ARENA wave smoke - AR1 through AR5 (Arena view ON unless noted)
 
-> **Nov 12 (cloud session, later): AR2f LANDED af50434.** Seth's phone
-> smoke of AR1+AR2: History and Library "don't show the full picture",
-> and "not sure it fully 1 to 1s the artifacts". Root cause: the
-> prototype's `PLACES[..].sheet` is the SHEET's share (42-46%), the ar1
-> block wrote it down as the ROOM's. Fixed: room 54-62svh at the open
-> size; a live workout folds Home; polish notes 1-5 below are done
-> (note 6 empty top, note 7 light mode stay open). Report lane
-> `docs/tasks/ar-fid-FINDINGS.md`: prototype vs app, ranked top ten -
-> fuel for AR3-AR5. Open calls for Seth: Coach opens tall until the
-> first question (prototype) or stays on the strip (today); swipe to
-> walk the room in full view (prototype has it, no unit planned).
-> **AR2f phone smoke (Arena view ON):** History shows the stands to the
-> top row; Library the whole PROGRAMS board and rack; Profile the three
-> banners and lockers; Home and Analytics the board with its crown.
-> Scroll any of them: still folds with the page, no swoop. Start a
-> workout, go Home: scoreboard strip, not the big room; finish: room is
-> back with SAVED. Scroll Home: strip reads 7 DAYS over sets, then over
-> workouts. Analytics on 4 weeks: board shows four bars and 4 WK. Full
-> view, zoom on the Log, tap it: the line above the tabs reads LOG
-> CHAMP. Does the bigger room on arrival feel right, or too much?
+Turn on Profile > Appearance > Arena view (beta). Dark mode first, champ.
 
-> **Nov 12 (cloud session): AR1+AR2 HEADLESS SMOKE - no defects.** Run
-> in the new cloud smoke rig (REFERENCE, "Cloud smoke rig"; scripts
-> `cloud-smoke-up.sh` + `smoke-rig.cjs`), Pixel 7 profile, champ dark.
-> No app code changed. PASSED with numbers: page width 412 = screen on
-> Home, Analytics, History, Coach, Library, Profile, live logger, and
-> zoomed; room-to-page gap 0px at every scroll position and at 8 samples
-> through Home -> Coach; strip fades in from 70% of the ride; full view
-> survives all five tabs with the right line each, tap returns; workout
-> bar hidden in full view; hold from the open size -> full view + 3x;
-> drag pans; tap elsewhere, pinch in and tab change step back; pinch out
-> zooms; the Log blinks, lifts its bar when tapped, the wave runs; "1"
-> on the locker; crown rain lands on the arena floor; hold Start lifts
-> the bar with both towers at full, release starts the workout; live
-> clock, REST countdown with the draining bar (follows to Analytics),
-> SAVED + name; coach box stays above a 300px keyboard; Arena OFF: no
-> arena elements, rain over the page; reduced motion: no transitions;
-> zero frames at rest after every one of these. Crimson, forest, iron,
-> chill render.
-> **Polish notes for AR3 (not defects):** (1) Home strip's second face
-> reads WORKOUTS huge and the number tiny under it - the number should
-> lead; (2) SAVED cuts the name mid-word ("QUADFOCUS" for Quad-Focused
-> Leg Day) - cut at a word; (3) zoomed on the Log the board is off
-> screen, so LOG CHAMP is never seen - show it on the line above the nav
-> or pull the camera back for the cheer; (4) the Analytics board always
-> says 8 WK while the page may be on 4 weeks; (5) strip text sits high,
-> crown is not centred on it; (6) full view: the top ~45% is empty dark;
-> (7) light mode is still the dark room over a white page (AR6).
-> Not AR: page text shows through the bottom nav with Arena off too.
-> **Left for Seth's phone (headless cannot judge):** does the fold and
-> the tab walk FEEL smooth, any stutter at 3x, the haptic ticks, holding
-> Start on real Android (context menu? still starts?), pinch feel.
+Stage and motion (AR1, AR2f):
+- Scroll Home: the room and the page edge move together and fold to the
+  scoreboard strip - no swoop, no gap. Home -> Coach shrinks without a gap.
+- Arrival size: History shows the stands to the top row; Library the
+  whole program board and rack; Profile the three banners and lockers;
+  Home and Analytics the board with its crown. Too much room, or right?
+- Start a workout, go Home: scoreboard strip, not the big room; finish:
+  the room is back with SAVED + the name cut at a word.
+- Tap the room -> full view; switch tabs, still full view; tap -> back.
+- Coach typing box stays above the keyboard.
 
-> **Nov 11 (cloud relay session): AR1 LANDED eb2b5eb** - Channel B now
-> works from a cloud session (needed two new Cursor hosts on the
-> logchamp environment allowlist, added). Accepted deviation: the
-> stage ride uses position sticky, not a per-frame transform (0px
-> drift measured). AR1 smoke (carry to wave end, Arena view ON, phone):
-> scroll Home - room and page edge move together, fold to the
-> scoreboard strip, no swoop; Home -> Coach shrinks without a gap;
-> tap the room -> full view, switch tabs, still full view, tap -> back;
-> Coach typing box stays above the keyboard; Arena OFF looks unchanged.
-> **AR2 LANDED 3efc76d** (clean first run). AR2 smoke: hold the arena
-> on Home -> full view + 3x zoom, drag pans, pinch in / tap steps back,
-> tab change steps back; find the crowned Log in the far stands, tap it
-> zoomed -> it presses a bar, crowd waves, board reads LOG CHAMP; zoomed
-> chalkboard fine print and "1" on the locker; tap the Home crown 5x ->
-> rain falls in the arena; hold Start empty workout -> bar lifts, let go
-> -> drops, and the press still starts a workout (check on Android);
-> Arena OFF: crown rain over the page and the dumbbell curl unchanged.
-> Session branch: claude/inspiring-darwin-s2cr9p (motion-wave + AR1-2);
-> not yet on motion-wave - awaiting Seth's call.
+Look closer (AR2):
+- Hold the arena on Home -> full view + 3x zoom; drag pans; pinch in /
+  tap steps back; a tab change steps back. Any stutter at 3x?
+- Find the crowned Log in the far stands, tap it zoomed: it presses a
+  bar, the crowd waves, the line above the tabs reads LOG CHAMP.
+- Zoomed: chalkboard fine print, "1" on your locker.
+- Tap the Home crown 5x -> crowns rain inside the arena.
+- Hold Start empty workout -> the bar lifts; let go -> drops; the press
+  still starts a workout (Android: no context menu?).
+
+Page skin (AR3):
+- Home: cards square and outlined, Last 7 days lamps square, PR chip
+  readable, the main button still rounded.
+- Live workout: square dark inputs, numbers in the display face, done
+  tick unchanged, Finish rounded.
+- Walk Analytics, History, Coach, Library, Profile - nothing broken or
+  unreadable. Open a running block (`/blocks/current`) - NOT seen
+  headless (seed had no block): does it look right?
+- Try iron and light mode once (light is AR6's - readable is enough).
+
+Boards (AR4):
+- Analytics: switch Muscles / Strength / Exercises / Execution - the
+  board follows, bars charge in once; scrolled, the strip reads the
+  view's headline; on 4 weeks the line says "last 4 weeks".
+- Home board + strip cycle 7 DAYS sets / workouts / TOP SET / TOP GAIN /
+  RECORDS (RECORDS counts every PR row - want distinct lifts instead?).
+- Library with a running block: the rack board reads BLOCK W<n>, done
+  days lit, the next day mid tone.
+- Coach: ask something - dots on the board and strip, then the answer's
+  first words in chalk; full view while it thinks: "The coach is thinking".
+
+Places (AR5):
+- History: a hashed crowd, a front row of this week's workouts, a bright
+  marker on the newest seat. Open an older workout from the list: the
+  strip reads its date + name; in full view the marker moved, the line
+  reads "<name> · seat k of n".
+- Library strip (scrolled): BLOCK W<n> / <done> OF <total> DAYS, or
+  LIBRARY / <n> WORKOUTS with no block.
+- Profile: earned banners are crowns, the rest show 100 / 1K dim; strip
+  reads STREAK / <n> WEEKS; full view "<n> week streak · k of 3 banners hung".
+
+Everywhere:
+- Arena view OFF: the app looks exactly as before.
+- Reduced motion on: nothing new moves; Home strip stays on its first face.
+- Feel only a phone can judge: smooth fold and tab walk, haptic ticks,
+  pinch feel, real long-press on Start.
+
 
 ## Smoke for the next round (carry forward - fill at each landing)
 
