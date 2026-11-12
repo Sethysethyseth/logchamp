@@ -1,5 +1,26 @@
 # HANDOFF — current state
 
+> **Nov 12 (cloud session, Opus seat, AR3 -> wave end per
+> `docs/tasks/AR-WAVE-BRIEF.md`): IN PROGRESS.** Seth: no Draft 2 notes,
+> build AR3 from the prototype; What's New BOOKMARKED for pre-launch
+> (not in this run - covers MX + AR ledger sections). N = 6 (AR1, AR2,
+> AR2f, AR3, AR4, AR5). Units run serially (the smoke rig binds ports
+> 3000/5173, so AR3 did not run beside AR4).
+> **AR3 LANDED cfc6da7** (clean first run): one stylesheet
+> `client/src/styles/arena-skin.css`, every selector under
+> `html[data-arena]`, + one import in `main.jsx`. Squared outlined
+> panels, accent rule on feature cards, square dark inputs, display face
+> on titles / numbers, 8px primary button, chips stay round. Arena OFF
+> pixel-identical on Home + logger. Accepted calls in QUEUE.
+> **AR3 smoke (Arena view ON, phone):** Home - cards square and
+> outlined, Last 7 days lamps square, PR chip readable, Resume /
+> Start button rounded; live workout - square inputs, numbers in the
+> display face, done tick unchanged, Finish rounded; walk Analytics,
+> History, Coach, Library, Profile - nothing broken or unreadable; open
+> a running block (`/blocks/current`) - NOT seen headless (seed has no
+> block), check it looks right; try iron and light mode once; Arena OFF
+> looks exactly as before.
+
 > **Nov 11 (third cloud Fable session): ARENA DRAFT 2 - PROTOTYPE ONLY,
 > nothing in the app changed.** `docs/design/mocks/motion/
 > arena-draft-2.html` (Artifact BxNBepax8Fg99q3sUvaUaU) supersedes
@@ -45,9 +66,9 @@
 >   moves content 60). NOT yet seen by Seth on a phone.
 > - Open: Seth's nitpick notes (feed AR3); light-mode arena (AR6).
 
-**Next action (human):** phone smoke of AR2f on the staging deploy (list
-just below), answer the two open calls (Coach open-then-fold or always
-strip; swipe-to-walk the room), and send the Draft 2 nitpick notes for AR3.
+**Next action (human):** nothing blocked on you mid-wave - the Opus seat
+is landing AR3-AR5; wait for the one consolidated phone smoke checklist
+at wave end.
 
 > **Nov 12 (cloud session, later): AR2f LANDED af50434.** Seth's phone
 > smoke of AR1+AR2: History and Library "don't show the full picture",
