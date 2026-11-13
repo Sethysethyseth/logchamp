@@ -10,7 +10,11 @@
 > (2) DESIGN - "the weird timer background isn't crazy appealing" (the
 > strip scoreboard: huge LED clock on near-black) and "not sure what to
 > do from here in terms of creativity" - Seth floated handing the
-> creative call to a Fable design pass. Not decided yet.
+> creative call to a Fable design pass. DECIDED Nov 13: keep smoking,
+> collect every critique in `docs/tasks/ar-critique-ledger.md`, then ONE
+> Fable round (design on the artifact first, Seth go/tweak, then one
+> build unit for the look + every FIX), based on the artifact and
+> Fable's instructions.
 
 > **Nov 12 (cloud session, Opus seat): ARENA WAVE AR3-AR5 LANDED -
 > 6/6 complete, STOPPED for Seth's phone smoke.** Run per
@@ -42,11 +46,9 @@
 > - Older AR session notes (Draft 2, AR1/AR2/AR2f landings, the headless
 >   smoke) moved verbatim to HANDOFF-ARCHIVE.md (Nov 12 entry).
 
-**Next action (human):** phone smoke of the whole ARENA wave on the
-staging deploy of `claude/inspiring-darwin-s2cr9p` - the checklist just
-below - then sign off (or send defects); also answer: RECORDS counts
-every PR row or distinct lifts? Coach open-then-fold or always strip?
-Swipe-to-walk the room?
+**Next action (human):** keep smoking the ARENA wave (checklist below)
+and send every finding - each goes into `docs/tasks/ar-critique-ledger.md`;
+say "that's everything" to start the Fable round.
 
 ## ARENA wave smoke - AR1 through AR5 (Arena view ON unless noted)
 
