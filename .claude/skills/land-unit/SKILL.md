@@ -173,6 +173,19 @@ one of these, so they only get caught by looking):
 When n == N (every block in the wave LANDED, nothing QUEUED or in
 flight), the relay session's job is DONE. In one message:
 
+**First, the reviewer's own light smoke (Seth, Nov 13 - skipped once,
+and a Coach box that could not be typed into reached his phone):**
+before the checklist goes out, run the consolidated smoke list yourself
+in the cloud smoke rig (REFERENCE, "Cloud smoke rig") on the wave
+branch's HEAD - with the state matrix (live workout running, keyboard
+open and typing in every text box, resting, finished, full view, strip)
+and side by side with the design of record. Cursor's per-unit
+screenshots do NOT count. Defects found go back into the wave as
+diagnosis/fix blocks (or the wave's critique ledger) BEFORE Seth
+smokes; the checklist he gets lists only what a headless browser cannot
+judge (feel, haptics, real long-press, frame rate on the phone) plus
+anything you could not reproduce.
+
 - "N/N complete" plus a one-line-per-unit recap.
 - The CONSOLIDATED smoke checklist: every landed unit's smoke items
   carried forward into one list, against the staging Vercel deploy
