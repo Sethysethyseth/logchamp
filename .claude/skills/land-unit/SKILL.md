@@ -175,8 +175,11 @@ flight), the relay session's job is DONE. In one message:
 
 **First, the reviewer's own light smoke (Seth, Nov 13 - skipped once,
 and a Coach box that could not be typed into reached his phone):**
-before the checklist goes out, run the consolidated smoke list yourself
-in the cloud smoke rig (REFERENCE, "Cloud smoke rig") on the wave
+before the checklist goes out, run the consolidated smoke list in the
+cloud smoke rig. WHO (Seth, Nov 13): a SONNET subagent (Agent tool,
+`model: sonnet`) runs it and reports back; the reviewer reads its report
+and contact sheets and files the findings - this is the one standing
+exception to the no-Claude-subagents fan-out rule. Run it (REFERENCE, "Cloud smoke rig") on the wave
 branch's HEAD - with the state matrix (live workout running, keyboard
 open and typing in every text box, resting, finished, full view, strip)
 and side by side with the design of record. Cursor's per-unit
