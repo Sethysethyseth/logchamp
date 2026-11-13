@@ -46,9 +46,9 @@
 > - Older AR session notes (Draft 2, AR1/AR2/AR2f landings, the headless
 >   smoke) moved verbatim to HANDOFF-ARCHIVE.md (Nov 12 entry).
 
-**Next action (human):** keep smoking the ARENA wave (checklist below)
-and send every finding - each goes into `docs/tasks/ar-critique-ledger.md`;
-say "that's everything" to start the Fable round.
+**Next action (human):** keep smoking the ARENA wave and send findings;
+the reviewer's own light smoke already added 5 items (ledger rows 3-7) -
+skip those. Say "that's everything" to start the Fable round.
 
 ## ARENA wave smoke - AR1 through AR5 (Arena view ON unless noted)
 

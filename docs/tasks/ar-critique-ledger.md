@@ -47,8 +47,13 @@ Kinds: FIX = broken, must work after the round. DESIGN = Fable's call.
 
 | # | Kind | Where | What Seth saw | Notes |
 | --- | --- | --- | --- | --- |
-| 1 | FIX | Coach, Arena ON, live workout running | "You can't type, can only use recs" - the ask box is not on screen (Nov 12 phone shot: strip shows the live clock, no composer above the nav) | Lead hypothesis, unverified: `.coach-page` is sized to 100dvh minus the nav, so the stage strip (+ workout bar) push the composer under the bottom nav. Headless AR1/AR3 checks passed only WITHOUT a live workout. |
+| 1 | FIX | Coach, Arena ON - EVERY visit, live workout or not | "You can't type, can only use recs" - the ask box is not on screen | CONFIRMED in the reviewer's headless smoke Nov 13: at scrollY 0 the composer top is 877px on an 839px screen (412x839) and 760-833 on 740 (360x740); the bottom nav covers 783-839. Arena OFF: 710-783, fine. Cause: `.coach-page` height is 100dvh minus the nav, but under Arena the page starts below the 18svh strip, so the composer lands past the fold. Earlier checks measured with a simulated keyboard / scrolled the box into view, so they passed. |
 | 2 | DESIGN | The strip (folded scoreboard), e.g. live clock | "The weird timer background isn't crazy appealing" - huge LED clock on near-black | Fable decides the strip's look; carry the same thinking into the room's boards so they stay one system. |
+| 3 | DESIGN | Live logger, Arena ON | (reviewer smoke) the bottom nav lights History while you log a live workout | The logger lives at `/sessions/:id`; the prototype keeps the live workout in Home. Fable: which tab owns the live workout. |
+| 4 | DESIGN | Live logger + strip | (reviewer smoke) two running clocks: the strip's big LED clock and the logger's own "LIVE 0:03 · 0 SETS" line right under it | Fable: one clock, or each with a distinct job. Ties to item 2. |
+| 5 | DESIGN | Full view, every place | (reviewer smoke; also headless polish note 6, Nov 12) the top ~45% of the full view is empty dark sky above the room | The prototype frames the room taller (fixed 100x178, cam y 3). Fable: framing / what fills the sky. |
+| 6 | DESIGN | Sheets that slide up (Finish confirm "1 set has no RIR", start-workout picker, confirm panels) | (reviewer smoke) they keep today's rounded look over the squared Arena skin | AR3 left portaled surfaces outside `#root` as today. Fable: skin them or not. |
+| 7 | FIX | Finish a workout, Arena ON | (reviewer smoke) a page error on finish: "Transition was aborted because of invalid state. Viewport size changed" | The room grows back to the open size during the route's view transition. The SAVED moment still plays (SAVED PUSH DAY seen). Find and stop the error without touching the ONE MOTION rule. |
 
 Open calls Fable may settle in the same pass (defaults until ruled):
 Coach stays on the strip (prototype opens it tall until the first
@@ -56,3 +61,5 @@ question); no swipe-to-walk (prototype has it). AR6 light-mode arena is
 a design gap - in scope for this round only if Seth says so.
 
 Add new findings as rows above (next number), in Seth's words.
+
+Reviewer's light smoke (Nov 13, cloud rig on the branch HEAD, champ dark, 412x839 + Coach at 360x740): live workout across all six tabs - every text box reachable and typed into EXCEPT Coach (item 1); logger set -> REST strip + rest bar; rest follows to Analytics; Finish -> SAVED + name in the open room, back to the week face; full view on Home; zero rAF at rest after the save; scrollWidth = innerWidth everywhere checked. Not run headless: light mode, other palettes, reduced motion, a real keyboard.
