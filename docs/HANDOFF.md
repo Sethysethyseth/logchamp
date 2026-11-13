@@ -1,5 +1,28 @@
 # HANDOFF — current state
 
+> **FOR THE OPUS SEAT (Nov 13): Fable is NOT a standing dependency.**
+> Fable 5.2 is on Cursor today, but it can leave, get quota-capped, or
+> be unavailable for a wave. Do not plan a wave around it. When it is
+> not there:
+> - **Check before dispatch:** `cursor-agent --list-models` for the named
+>   model. Quota or usage refusal -> descend the ladder (named -> auto,
+>   `dispatch-unit` section 3) and log the descent in the QUEUE notes.
+> - **Design passes without Fable:** the Opus seat draws the design
+>   itself, in the artifact, from the same brief (`ar-r1a` shape:
+>   rulings for every ledger item, every state drawn, `ARENA-ROUND-1.md`
+>   with the state matrix and file list). Seth still does the one look
+>   before any build.
+> - **Build blocks without Fable:** use the best available named model
+>   for judgment work (Opus), `auto` for mechanical units. The block
+>   contract (artifact as spec, state matrix, side-by-side proof) does
+>   not change with the model.
+> - **Never fill a design gap with invented rules.** If Fable is out
+>   and the artifact does not draw it, the frontier seat draws it first.
+> - **Record who delivered** in the QUEUE notes (model + rung), so the
+>   audit knows what it is reviewing.
+> - The landing audit and light smoke are model-independent; the
+>   reviewer's checks do not get looser when the executor changes.
+
 > **Nov 12, later - Seth's first phone smoke of the ARENA wave (sign-off
 > RESET):** (1) DEFECT - Coach: "you can't type, can only use recs" -
 > the ask box is not on screen (his shot: Arena ON, live workout
