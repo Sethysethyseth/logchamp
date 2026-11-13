@@ -58,7 +58,10 @@ sweep). Three roles:
   Agent tool, even when a built-in ritual (e.g. `/code-review`) says
   "spawn agents" (authoring recon per `author-task-block`; gate-fuel
   coverage/consistency sweeps per the spec) - reports compress search,
-  never judgment; the ruling itself never fans out. Standing escalation
+  never judgment; the ruling itself never fans out. ONE standing
+  exception (Seth, Nov 13): the wave-end LIGHT SMOKE of Cursor's work,
+  before Seth smokes, runs in a Sonnet subagent (Agent tool, `model:
+  sonnet`) in the cloud smoke rig - `land-unit` section 6. Standing escalation
   triggers that pull the frontier seat in
   mid-wave: schema or migration design (A4), security / cross-user
   isolation surfaces, prod incidents, root-cause debugging Sonnet can't
