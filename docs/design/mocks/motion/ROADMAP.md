@@ -690,6 +690,25 @@ the app is byte-for-byte today's; every MX guardrail above applies; a
 layout change is not checked until `scrollWidth === innerWidth` under a
 phone profile.
 
+**Prevention rules (Seth, Nov 13, after the first ARENA phone smoke - the
+Coach box vanished under a live workout, and the strip's look was a
+block author's guess, not a design):**
+1. **The artifact is the spec, Fable makes the design calls.** A block
+   may only ask Cursor to build what the artifact shows. If a state,
+   surface or look is not drawn there, Fable draws it in the artifact
+   FIRST; the block author never invents visual rules (sizes, type,
+   colours, layouts) to fill the gap.
+2. **The state matrix.** Every AR unit's proof runs each route it
+   touches in these states, not just the idle page: no workout / live
+   workout (workout bar showing) / resting / just finished; keyboard
+   open on any page with a text box (Coach, logger, search); full view;
+   strip (scrolled). In each: every control the page has is on screen
+   and USABLE - tap every text box and type into it, press the primary
+   button.
+3. **Side by side with the artifact.** Visual proof is a contact sheet
+   pairing each app frame with the artifact in the same state, at
+   412 x 839 and 360 x 740. App screenshots alone do not pass.
+
 The principle that came out of Seth's Nov 11 feedback ("full screen to
 half... can give a headache", "can't get in the way of the beautiful app
 behind it"): ONE MOTION. The room is drawn once, framed for the full

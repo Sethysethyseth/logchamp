@@ -66,6 +66,16 @@ precedent, wave units) or fold it into the HANDOFF session log
   auto-fail.
 - A report that doesn't match the tree is itself the loudest signal.
 
+**UI units with a design of record (Nov 13, after the ARENA smoke - a
+headless pass on the idle page let a vanished Coach box ship):** before
+landing, the reviewer runs the block's STATE MATRIX in the cloud smoke
+rig (or the delivery's own matrix, re-driven by hand on at least the
+riskiest states): start a live workout and walk every touched route,
+open the keyboard and TYPE into every text box, and press each primary
+button. Then look at a contact sheet pairing the app with the artifact
+in the same states - app screenshots alone are not a visual audit. A
+missing or unusable control is a bounce, however good it looks.
+
 **Things a green build CANNOT catch** (from the July 11 Opus audit;
 backported here July 28 - the build and the unit lane both pass on every
 one of these, so they only get caught by looking):

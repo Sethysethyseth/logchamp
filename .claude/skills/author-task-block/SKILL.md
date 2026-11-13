@@ -19,6 +19,17 @@ Seth by hand, same line either way - the file must stand alone.
 
 ## Contract-first rules (v4, carried unchanged into v5)
 
+- **Design-of-record units (Nov 13, after the ARENA smoke):** when a
+  wave has an artifact / prototype as its design of record, the block
+  may only ask for what the artifact SHOWS - quote it by line. If the
+  unit needs a state or a look the artifact does not draw, the design
+  seat (Fable) draws it there first; the block author never fills the
+  gap with invented visual rules. Every UI block carries a STATE MATRIX
+  in its acceptance criteria (idle / live workout / resting / finished;
+  keyboard open where there is a text box; each layout mode the surface
+  has) with "every control on screen and usable - type into every text
+  box" in each state, and a side-by-side contact sheet against the
+  artifact. Template: ROADMAP "ARENA wave", prevention rules.
 - Name the files, the patterns to follow BY NAME, and the observable
   contract. Do NOT write line-level implementation, exact CSS values, or
   JSX placement - Cursor makes those choices; acceptance criteria and the

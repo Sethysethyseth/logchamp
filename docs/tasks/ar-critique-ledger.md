@@ -28,6 +28,19 @@ basing the changes off the artifact and the Fable's instructions."
   the ONE MOTION rule; tokens only, all palettes; phone-profile proof at
   412 x 839 and 360 x 740; zero frames at rest; reduced motion honoured.
 
+## Prevention (Seth, Nov 13: "to stop things like this in the first place")
+
+Both findings so far got through the same gaps: proofs ran the idle page
+only (no live workout, no typing), and visual rules were written by the
+block author instead of drawn in the artifact. From now on (ROADMAP
+"ARENA wave", prevention rules; `author-task-block`; `land-unit`):
+- The artifact is the spec; Fable draws any missing state there first.
+- Every unit proves a STATE MATRIX - idle / live workout / resting /
+  finished, keyboard open, full view, strip - with every control on
+  screen and usable (type into every text box).
+- Visual proof is side by side with the artifact, never app-only.
+Fable's build block in this round carries all three.
+
 ## Items
 
 Kinds: FIX = broken, must work after the round. DESIGN = Fable's call.
