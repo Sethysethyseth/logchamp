@@ -540,7 +540,12 @@ export function ArenaStage() {
   const liveStart = activeSession ? new Date(activeSession.startedAt || activeSession.performedAt).getTime() : null;
   const liveSets = setsOf(activeSession);
   const publishedLive = published.liveBlock;
+  const publishedName = published.liveName;
   const liveName =
+    (publishedName &&
+      activeId != null &&
+      String(publishedName.sessionId) === String(activeId) &&
+      publishedName.name) ||
     (publishedLive &&
       activeId != null &&
       String(publishedLive.sessionId) === String(activeId) &&

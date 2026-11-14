@@ -171,7 +171,12 @@ html[data-arena]::after {
    above the strip. */
 .arena-sheet {
   position: relative;
-  min-height: calc(100svh - 96px);
+  /* Tall enough that even a short page can scroll the stage all the way to
+     its fold end (the rail is shorter than the old 96px allowance). */
+  min-height: max(
+    calc(100svh - 96px),
+    calc(100svh - var(--arena-strip-h) - var(--arena-top, 0px))
+  );
   padding-top: 14px;
   background: var(--color-bg);
   border-top: 2px solid color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));

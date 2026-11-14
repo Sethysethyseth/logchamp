@@ -4057,6 +4057,20 @@ export function SessionDetailPage() {
     }
   }
 
+  /* The strip shows the name you are typing, not the one last fetched
+     (light smoke D3): publish this live workout's draft name. */
+  const liveDraftName = quickTitleDraft.trim();
+  useEffect(() => {
+    if (!session || session.completedAt) {
+      publishArenaFacts({ liveName: null });
+      return undefined;
+    }
+    publishArenaFacts({
+      liveName: { sessionId: session.id, name: liveDraftName || sessionDisplayTitle(session) },
+    });
+    return () => publishArenaFacts({ liveName: null });
+  }, [session, liveDraftName]);
+
   /* Block-day strip face (`n OF total`): publish what this page already holds.
      ArenaStage reads it via arenaFacts - do not edit that file (B2). */
   useEffect(() => {
