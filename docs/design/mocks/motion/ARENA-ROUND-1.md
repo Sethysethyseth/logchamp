@@ -55,7 +55,9 @@ without a live workout. Then focus it and type a real character. The
 expected cause is in the ledger: `.coach-page` height is `100dvh` minus the
 nav, but under Arena the page starts under the 18svh strip (plus the
 sheet's 2px rule and 14px top padding). Subtract those under
-`html[data-arena]`.
+`html[data-arena]`. After item 8 Coach sits under the rail, not the
+strip: subtract the rail's height. Use the stage's real height (one
+variable), never a second hard-coded number.
 
 ### 2 - DESIGN - The strip's look
 
@@ -270,6 +272,19 @@ setting redraws the sheet in place; it does not slide up again.
 first weight box was below the fold. Everything removed from the page is
 either said by the strip or set once and left.
 
+**Scope, so nothing is lost.** Item 9 changes only the top of the live
+logger (above the first exercise), where the note link sits, and the two
+helper lines over Finish. Every exercise card and everything in it is
+untouched: collapse, rename, exercise search, set count, L/R, add and
+remove set, delete, set notes, exercise notes, last-time and planned
+numbers, "As planned", the table view, the rest controls, the Finish and
+Discard confirms. Every control taken off the page has a named new home
+in the table above; none is deleted. The hotbar's effort note (a block's
+locked scale) shows in the Setup sheet. Back's job (leave the logger,
+lose nothing) is done by the tabs; the workout is resumed from Home or
+the in-progress bar as today. A finished workout's page
+("Workout summary") is not touched.
+
 **Stated so nobody restores it silently:** this retires the hotbar
 (`qolf9`) under Arena. Seth can reverse that at his one look. With Arena
 off the logger is exactly as today.
@@ -344,6 +359,34 @@ Across every route:
 Home with a workout running keeps today's page (the resume card) and
 today's strip size; the logger is the working page. In the artifact the
 logger is drawn inside Home, which is the same ruling: Home owns it.
+
+## Nothing is lost (Seth, Nov 10 and again Nov 14)
+
+Seth's standing rule: nothing built so far may be lost; every feature
+keeps a home. This round keeps it this way:
+
+- **Arena view is a skin and a stage over the SAME pages.** The app's
+  routes, pages and components are the real ones. The artifact draws only
+  the pages this round changes; a feature the artifact does not draw is
+  NOT removed. If it is in the app today, it is in the app after the
+  build, in the same place, unless a ruling above names a new home.
+- **Routes the matrix does not list** keep their page exactly as today
+  and get the rail (they had the strip): the workout builder
+  (`/create-template`, `/templates/:id/edit`), community workouts
+  (`/templates/public`), the block builder (`/blocks/:id/edit`),
+  **import from a sheet (`/blocks/import`)**, the running block
+  (`/blocks/current`), `/log-workout`, every `/profile/*` page
+  (appearance, training, security, AI and connector, feedback, what's
+  new), and `/hello`. Login and register have no arena.
+- **The only controls that move** are the logger's, in item 9's table.
+- **Build check.** With Arena on, at 412 x 839: open each route above,
+  confirm the page's primary action is on screen and pressable and every
+  text box is typeable (the state matrix rule), including the import
+  page's paste box and its Import button. Arena off: the full app is
+  pixel-identical to today.
+
+If the build finds a feature that this round would hide or strand, it
+stops and reports it; it does not pick a new home itself.
 
 ## App files the build will touch
 

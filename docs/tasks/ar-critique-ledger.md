@@ -1,7 +1,13 @@
 # ARENA critique ledger - the input for one Fable round
 
-STATUS: COLLECTING (Seth is smoking the ARENA wave on his phone; nothing
-dispatched). Single writer: Claude Code. Opened Nov 12-13, 2026.
+STATUS: STEP 1 (DESIGN) DONE, SETH SAID GO Nov 14 ("Looks and feels
+good") - every item 1-10 is ruled in
+`docs/design/mocks/motion/ARENA-ROUND-1.md` and drawn in
+`arena-draft-3.html` (Artifact TCamsFYqboRqw6VVFJqoiX), which is now the
+design of record. Step 2 (the one build unit) is not authored yet. His
+condition: every feature carries over (ARENA-ROUND-1.md, "Nothing is
+lost"). New findings still go in as new rows. Single writer: Claude
+Code. Opened Nov 12-13, 2026.
 
 ## How this round works (Seth, Nov 13)
 
@@ -58,10 +64,9 @@ Kinds: FIX = broken, must work after the round. DESIGN = Fable's call.
 | 9 | DESIGN | Live logger | Nov 14: "the log workout screen is cluttered" (his shot: strip, X / Back, title, LIVE line, setup hotbar, name box, note link, view switch, then the first exercise; two helper lines over Finish) | RULED same day, drawn in draft 3: one row, then the lifts; the rest into the Setup sheet. ARENA-ROUND-1.md item 9. Retires the qolf9 hotbar under Arena - Seth can reverse at his look. |
 | 10 | NOTE | Strip, rest timer OFF | Nov 14: "the timer still sits there even if you turn it off, don't mind this actually" | No change: the elapsed clock stays. ARENA-ROUND-1.md item 10. |
 
-Open calls Fable may settle in the same pass (defaults until ruled):
-Coach stays on the strip (prototype opens it tall until the first
-question); no swipe-to-walk (prototype has it). AR6 light-mode arena is
-a design gap - in scope for this round only if Seth says so.
+Open calls - RULED (ARENA-ROUND-1.md): Coach never opens tall; it stays
+folded, which since item 8 means the rail, not the strip. No
+swipe-to-walk this round. AR6 light-mode arena is out of this round.
 
 Add new findings as rows above (next number), in Seth's words.
 

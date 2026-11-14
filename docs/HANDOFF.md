@@ -1,5 +1,38 @@
 # HANDOFF — current state
 
+> **Nov 14 (cloud session, design seat): ARENA ROUND 1 DESIGN IS DONE AND
+> SETH SAID GO ("Looks and feels good").** Read this note before any
+> older ARENA note below; where they differ, this one wins.
+> - **Design of record:** `docs/design/mocks/motion/arena-draft-3.html`
+>   (Artifact https://claude.ai/artifact/TCamsFYqboRqw6VVFJqoiX) plus
+>   `docs/design/mocks/motion/ARENA-ROUND-1.md` beside it (a ruling for
+>   every ledger item 1-10, the state matrix, the build file list).
+>   `arena-draft-2.html` is history. Commits `cd5bc64`, `3c25636` and the
+>   one that carries this note, on `claude/inspiring-darwin-s2cr9p`.
+> - **What changed since the older notes (do not build from them):**
+>   (a) the scoreboard strip (18svh) is for the live logger and live Home
+>   ONLY; every other folded page, Coach included, gets a thin RAIL
+>   (item 8) - so "Coach stays on the strip" now reads "Coach stays
+>   folded: the rail". (b) Under Arena the live logger is one row (name,
+>   Setup, X) then the lifts; the hotbar and the view switch move into the
+>   Setup sheet (item 9). (c) The live logger lights Home, one clock, the
+>   room has a roof, slide-up sheets are skinned (items 3-6). (d) The
+>   strip's History / Library / Profile / Analytics faces from AR4/AR5
+>   are no longer shown on the strip; they stay on the room's board.
+> - **Seth's condition on the GO:** every feature of the app carries
+>   over (he named importing workouts). ARENA-ROUND-1.md "Nothing is
+>   lost" states how: Arena is a skin over the same pages, unlisted
+>   routes keep their page and get the rail, only the logger's controls
+>   move, and the build proves each route.
+> - **Next action (frontier seat):** author ONE build block from
+>   ARENA-ROUND-1.md (`author-task-block`): the artifact as spec, the
+>   state matrix, side-by-side proof, every FIX with its check, the
+>   "Nothing is lost" route check. Then dispatch, audit, land, light
+>   smoke, Seth smokes. Nothing is built yet: the app on staging still
+>   shows the old strip.
+> - Not in this round, unchanged: AR6 light-mode arena, AR7 Arena as
+>   default, swipe-to-walk, What's New (bookmarked).
+
 > **FOR THE OPUS SEAT (Nov 13): Fable is NOT a standing dependency.**
 > Fable 5.2 is on Cursor today, but it can leave, get quota-capped, or
 > be unavailable for a wave. Do not plan a wave around it. When it is
@@ -69,9 +102,11 @@
 > - Older AR session notes (Draft 2, AR1/AR2/AR2f landings, the headless
 >   smoke) moved verbatim to HANDOFF-ARCHIVE.md (Nov 12 entry).
 
-**Next action (human):** keep smoking the ARENA wave and send findings;
-the reviewer's own light smoke already added 5 items (ledger rows 3-7) -
-skip those. Say "that's everything" to start the Fable round.
+**Next action:** see the Nov 14 note at the top - the design step is
+done and Seth said go; the build block is next (frontier seat). New
+phone findings still go in the ledger as new rows. The checklist below
+describes the app as landed at AR5 (old strip); it is superseded where
+ARENA-ROUND-1.md rules otherwise.
 
 ## ARENA wave smoke - AR1 through AR5 (Arena view ON unless noted)
 

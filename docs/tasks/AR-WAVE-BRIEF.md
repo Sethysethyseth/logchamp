@@ -1,5 +1,12 @@
 # ARENA wave - brief for the Opus seat (Seth, Nov 12, 2026)
 
+> **SUPERSEDED IN PART (Nov 14).** This brief ran AR3-AR5 and is kept as
+> the record of that run. For anything built from now on the design of
+> record is `docs/design/mocks/motion/arena-draft-3.html` +
+> `ARENA-ROUND-1.md`, not draft 2. Both open calls below are ruled there
+> (Coach stays folded, on the rail; no swipe-to-walk). Current state:
+> `docs/HANDOFF.md`, Nov 14 note.
+
 Carry the ARENA wave from AR3 to wave end. You are the frontier seat:
 author the blocks, dispatch them to Cursor, land them. The final
 pre-main review is NOT yours - Seth has reserved it for a later session.

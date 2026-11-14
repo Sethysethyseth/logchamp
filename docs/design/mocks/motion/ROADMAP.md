@@ -724,6 +724,7 @@ the strip is a flat scoreboard that fades in place.
 | AR3 | The sheet's skin under Arena view: squared panels, accent rules, display face on titles - one stylesheet over the existing pages, Home + logger first. Waits on Seth's nitpick notes | LANDED `cfc6da7` (`ar3-arena-sheet-skin.md`) |
 | AR4 | Boards from real data: the four Analytics faces on the scoreboard, week faces with top set / top gain (from the WeeklyReport summary), the block on the rack's program board, coach answer headline on the chalkboard | LANDED `38362ef` (`ar4-arena-boards-from-real-data.md`) |
 | AR5 | Places: History seat follows the selected workout, banners from real milestones in the locker room, strip headlines for Library / Profile | LANDED `a152bf9` (`ar5-arena-places.md`) |
+| AR-R1 | Round 1 from Seth's phone smoke: design step DONE Nov 14 (`arena-draft-3.html` + `ARENA-ROUND-1.md`, Seth said go) - strip as a room slice and for the logger only, a thin rail on every other folded page, roof, one clock, live logger lights Home, one-row logger header, skinned slide-up sheets, Coach ask box and Finish error fixes. Supersedes the strip descriptions in AR1 / AR4 / AR5 above and "the strip is a flat scoreboard" | Build block TODO (frontier seat, from ARENA-ROUND-1.md) |
 | AR6 | Light-mode arena. DESIGN GAP - needs a frontier-seat prototype first, not a Cursor block | TODO (design) |
 | AR7 | Arena becomes the default (Seth's call after smoke), Classic stays as the switch; What's New unit | TODO |
 
