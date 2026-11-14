@@ -24,12 +24,13 @@
 >   lost" states how: Arena is a skin over the same pages, unlisted
 >   routes keep their page and get the rail, only the logger's controls
 >   move, and the build proves each route.
-> - **Next action (frontier seat):** author ONE build block from
->   ARENA-ROUND-1.md (`author-task-block`): the artifact as spec, the
->   state matrix, side-by-side proof, every FIX with its check, the
->   "Nothing is lost" route check. Then dispatch, audit, land, light
->   smoke, Seth smokes. Nothing is built yet: the app on staging still
->   shows the old strip.
+> - **Next action:** the build block is AUTHORED and QUEUED (Nov 14,
+>   Opus seat): `docs/tasks/ar-r1b-arena-round-1-build.md` - the
+>   artifact as spec, the full state matrix with side-by-side proof,
+>   every FIX with its check, the "Nothing is lost" route check, Arena
+>   OFF pixel-diffed. Next: dispatch (`dispatch-unit`, named rung, long
+>   kill), audit, land, light smoke, Seth smokes. Nothing is built yet:
+>   the app on staging still shows the old strip.
 > - Not in this round, unchanged: AR6 light-mode arena, AR7 Arena as
 >   default, swipe-to-walk, What's New (bookmarked).
 
