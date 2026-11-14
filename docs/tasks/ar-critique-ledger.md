@@ -63,3 +63,14 @@ a design gap - in scope for this round only if Seth says so.
 Add new findings as rows above (next number), in Seth's words.
 
 Reviewer's light smoke (Nov 13, cloud rig on the branch HEAD, champ dark, 412x839 + Coach at 360x740): live workout across all six tabs - every text box reachable and typed into EXCEPT Coach (item 1); logger set -> REST strip + rest bar; rest follows to Analytics; Finish -> SAVED + name in the open room, back to the week face; full view on Home; zero rAF at rest after the save; scrollWidth = innerWidth everywhere checked. Not run headless: light mode, other palettes, reduced motion, a real keyboard.
+
+## Cause confirmed (Nov 14, cloud rig, read-only)
+
+Item 1, Coach composer: CONFIRMED. Arena OFF the page starts at 12px and the
+composer spans 710-783 (nav top 783) at 412x839; Arena ON the page starts at
+179px and the composer spans 877-950, entirely under the nav. Same +167px at
+360x740 (611-684 OFF, 760-833 ON vs nav 684). A live workout changes nothing:
+idle and live measure identically, so the workout bar is not the cause. The
+offset is the strip (151px) plus the sheet's top inset. Fix is in the build
+block (arena.css inset variable used by .coach-page height).
+
