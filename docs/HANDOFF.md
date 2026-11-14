@@ -37,9 +37,16 @@
 > - **Seth's standing call (Nov 14):** if a Cursor delivery fails twice
 >   this wave, the Opus seat takes the edits itself (Sonnet does not
 >   re-check that work); proof sweeps go to a Sonnet subagent.
-> - **Next action:** the reviewer's light smoke (Sonnet subagent, full
->   state matrix vs arena-draft-3.html) then Seth's phone smoke. Not
->   merged anywhere.
+> - **Light smoke DONE (Sonnet subagent, Nov 14):** all 10 checks pass at
+>   412 + 360 (state matrix with typing, strip, rail, Coach box, one-row
+>   logger, Finish with zero errors and the SAVED room, roof, Nothing is
+>   lost, 5 palettes, Arena OFF). Two defects fixed in-seat at `868b801`
+>   (strip follows the typed name; short pages fold all the way to the
+>   rail). Three left open as ledger rows 11-13 (Reopen under the bar at
+>   360, no in-progress bar on Coach - both pre-existing - and a note).
+> - **Next action (human):** Seth smokes ARENA round 1 on his phone
+>   (branch `ccr-ac9fe067-pc08f1`, head `868b801`) and signs off or
+>   adds ledger rows. Not merged anywhere.
 > - Not in this round, unchanged: AR6 light-mode arena, AR7 Arena as
 >   default, swipe-to-walk, What's New (bookmarked).
 
