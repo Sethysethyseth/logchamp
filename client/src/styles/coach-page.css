@@ -9,6 +9,25 @@
   );
 }
 
+/* Under Arena the page starts below the stage (rail) plus the sheet's 2px
+   rule and 14px top padding, then .main's 12px pad. Subtract the stage's
+   real height from ONE variable - never a second strip number. The phone
+   composer's -16px margin must not apply here (it would push the ask box
+   under the tabs). */
+html[data-arena] .coach-page {
+  height: calc(
+    100dvh - var(--arena-stage-h, 44px) - 2px - 14px - 12px - var(--bottom-nav-height) -
+      env(safe-area-inset-bottom, 0px)
+  );
+}
+
+@media (max-width: 719px) {
+  html[data-arena]:not(.coach-kbd) .coach-page__composer {
+    margin-bottom: 0;
+    padding-bottom: 10px;
+  }
+}
+
 .coach-page__panel {
   display: flex;
   flex-direction: column;

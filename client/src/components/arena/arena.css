@@ -10,14 +10,18 @@
 
    --arena-h     the route's stage height (ArenaStage.jsx, from arenaSheet.js)
    --arena-top   the desktop navbar's height; 0 on a phone (measured)
-   --arena-strip-h  the strip (ARENA_STRIP_SVH) */
+   --arena-strip-h  fold end: strip (18svh) or rail (11 * --arena-px)
+   --arena-px    one room pixel in css px (arenaEngine resize)
+   --arena-stage-h  the stage's real height in px (for Coach inset) */
 
 html[data-arena] {
+  --arena-px: 4px;
   --arena-strip-h: 18svh;
   --arena-peek-h: 40px;
   /* What the full view leaves of the sheet: the one line and the nav. */
   --arena-tour-gap: calc(var(--arena-peek-h) + var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
   --arena-room-h: calc(100svh - var(--arena-tour-gap));
+  --arena-stage-h: var(--arena-h, 40svh);
 }
 
 .arena-spacer {
@@ -91,8 +95,8 @@ html[data-arena] {
   height: var(--arena-strip-h);
 }
 
-/* The strip: the scoreboard, flat, fixed at the top above the sheet. Its
-   opacity follows the scroll (ArenaStage.jsx); it fades, never slides. */
+/* The folded canvas: strip (scoreboard cut) or rail (balcony cut). Height is
+   --arena-strip-h (set per route). Opacity follows the scroll; it fades, never slides. */
 .arena-strip {
   position: fixed;
   top: var(--arena-top, 0px);
@@ -107,6 +111,7 @@ html[data-arena] {
   image-rendering: pixelated;
   cursor: zoom-in;
   touch-action: pan-y;
+  background: transparent;
 }
 
 .arena-strip--full {

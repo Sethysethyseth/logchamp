@@ -17,7 +17,14 @@ import {
   weekFaces,
 } from "../../lib/arenaBoards.js";
 import { resetArenaFacts, useArenaFacts } from "../../lib/arenaFacts.js";
-import { ARENA_STRIP_SVH, arenaSize, stageRide, stripReveal } from "../../lib/arenaSheet.js";
+import {
+  ARENA_RAIL_ROWS,
+  ARENA_STRIP_SVH,
+  arenaSize,
+  stageRide,
+  stripPlace,
+  stripReveal,
+} from "../../lib/arenaSheet.js";
 import { setArenaTour, useArenaTour } from "../../lib/arenaTour.js";
 import { REST_TIMER_EVENT, readRestRun } from "../../lib/restTimer.js";
 import { SCENE_SIGNAL_EVENT } from "../../lib/sceneSignal.js";
@@ -167,12 +174,16 @@ function applyStrip(st, route) {
 /* Target sizes in px, read only on a route change or a resize - never per scroll. */
 function measureStage(st) {
   const root = document.documentElement.style;
-  root.setProperty("--arena-strip-h", `${ARENA_STRIP_SVH}svh`);
+  /* Fold end: strip (18svh) on live logger / live Home; rail (11 room px) elsewhere. */
+  if (st.foldStrip) root.setProperty("--arena-strip-h", `${ARENA_STRIP_SVH}svh`);
+  else root.setProperty("--arena-strip-h", `calc(${ARENA_RAIL_ROWS} * var(--arena-px, 4px))`);
   st.geom.openPx = st.probe.offsetHeight || 0;
   st.geom.stripPx = st.stripProbe.offsetHeight || 0;
   const nav = document.querySelector(".app > .nav");
   const top = nav && getComputedStyle(nav).display !== "none" ? nav.offsetHeight : 0;
   root.setProperty("--arena-top", `${top}px`);
+  /* Coach (and other rail-first pages) size against the stage's real height. */
+  root.setProperty("--arena-stage-h", st.geom.openPx ? `${st.geom.openPx}px` : `var(--arena-h)`);
 }
 
 const HOLD_MS = 480;
@@ -310,7 +321,9 @@ export function ArenaStage() {
   const { sessions, activeSession } = useActiveSession();
   const activeId = activeSession?.id ?? null;
   const [place, facet] = placeFor(pathname, activeId);
-  const size = arenaSize({ pathname, tour, live: activeId != null });
+  const live = activeId != null;
+  const size = arenaSize({ pathname, tour, live, activeId });
+  const toStrip = stripPlace({ pathname, live, activeId });
   const [cheer, setCheer] = useState(false);
   const cheerTimer = useRef(0);
 
@@ -325,6 +338,7 @@ export function ArenaStage() {
       probe: probeRef.current,
       stripProbe: stripProbeRef.current,
       geom: { openPx: 0, stripPx: 0, reveal: -1, covered: false, strip: false },
+      foldStrip: true,
       coverTimer: 0,
       swallow: false, // the next click belongs to a closer-look gesture, not the full-view toggle
     };
@@ -390,26 +404,40 @@ export function ArenaStage() {
 
   /* The stage's height belongs to the route (or the full view); the sheet starts below it. */
   const height =
-    size.mode === "tour" ? `calc(${size.svh}svh - var(--arena-tour-gap) - var(--arena-top))` : `${size.svh}svh`;
+    size.mode === "tour"
+      ? `calc(${size.svh}svh - var(--arena-tour-gap) - var(--arena-top))`
+      : size.mode === "rail"
+        ? `calc(${size.rows} * var(--arena-px, 4px))`
+        : `${size.svh}svh`;
   useLayoutEffect(() => {
     const st = stageRef.current;
     document.documentElement.style.setProperty("--arena-h", height);
+    document.documentElement.dataset.arenaMode = size.mode;
     if (!st) return;
+    st.foldStrip = toStrip;
     measureStage(st);
     applyStrip(st, true);
-  }, [height]);
+    st.arena?.set({ foldMode: toStrip ? "strip" : "rail" });
+    /* After CSS fold height lands, force the bitmap to rematch (B1). set()
+       already resizes on a foldMode change; this covers same-mode remounts
+       and the first paint after --arena-strip-h flips to 18svh. */
+    st.arena?.resize();
+  }, [height, toStrip, size.mode]);
   useEffect(
     () => () => {
       document.documentElement.style.removeProperty("--arena-h");
       document.documentElement.style.removeProperty("--arena-top");
       document.documentElement.style.removeProperty("--arena-strip-h");
+      document.documentElement.style.removeProperty("--arena-stage-h");
+      document.documentElement.style.removeProperty("--arena-px");
+      delete document.documentElement.dataset.arenaMode;
     },
     []
   );
 
   useEffect(() => {
-    arenaRef.current?.set({ place, facet });
-  }, [place, facet]);
+    arenaRef.current?.set({ place, facet, foldMode: toStrip ? "strip" : "rail" });
+  }, [place, facet, toStrip]);
 
   /* A closer look ends with the full view, and on any change of tab. */
   useEffect(() => {
@@ -484,8 +512,8 @@ export function ArenaStage() {
     [facts.seats, selected, block, libraryWorkouts, streak, workoutCount]
   );
   useEffect(() => {
-    arenaRef.current?.set({ placeLines });
-  }, [placeLines]);
+    arenaRef.current?.set({ placeLines, streak });
+  }, [placeLines, streak]);
 
   const progress = published.block?.progress;
   const here = {
@@ -511,6 +539,34 @@ export function ArenaStage() {
 
   const liveStart = activeSession ? new Date(activeSession.startedAt || activeSession.performedAt).getTime() : null;
   const liveSets = setsOf(activeSession);
+  const publishedLive = published.liveBlock;
+  const liveName =
+    (publishedLive &&
+      activeId != null &&
+      String(publishedLive.sessionId) === String(activeId) &&
+      publishedLive.name) ||
+    (activeSession ? sessionDisplayTitle(activeSession) : "");
+  /* Block-day `n OF total`: SessionDetailPage publishes blockProgress via
+     publishArenaFacts (liveBlock). Without it the strip falls back to SET n. */
+  const liveBlock =
+    publishedLive &&
+    activeId != null &&
+    String(publishedLive.sessionId) === String(activeId) &&
+    publishedLive.total != null
+      ? publishedLive
+      : null;
+  const liveStartMs = (() => {
+    if (
+      publishedLive &&
+      activeId != null &&
+      String(publishedLive.sessionId) === String(activeId) &&
+      publishedLive.startedAt
+    ) {
+      const t = new Date(publishedLive.startedAt).getTime();
+      if (Number.isFinite(t)) return t;
+    }
+    return liveStart;
+  })();
   const lastTitle = useMemo(() => {
     const latest = (sessions || []).filter((x) => doneAt(x) != null).sort((a, b) => doneAt(b) - doneAt(a))[0];
     return latest ? sessionDisplayTitle(latest) : "";
@@ -524,12 +580,24 @@ export function ArenaStage() {
   useEffect(() => {
     const arena = arenaRef.current;
     if (!arena) return undefined;
-    if (activeId == null || !Number.isFinite(liveStart)) {
+    if (activeId == null || !Number.isFinite(liveStartMs)) {
       arena.set({ live: null, rest: null });
       return undefined;
     }
     let sets = liveSets;
-    const push = () => arena.set({ live: { startedAtMs: liveStart, sets }, rest: readRestRun(activeId) });
+    const push = () =>
+      arena.set({
+        live: {
+          startedAtMs: liveStartMs,
+          sets,
+          name: liveName,
+          block:
+            liveBlock?.total != null
+              ? { done: liveBlock.logged ?? liveBlock.done ?? 0, total: liveBlock.total }
+              : null,
+        },
+        rest: readRestRun(activeId),
+      });
     push();
     const onRest = () => push();
     const onSignal = (event) => {
@@ -544,7 +612,7 @@ export function ArenaStage() {
       window.removeEventListener(REST_TIMER_EVENT, onRest);
       window.removeEventListener(SCENE_SIGNAL_EVENT, onSignal);
     };
-  }, [activeId, liveStart, liveSets]);
+  }, [activeId, liveStartMs, liveSets, liveName, liveBlock]);
 
   useEffect(() => {
     const onSignal = (event) => {
@@ -571,8 +639,8 @@ export function ArenaStage() {
     return () => window.removeEventListener(SCENE_SIGNAL_EVENT, onSignal);
   }, []);
 
-  const live = activeId != null ? { sets: liveSets } : null;
-  let peek = peekLine(place, facts, live, weeks, here);
+  const livePeek = activeId != null ? { sets: liveSets } : null;
+  let peek = peekLine(place, facts, livePeek, weeks, here);
   if (cheer) peek = "LOG CHAMP";
   else if (place === "coach" && streaming) peek = "The coach is thinking";
   else if (place === "coach" && answer) peek = chalkSentence(answer, 60);

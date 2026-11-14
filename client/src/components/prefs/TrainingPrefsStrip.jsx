@@ -3,6 +3,8 @@ import { setTrainingPref, useTrainingPrefs } from "../../lib/trainingPrefs.js";
 import { TrainingPrefsSheet } from "./TrainingPrefsSheet.jsx";
 import "../../styles/training-prefs.css";
 
+/** Hotbar for logging setup. Under Arena the live logger does not render this
+ *  (Setup opens TrainingPrefsSheet instead - ARENA-ROUND-1 item 9). */
 export function TrainingPrefsStrip({ effortSignal, effortNote } = {}) {
   const prefs = useTrainingPrefs();
   const editRef = useRef(null);

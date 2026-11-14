@@ -1,5 +1,6 @@
 import { GlyphIcon } from "../GlyphIcon.jsx";
 import { Segmented } from "../blocks/ui/Segmented.jsx";
+import { ViewModeToggle } from "../templates/ViewModeToggle.jsx";
 import { setTrainingPref, useTrainingPrefs } from "../../lib/trainingPrefs.js";
 import "../../styles/training-prefs.css";
 
@@ -57,7 +58,7 @@ function Group({ variant, title, children }) {
   );
 }
 
-export function TrainingPrefsForm({ variant = "page", effortNote }) {
+export function TrainingPrefsForm({ variant = "page", effortNote, layout = null }) {
   const prefs = useTrainingPrefs();
   const rest = prefs.restTimer;
 
@@ -95,6 +96,16 @@ export function TrainingPrefsForm({ variant = "page", effortNote }) {
             </p>
           )}
         </div>
+        {layout ? (
+          <div className="training-prefs-field">
+            <p className="training-prefs-field__label">Layout</p>
+            <ViewModeToggle
+              value={layout.value}
+              onChange={layout.onChange}
+              ariaGroupLabel="Workout view mode"
+            />
+          </div>
+        ) : null}
       </Group>
 
       <Group variant={variant} title="While logging">

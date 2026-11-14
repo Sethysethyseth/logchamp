@@ -139,7 +139,16 @@ html[data-arena] #root .coach-page__mark {
 
 /* ---------- logger ---------- */
 
+/* The folded stage (strip or rail) holds the top of the screen, so a sticky
+   exercise header stops under it, not over it (reviewer fix, ar-r1b). */
+html[data-arena] #root .session-detail-page {
+  --session-sticky-top: calc(
+    var(--arena-top, 0px) + var(--arena-strip-h) + var(--coach-working-chip-h, 0px)
+  );
+}
+
 html[data-arena] #root .session-exercise-heading-sticky {
+  z-index: 2; /* under the fixed strip (z 3) when its card pushes it up */
   border-radius: 0;
   background-color: var(--color-surface-2);
 }
@@ -448,3 +457,136 @@ html[data-arena] #root .bottom-nav {
 html[data-arena] #root .bottom-nav > .mx-slide-ind::before {
   border-radius: 0;
 }
+
+/* ---------- item 4: one clock - hide the logger's own LIVE line ---------- */
+
+html[data-arena] #root .logger-live {
+  display: none;
+}
+
+/* ...except on a reopened workout, where it has no clock and says "Editing". */
+html[data-arena] #root .arena-logger-editing .logger-live {
+  display: flex;
+}
+
+/* ---------- item 9: one-row logger head ---------- */
+
+html[data-arena] #root .arena-logger-head {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+html[data-arena] #root .arena-logger-head__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+html[data-arena] #root .arena-logger-name {
+  margin: 0;
+  min-width: 0;
+}
+
+html[data-arena] #root .arena-logger-name .logger-name__label {
+  display: none;
+}
+
+/* ---------- item 6: skinned portaled sheets (outside #root) ---------- */
+
+html[data-arena] .start-workout-picker__sheet,
+html[data-arena] .confirm-panel__sheet {
+  border-radius: 0;
+  border-top: 2px solid color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
+  background: var(--color-bg);
+}
+
+html[data-arena] .start-workout-picker__handle,
+html[data-arena] .confirm-panel__sheet .start-workout-picker__handle {
+  width: 34px;
+  height: 3px;
+  border-radius: 0;
+  background: var(--color-border);
+}
+
+html[data-arena] .start-workout-picker__title,
+html[data-arena] .confirm-panel__sheet .start-workout-picker__title {
+  font-family: var(--font-display, "Chakra Petch", ui-sans-serif, system-ui, sans-serif);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+html[data-arena] .start-workout-picker__sheet input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-arena] .start-workout-picker__sheet select,
+html[data-arena] .start-workout-picker__sheet textarea,
+html[data-arena] .confirm-panel__sheet input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-arena] .confirm-panel__sheet select,
+html[data-arena] .confirm-panel__sheet textarea {
+  border-radius: 0;
+  background: var(--color-bg);
+}
+
+html[data-arena] .start-workout-picker__row,
+html[data-arena] .start-workout-picker__list > button,
+html[data-arena] .confirm-panel__sheet .list button {
+  border-radius: 0;
+  border: 1px solid var(--color-border);
+}
+
+/* Logging setup, add-exercise, and the two info popovers (RPE/RIR +
+   How it's calculated) - same squared skin as the start picker (B4). */
+html[data-arena] .add-exercise-library-sheet__card {
+  border-radius: 0;
+  border-top: 2px solid color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
+  background: var(--color-bg);
+}
+
+html[data-arena] .add-exercise-library-sheet__card::before {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 3px;
+  margin: 0 auto 8px;
+  background: var(--color-border);
+}
+
+html[data-arena] .add-exercise-library-sheet__title {
+  font-family: var(--font-display, "Chakra Petch", ui-sans-serif, system-ui, sans-serif);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+html[data-arena] .add-exercise-library-sheet__card input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-arena] .add-exercise-library-sheet__card select,
+html[data-arena] .add-exercise-library-sheet__card textarea {
+  border-radius: 0;
+  background: var(--color-bg);
+}
+
+html[data-arena] .add-exercise-library-sheet__match,
+html[data-arena] .add-exercise-library-sheet__role-btn,
+html[data-arena] .add-exercise-library-sheet__muscle-chips button {
+  border-radius: 0;
+}
+
+html[data-arena] .training-prefs-sheet .training-prefs-field select,
+html[data-arena] .training-prefs-sheet .training-prefs-stepper__btn,
+html[data-arena] .training-prefs-sheet .training-prefs-stepper__value,
+html[data-arena] .training-prefs-sheet .view-mode-toggle,
+html[data-arena] .training-prefs-sheet .view-mode-toggle button {
+  border-radius: 0;
+}
+
+html[data-arena] .training-prefs-sheet .training-prefs-field select {
+  background: var(--color-bg);
+}
+
+html[data-arena] .metric-info-popover {
+  border-radius: 0;
+  border: 1px solid var(--color-border);
+  border-top: 2px solid color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
+  background: var(--color-bg);
+}
+
+/* Main button stays rounded (page pattern). */

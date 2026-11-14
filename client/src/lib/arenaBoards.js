@@ -235,3 +235,119 @@ export function banners(workouts) {
     { label: "1K", earned: w >= 1000 },
   ];
 }
+
+/** Balcony lettering per place (arena-draft-3.html PLACES[].sign). */
+export const PLACE_BALCONY = {
+  history: "THE STANDS",
+  home: "THE PLATFORM",
+  analytics: "THE SCOREBOARD",
+  coach: "COACH'S CORNER",
+  library: "THE RACK",
+  profile: "LOCKER ROOM",
+};
+
+/** `m:ss` from a whole number of seconds. */
+export function mmss(sec) {
+  const s = Math.max(0, Math.floor(Number(sec) || 0));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+/**
+ * ONE face for the room board and the strip. First match wins: resting,
+ * saved, cheer, logging, then the place. Pure.
+ *
+ * @param {{
+ *   rest?: { leftSec: number, durationSec: number } | null,
+ *   saved?: { name?: string } | null,
+ *   cheer?: boolean,
+ *   logging?: { name?: string, elapsedSec: number, setsDone: number, block?: { done: number, total: number } | null } | null,
+ *   place?: string,
+ *   week?: [string, string] | null,
+ *   analytics?: [string, string] | null,
+ *   history?: { count?: number } | null,
+ *   library?: { label?: string, done?: number, total?: number, workouts?: number } | null,
+ *   profile?: { streak?: number, workouts?: number } | null,
+ *   chalk?: { thinking?: boolean, lines?: string[], dots?: number } | null,
+ * }} input
+ */
+export function boardFace(input = {}) {
+  const rest = input.rest;
+  if (rest && rest.leftSec > 0 && rest.durationSec > 0) {
+    return {
+      rest: mmss(rest.leftSec),
+      bar: Math.max(0, Math.min(1, rest.leftSec / rest.durationSec)),
+    };
+  }
+  if (input.saved) {
+    return { l1: "SAVED", l2: ledFit(input.saved.name, 9) || "WORKOUT" };
+  }
+  if (input.cheer) return { l1: "LOG", l2: "CHAMP" };
+  const log = input.logging;
+  if (log) {
+    const l1 = ledFit(log.name, 15) || "WORKOUT";
+    const clock = mmss(log.elapsedSec);
+    const l2 = log.block
+      ? `${clock} \u00b7 ${log.block.done} OF ${log.block.total}`
+      : `${clock} \u00b7 SET ${(Number(log.setsDone) || 0) + 1}`;
+    return { l1, l2, wide: true };
+  }
+  const place = input.place || "home";
+  if (place === "coach") {
+    if (input.chalk?.thinking) {
+      return { dots: input.chalk.dots ?? 3 };
+    }
+    const lines = input.chalk?.lines?.length ? input.chalk.lines : ["ASK ME", "ANYTHING"];
+    return { l1: lines[0], l2: lines[1] || "", chalk: true };
+  }
+  if (place === "analytics" && input.analytics) {
+    return { l1: input.analytics[0], l2: input.analytics[1] };
+  }
+  if (place === "history") {
+    const n = Number(input.history?.count) || 0;
+    return { l1: "WORKOUTS", l2: String(n) };
+  }
+  if (place === "library") {
+    const lib = input.library;
+    if (lib?.label != null && lib.total != null) {
+      return { l1: ledFit(lib.label, 9), l2: `${lib.done ?? 0} OF ${lib.total}` };
+    }
+    const n = lib?.workouts;
+    if (n == null) return { l1: "LIBRARY", l2: "" };
+    return { l1: "LIBRARY", l2: ledFit(count(n, "WORKOUT", "WORKOUTS"), 9) };
+  }
+  if (place === "profile") {
+    const streak = Number(input.profile?.streak) || 0;
+    if (streak >= 1) return { l1: "STREAK", l2: ledFit(count(streak, "WEEK", "WEEKS"), 9) };
+    return {
+      l1: "PROFILE",
+      l2: ledFit(count(Number(input.profile?.workouts) || 0, "WORKOUT", "WORKOUTS"), 9),
+    };
+  }
+  if (input.week) return { l1: input.week[0], l2: input.week[1] };
+  return { l1: "7 DAYS", l2: "0 SETS" };
+}
+
+/**
+ * The rail's one line. First match wins: resting, saved, else the place's
+ * balcony name. Pure.
+ *
+ * @param {{
+ *   rest?: { leftSec: number } | null,
+ *   saved?: { name?: string } | null,
+ *   place?: string,
+ * }} input
+ */
+export function railFace(input = {}) {
+  const rest = input.rest;
+  if (rest && rest.leftSec > 0) {
+    return {
+      line: `REST ${mmss(rest.leftSec)}`,
+      bar: rest.durationSec > 0 ? Math.max(0, Math.min(1, rest.leftSec / rest.durationSec)) : 0,
+    };
+  }
+  if (input.saved) {
+    return { line: ledFit(`SAVED ${input.saved.name || ""}`, 22) || "SAVED" };
+  }
+  const place = input.place || "home";
+  return { line: PLACE_BALCONY[place] || PLACE_BALCONY.home };
+}

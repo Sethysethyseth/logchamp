@@ -4,14 +4,16 @@
  *
  * - tour: the arena has the screen; the sheet keeps one line and the nav.
  * - open: arrival size on the browsing routes.
- * - strip: the scoreboard strip, on every working route, and on Home while
- *   a workout is in progress.
+ * - strip: the scoreboard strip (18svh) - live logger and live Home only.
+ * - rail: 11 room rows - every other folded state (Coach, past workout,
+ *   scrolled open routes, unlisted routes).
  */
 
 export const ARENA_STRIP_SVH = 18;
+export const ARENA_RAIL_ROWS = 11;
 
 /* The room's share at the open size: what the prototype's sheet leaves
-   (arena-draft-2.html, PLACES[..].sheet). */
+   (arena-draft-3.html / ARENA-ROUND-1.md). */
 const OPEN_SVH = {
   "/": 58,
   "/analytics": 62,
@@ -20,12 +22,34 @@ const OPEN_SVH = {
   "/profile": 58,
 };
 
-/** @returns {{ mode: "tour" | "open" | "strip", svh: number }} */
-export function arenaSize({ pathname, tour, live }) {
+/**
+ * @param {{ pathname: string, tour?: boolean, live?: boolean, activeId?: string | number | null }} args
+ * @returns {{ mode: "tour" | "open" | "strip" | "rail", svh?: number, rows?: number }}
+ */
+export function arenaSize({ pathname, tour, live, activeId }) {
   if (tour) return { mode: "tour", svh: 100 };
   const path = String(pathname || "/").replace(/\/+$/, "") || "/";
-  const svh = live && path === "/" ? 0 : OPEN_SVH[path];
-  return svh ? { mode: "open", svh } : { mode: "strip", svh: ARENA_STRIP_SVH };
+  const liveOn = Boolean(live);
+  const active = activeId == null ? null : String(activeId);
+
+  /* Strip only: live Home, and the live logger for the active workout. */
+  if (liveOn && path === "/") return { mode: "strip", svh: ARENA_STRIP_SVH };
+  const session = path.match(/^\/sessions\/([^/]+)$/);
+  if (session) {
+    if (liveOn && active != null && session[1] === active) {
+      return { mode: "strip", svh: ARENA_STRIP_SVH };
+    }
+    return { mode: "rail", rows: ARENA_RAIL_ROWS };
+  }
+
+  const open = OPEN_SVH[path];
+  if (open) return { mode: "open", svh: open };
+  return { mode: "rail", rows: ARENA_RAIL_ROWS };
+}
+
+/** Whether this route folds to the strip (scoreboard) rather than the rail. */
+export function stripPlace({ pathname, live, activeId }) {
+  return arenaSize({ pathname, live, activeId }).mode === "strip";
 }
 
 /**
@@ -49,14 +73,14 @@ export function ledFit(value, max) {
   return out;
 }
 
-/** Px the stage has moved up with the sheet: 1:1 with the scroll, holding at strip height. */
+/** Px the stage has moved up with the sheet: 1:1 with the scroll, holding at fold-end height. */
 export function stageRide({ scrollY, openPx, stripPx }) {
   const room = openPx - stripPx;
   if (!(room > 0)) return 0;
   return Math.max(0, Math.min(scrollY, room));
 }
 
-/** The strip's opacity: 0 until 70% of the ride, linear to 1 at the end. A strip route is always 1. */
+/** The strip/rail opacity: 0 until 70% of the ride, linear to 1 at the end. A folded route is always 1. */
 export function stripReveal({ ride, openPx, stripPx }) {
   const room = openPx - stripPx;
   if (!(room > 0)) return 1;

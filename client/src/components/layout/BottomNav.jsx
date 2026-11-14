@@ -1,6 +1,7 @@
 import { useRef, useState, useSyncExternalStore } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { useArenaView } from "../../lib/arenaPref.js";
 import { useGuardedNav } from "../../lib/useGuardedNav.js";
 import { SlidingIndicator } from "../motion/SlidingIndicator.jsx";
 import { NAV_SECTIONS, sectionIndexOf } from "../motion/navOrder.js";
@@ -58,17 +59,20 @@ export function BottomNav() {
   const [tapped, setTapped] = useState(null);
   const { activeSession } = useActiveSession();
   const hiddenBarId = useSyncExternalStore(subscribeHiddenWorkoutBar, getHiddenWorkoutBarId);
+  const arena = useArenaView();
   /* The resume bar was swiped away: a square accent pixel on Home says the
      workout is still there (MXF12). Home itself already shows the card. */
   const workoutPip =
     Boolean(activeSession) && hiddenBarId === String(activeSession.id) && pathname !== "/";
+  /* Under Arena the live logger lights Home (the platform), not History.
+     Computed before the auth early-return so hook order stays stable. */
+  const liveLogger =
+    Boolean(arena) &&
+    activeSession != null &&
+    pathname === `/sessions/${activeSession.id}`;
+  const activeIndex = liveLogger ? 0 : sectionIndexOf(pathname);
 
   if (!currentUser) return null;
-
-  /* Nested routes (e.g. /sessions/:id) keep their section lit so the
-     indicator never vanishes mid-app; NavLink's own `end` matching decides
-     `.active` for the plain tabs, this only covers the deep paths. */
-  const activeIndex = sectionIndexOf(pathname);
 
   return (
     <nav className="bottom-nav" aria-label="Main" ref={hostRef}>
@@ -82,9 +86,11 @@ export function BottomNav() {
           key={to}
           to={to}
           end={end}
-          className={({ isActive }) =>
-            `bottom-nav__item${isActive || activeIndex === i ? " active" : ""}`
-          }
+          className={({ isActive }) => {
+            let on = isActive || activeIndex === i;
+            if (liveLogger) on = key === "home";
+            return `bottom-nav__item${on ? " active" : ""}`;
+          }}
           onClick={(e) => {
             setTapped((t) => ({ key, seq: (t?.seq || 0) + 1 }));
             guardedClick(to, { end })(e);

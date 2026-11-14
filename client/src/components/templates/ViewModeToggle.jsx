@@ -1,4 +1,5 @@
-/** Labels must match product copy: "Builder view" | "Table view". */
+/** Labels must match product copy: "Builder view" | "Table view".
+ *  Under Arena the live logger does not render this; Layout lives in Setup. */
 export function ViewModeToggle({ value, onChange, ariaGroupLabel = "Template view mode" }) {
   return (
     <div className="view-mode-toggle row" role="group" aria-label={ariaGroupLabel}>

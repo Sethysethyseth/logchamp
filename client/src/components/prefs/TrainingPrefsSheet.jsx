@@ -3,7 +3,12 @@ import { createPortal } from "react-dom";
 import { TrainingPrefsForm } from "./TrainingPrefsForm.jsx";
 import "../../styles/training-prefs.css";
 
-export function TrainingPrefsSheet({ open, onClose, effortNote }) {
+/**
+ * Logging setup sheet. Optional `layout` (Builder / Table) is shown when
+ * opened from the live logger under Arena (item 9) - changing a setting
+ * redraws in place; the sheet does not slide up again.
+ */
+export function TrainingPrefsSheet({ open, onClose, effortNote, layout = null }) {
   const sheetRef = useRef(null);
 
   useEffect(() => {
@@ -75,7 +80,7 @@ export function TrainingPrefsSheet({ open, onClose, effortNote }) {
           Saved on this device. Changes apply right away.
         </p>
         <div className="training-prefs-sheet__scroll">
-          <TrainingPrefsForm variant="sheet" effortNote={effortNote} />
+          <TrainingPrefsForm variant="sheet" effortNote={effortNote} layout={layout} />
         </div>
         <button type="button" className="btn training-prefs-sheet__done" onClick={onClose}>
           Done

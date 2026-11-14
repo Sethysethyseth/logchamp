@@ -52,6 +52,10 @@ export function RouteTransition() {
   const navType = useNavigationType();
   const wrapperRef = useRef(null);
   const prevPathRef = useRef(pathname);
+  /* The Arena stage mode of the route we are leaving. ArenaStage's layout
+     effect runs first and already holds the NEW route's mode, so read the
+     one recorded at the end of the previous run (reviewer fix, ar-r1b). */
+  const prevArenaModeRef = useRef(null);
   const vtRef = useRef(null);
   const lastLiveOutletRef = useRef(outlet);
   const [committed, setCommitted] = useState(pathname);
@@ -70,13 +74,25 @@ export function RouteTransition() {
 
     /* Fade (no slide, no View Transition snapshot) when a shrink will run:
        the forward tap set the flag, or we are leaving a shrink source for
-       History - the source is still mounted at this point, so ask it. */
+       History - the source is still mounted at this point, so ask it.
+       Under Arena, also fade when leaving the live-logger strip: a view
+       transition snapshot across the stage height change aborts with a
+       page error ("Viewport size changed"). */
     const fadeFlag = takeRouteFade();
     const toHistoryShrink = pathname === "/sessions" && flipSourcePending();
-    const dir = fadeFlag || toHistoryShrink ? "fade" : routeDirection(from, pathname);
+    const arenaLeavingStrip =
+      typeof document !== "undefined" &&
+      document.documentElement.hasAttribute("data-arena") &&
+      prevArenaModeRef.current === "strip" &&
+      from !== pathname;
+    const dir =
+      fadeFlag || toHistoryShrink || arenaLeavingStrip ? "fade" : routeDirection(from, pathname);
     const push = navType === "PUSH";
+    /* Leaving the live logger under Arena (Finish and Discard replace the
+       route) also starts the next page at the top, so Home opens to the room
+       and its SAVED board instead of inheriting the logger's scroll. */
     const scrollTop = () => {
-      if (push && typeof window !== "undefined") window.scrollTo(0, 0);
+      if ((push || arenaLeavingStrip) && typeof window !== "undefined") window.scrollTo(0, 0);
     };
 
     /* A pending FLIP fades the live page instead of snapshotting it, so the
@@ -87,7 +103,11 @@ export function RouteTransition() {
 
     if (!supportsViewTransitions || flipFade) {
       if (flipFade && supportsViewTransitions) {
-        flushSync(() => setCommitted(pathname));
+        /* Do not flushSync inside useLayoutEffect - React warns
+           ("flushSync was called from inside a lifecycle method"). Commit
+           synchronously via the layout effect's own setState instead; the
+           WAAPI enter still runs on the committed page. */
+        setCommitted(pathname);
       }
       scrollTop();
       const el = wrapperRef.current;
@@ -125,6 +145,8 @@ export function RouteTransition() {
       return undefined;
     }
     vtRef.current = transition;
+    /* Never leave VT promises unhandled - an abort must not surface as a pageerror. */
+    transition.ready.catch(() => {});
     transition.finished
       .catch(() => {})
       .finally(() => {
@@ -133,6 +155,12 @@ export function RouteTransition() {
       });
     return undefined;
   }, [pathname, navType]);
+
+  /* After the effect above: remember this route's Arena mode for the next navigation. */
+  useLayoutEffect(() => {
+    prevArenaModeRef.current =
+      typeof document !== "undefined" ? document.documentElement.dataset.arenaMode || null : null;
+  });
 
   return (
     <div ref={wrapperRef} className="mx-route">

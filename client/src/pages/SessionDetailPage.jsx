@@ -36,6 +36,9 @@ import { sessionDisplayTitle } from "../lib/sessionDisplay.js";
 import { registerLiveSetDraftFlush } from "../lib/confirmLeaveLiveSession.js";
 import { smartWorkoutNameFromSessionExercises } from "../lib/smartWorkoutName.js";
 import { getTrainingPrefs, useTrainingPrefs } from "../lib/trainingPrefs.js";
+import { useArenaView } from "../lib/arenaPref.js";
+import { publishArenaFacts } from "../lib/arenaFacts.js";
+import { TrainingPrefsSheet } from "../components/prefs/TrainingPrefsSheet.jsx";
 import { TrainingPrefsStrip } from "../components/prefs/TrainingPrefsStrip.jsx";
 import { applyQuickHold, buildCanonicalQuickSlots, cloneQuickRows } from "../lib/quickSetSlots.js";
 import { keyboardLooksOpen, restLeaveDecision } from "../lib/restLeave.js";
@@ -2701,8 +2704,10 @@ export function SessionDetailPage() {
   const [seededUseRIR, setSeededUseRIR] = useState(false);
   const [seededUseRPE, setSeededUseRPE] = useState(false);
   const [workoutNoteOpen, setWorkoutNoteOpen] = useState(false);
+  const [arenaSetupOpen, setArenaSetupOpen] = useState(false);
   const quickNoteRef = useRef(null);
   const trainingPrefs = useTrainingPrefs();
+  const arenaView = useArenaView();
   const weightUnit = loadWeightUnit();
   const [quickTitleDraft, setQuickTitleDraft] = useState("");
   const [scrollToExerciseId, setScrollToExerciseId] = useState(null);
@@ -4052,6 +4057,39 @@ export function SessionDetailPage() {
     }
   }
 
+  /* Block-day strip face (`n OF total`): publish what this page already holds.
+     ArenaStage reads it via arenaFacts - do not edit that file (B2). */
+  useEffect(() => {
+    if (!session || session.completedAt || !session.blockContext) {
+      publishArenaFacts({ liveBlock: null });
+      return () => publishArenaFacts({ liveBlock: null });
+    }
+    let logged = 0;
+    let total = 0;
+    for (const se of orderedSessionExercises) {
+      const stats = blockSlotStats.get(se.id);
+      if (stats) {
+        logged += stats.logged || 0;
+        total += stats.total || 0;
+      } else {
+        const planSets = Array.isArray(se.plan?.sets) ? se.plan.sets.length : 0;
+        const list = setsByExercise.get(se.id) || [];
+        logged += list.filter((s) => blockSetIsLogged(s)).length;
+        total += Math.max(planSets, list.length);
+      }
+    }
+    publishArenaFacts({
+      liveBlock: {
+        sessionId: session.id,
+        logged,
+        total,
+        name: sessionDisplayTitle(session),
+        startedAt: session.startedAt || session.performedAt || null,
+      },
+    });
+    return () => publishArenaFacts({ liveBlock: null });
+  }, [session, orderedSessionExercises, blockSlotStats, setsByExercise]);
+
   if (loading && previewMatches && !session) {
       return (
         <div className="stack session-detail-page">
@@ -4299,13 +4337,94 @@ export function SessionDetailPage() {
       ? "Logged values in it will be deleted."
       : "Logged values in them will be deleted.";
 
+  /* Under Arena the live logger is one row (name, Setup, X) then the lifts. */
+  const arenaLive = arenaView && !isCompleted;
+
   return (
     <div
       className={`stack session-detail-page${!isCompleted ? " session-detail-page--live" : ""}${
         isFromBlock ? " session-detail-page--block" : ""
-      }${loggerSettled ? " logger--settled" : ""}`}
+      }${loggerSettled ? " logger--settled" : ""}${arenaLive ? " session-detail-page--arena" : ""}`}
     >
-      {isFromBlock && !isCompleted ? (
+      {arenaLive ? (
+        <div className="arena-logger-head">
+          {isFromBlock && blockContext ? (
+            <div className="bk bk-log-eyebrow-wrap">
+              <Eyebrow>
+                {`${blockContext.blockName} · W${blockContext.weekOrder}${
+                  blockContext.weekLabel ? ` · ${blockContext.weekLabel}` : ""
+                } · ${blockContext.dayName}`}
+              </Eyebrow>
+            </div>
+          ) : null}
+          {session && session.reopenedAt != null ? (
+            /* A reopened workout has no clock: today's line says "Editing".
+               It keeps that home under Arena (reviewer fix, ar-r1b B3). */
+            <div className="arena-logger-editing">
+              <LoggerLiveStrip
+                startedAt={session.startedAt || session.performedAt}
+                setsLogged={totalSetsLogged}
+                reopened
+                source={isFromTemplate ? session.workoutTemplate.name : null}
+              />
+            </div>
+          ) : null}
+          <div className="arena-logger-head__row">
+            <label className="logger-name arena-logger-name">
+              {isFromBlock ? (
+                <input
+                  readOnly
+                  className="session-readonly-input"
+                  aria-label="Workout name"
+                  value={
+                    blockContext
+                      ? `W${blockContext.weekOrder} · ${blockContext.dayName}`
+                      : sessionDisplayTitle(session)
+                  }
+                />
+              ) : isFromTemplate ? (
+                <input readOnly value={readonlyWorkoutName} className="session-readonly-input" aria-label="Workout name" />
+              ) : (
+                <input
+                  className="logger-name__input"
+                  aria-label="Workout name"
+                  placeholder="Untitled - named for you at finish"
+                  value={quickTitleDraft}
+                  onChange={(e) => setQuickTitleDraft(e.target.value)}
+                  onBlur={() => void commitQuickTitle()}
+                  disabled={discardBusy}
+                />
+              )}
+            </label>
+            <button type="button" className="btn btn-secondary" onClick={() => setArenaSetupOpen(true)}>
+              Setup
+            </button>
+            {session && session.reopenedAt == null ? (
+              <button
+                ref={discardBtnRef}
+                type="button"
+                className="session-discard-x"
+                aria-label="Discard workout"
+                disabled={discardBusy}
+                aria-busy={discardBusy || undefined}
+                onClick={() => requestDiscard()}
+              >
+                <GlyphIcon name="close" />
+              </button>
+            ) : null}
+          </div>
+          <TrainingPrefsSheet
+            open={arenaSetupOpen}
+            onClose={() => setArenaSetupOpen(false)}
+            effortNote={liveEffortNote}
+            layout={
+              !isFromBlock
+                ? { value: liveViewMode, onChange: setLiveViewMode }
+                : null
+            }
+          />
+        </div>
+      ) : isFromBlock && !isCompleted ? (
         <div className="bk-log-block-head-actions bk">
           {session && session.reopenedAt == null ? (
             <button
@@ -4390,7 +4509,7 @@ export function SessionDetailPage() {
         </div>
       )}
 
-      {!isCompleted && !isFromBlock ? (
+      {!isCompleted && !isFromBlock && !arenaLive ? (
         <TrainingPrefsStrip effortSignal={liveEffortSignal} effortNote={liveEffortNote} />
       ) : null}
 
@@ -4469,16 +4588,20 @@ export function SessionDetailPage() {
       {!isCompleted ? (
         isFromBlock ? (
           <div className="stack bk-log-block-stack session-log-workout-form">
-            <BlockSessionHeader
-              weekOrder={blockContext.weekOrder}
-              dayName={blockContext.dayName}
-              weekLabel={blockContext.weekLabel}
-              blockName={blockContext.blockName}
-              loggedSets={blockProgress.logged}
-              totalSets={blockProgress.total}
-            />
+            {!arenaLive ? (
+              <BlockSessionHeader
+                weekOrder={blockContext.weekOrder}
+                dayName={blockContext.dayName}
+                weekLabel={blockContext.weekLabel}
+                blockName={blockContext.blockName}
+                loggedSets={blockProgress.logged}
+                totalSets={blockProgress.total}
+              />
+            ) : null}
 
-            <TrainingPrefsStrip effortSignal={liveEffortSignal} effortNote={liveEffortNote} />
+            {!arenaLive ? (
+              <TrainingPrefsStrip effortSignal={liveEffortSignal} effortNote={liveEffortNote} />
+            ) : null}
 
 
             {sessionExercises.length === 0 ? (
@@ -4542,24 +4665,27 @@ export function SessionDetailPage() {
           </div>
         ) : (
         <div className="card stack session-log-workout-form">
-          <label className="logger-name">
-            <span className="logger-name__label">Workout name</span>
-            {isFromTemplate ? (
-              <input readOnly value={readonlyWorkoutName} className="session-readonly-input" />
-            ) : (
-              <input
-                className="logger-name__input"
-                placeholder="Untitled - named for you at finish"
-                value={quickTitleDraft}
-                onChange={(e) => setQuickTitleDraft(e.target.value)}
-                onBlur={() => void commitQuickTitle()}
-                disabled={discardBusy}
-              />
-            )}
-          </label>
-          {String(sessionNotesDraft ?? "").trim() ||
-          String(session?.notes ?? "").trim() ||
-          workoutNoteOpen ? (
+          {!arenaLive ? (
+            <label className="logger-name">
+              <span className="logger-name__label">Workout name</span>
+              {isFromTemplate ? (
+                <input readOnly value={readonlyWorkoutName} className="session-readonly-input" />
+              ) : (
+                <input
+                  className="logger-name__input"
+                  placeholder="Untitled - named for you at finish"
+                  value={quickTitleDraft}
+                  onChange={(e) => setQuickTitleDraft(e.target.value)}
+                  onBlur={() => void commitQuickTitle()}
+                  disabled={discardBusy}
+                />
+              )}
+            </label>
+          ) : null}
+          {!arenaLive &&
+          (String(sessionNotesDraft ?? "").trim() ||
+            String(session?.notes ?? "").trim() ||
+            workoutNoteOpen) ? (
             <label>
               Workout note
               <textarea
@@ -4571,7 +4697,7 @@ export function SessionDetailPage() {
                 disabled={discardBusy}
               />
             </label>
-          ) : (
+          ) : !arenaLive ? (
             <button
               type="button"
               className="training-prefs-note-reveal"
@@ -4582,13 +4708,15 @@ export function SessionDetailPage() {
             >
               Add a workout note
             </button>
-          )}
+          ) : null}
 
-          <ViewModeToggle
-            value={liveViewMode}
-            onChange={setLiveViewMode}
-            ariaGroupLabel="Workout view mode"
-          />
+          {!arenaLive ? (
+            <ViewModeToggle
+              value={liveViewMode}
+              onChange={setLiveViewMode}
+              ariaGroupLabel="Workout view mode"
+            />
+          ) : null}
 
           {inLiveTable ? (
             tableExercises.length === 0 ? (
@@ -4688,6 +4816,34 @@ export function SessionDetailPage() {
                   {addingExercise ? "Adding…" : "+ Add exercise"}
                 </button>
               </div>
+              {arenaLive ? (
+                String(sessionNotesDraft ?? "").trim() ||
+                String(session?.notes ?? "").trim() ||
+                workoutNoteOpen ? (
+                  <label>
+                    Workout note
+                    <textarea
+                      ref={quickNoteRef}
+                      value={sessionNotesDraft}
+                      onChange={(e) => setSessionNotesDraft(e.target.value)}
+                      onBlur={() => void commitSessionNotes()}
+                      placeholder="e.g. upper day, how you felt, equipment notes"
+                      disabled={discardBusy}
+                    />
+                  </label>
+                ) : (
+                  <button
+                    type="button"
+                    className="training-prefs-note-reveal"
+                    onClick={() => {
+                      flushSync(() => setWorkoutNoteOpen(true));
+                      quickNoteRef.current?.focus();
+                    }}
+                  >
+                    Add a workout note
+                  </button>
+                )
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -4778,7 +4934,7 @@ export function SessionDetailPage() {
             enabled={Boolean(trainingPrefs.restTimer?.enabled)}
           />
           <div className="session-finish-dock__inner stack">
-            {totalSetsLogged < 1 ? (
+            {!arenaLive && totalSetsLogged < 1 ? (
               <>
                 <p className="muted small session-finish-dock__hint" style={{ margin: 0 }}>
                   Autosaves as you go. Finishing saves it to your history.
@@ -4795,7 +4951,11 @@ export function SessionDetailPage() {
               disabled={!canFinishWorkout || completeBusy || discardBusy}
               aria-busy={completeBusy}
             >
-              {completeBusy ? "Saving…" : "Finish workout"}
+              {completeBusy
+                ? "Saving…"
+                : arenaLive && totalSetsLogged < 1
+                  ? "Log a set to finish"
+                  : "Finish workout"}
             </button>
           </div>
         </div>
