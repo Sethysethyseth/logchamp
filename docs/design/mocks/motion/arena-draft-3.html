@@ -119,7 +119,7 @@
   .phone input { width: 100%; min-width: 0; font: 700 13px/1 var(--display); color: var(--ink); background: var(--night); border: 1px solid var(--line); padding: 7px 6px; border-radius: 0; }
   .phone input::placeholder { color: color-mix(in srgb, var(--ink-2) 60%, transparent); font-weight: 600; }
   .phone input:focus { outline: none; border-color: var(--accent); }
-  .lg-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+  .lg-head { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; align-items: center; }
   .lg-head input { font-size: 15px; }
   .opts { display: flex; flex-wrap: wrap; gap: 4px; }
   .opts button { min-height: 28px; padding: 0 8px; font-size: 11px; border-radius: 999px; background: transparent; }
@@ -190,8 +190,14 @@
   #scene { top: auto; bottom: calc(var(--sheet, 42%) - var(--tour, 11.765%)); transition: bottom 440ms cubic-bezier(0.16, 1, 0.3, 1); }
   /* Folded, the strip is the scoreboard: the same room, cut close to the board. It fades in place; nothing travels. */
   #marquee { inset: 0 0 auto 0; height: 18%; pointer-events: none; opacity: var(--mq, 0); transition: opacity 140ms linear; }
-  .phone.folded #marquee { opacity: 1; transition: opacity 200ms linear 260ms; }
-  .phone.live .sheet, .phone.live #scene, .phone.live #marquee { transition: none; }
+  .phone.folded:not(.railed) #marquee { opacity: 1; transition: opacity 200ms linear 260ms; }
+  .phone.railed #marquee { opacity: 0; }
+  /* Away from the logger the fold goes further, to the rail: the room cut to its balcony front, 11 rows.
+     It says where you are and carries a rest or a save in one line. Same rule: it fades in place. */
+  #rail { inset: 0 0 auto 0; height: calc(11 / var(--rows) * 100%); pointer-events: none; opacity: var(--rl, 0); transition: opacity 140ms linear; }
+  .phone.folded.railed #rail { opacity: 1; transition: opacity 200ms linear 260ms; }
+  .phone:not(.railed) #rail, .phone.tour #rail { opacity: 0; }
+  .phone.live .sheet, .phone.live #scene, .phone.live #marquee, .phone.live #rail { transition: none; }
   .wbar { flex: none; display: flex; align-items: center; gap: 8px; margin: 0 8px 6px; padding: 0 10px; min-height: 34px; border: 1px solid var(--accent); background: var(--panel-2); font: 600 11px/1 var(--body); touch-action: none; cursor: grab; }
   .wbar.armed { box-shadow: 0 0 0 1px var(--accent), 0 0 14px color-mix(in srgb, var(--accent) 65%, transparent); }
   .wbar.back { transition: transform 300ms cubic-bezier(0.34, 1.5, 0.64, 1); }
@@ -235,7 +241,7 @@
   .ask { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
   .ask input { font-weight: 500; }
   @media (prefers-reduced-motion: reduce) {
-    .nav i, #scene, #marquee, .phone.folded #marquee, .wbar.back { transition: none; }
+    .nav i, #scene, #marquee, #rail, .phone.folded #marquee, .phone.folded.railed #rail, .wbar.back { transition: none; }
     .wbar i, .crown-btn.flip svg, .stamp, .row.new, .row.new .tick { animation: none; }
     .card.saved::after, .go.glint::after { display: none; }
   }
@@ -283,7 +289,7 @@
 <div class="wrap">
   <div class="words">
     <section>
-      <p class="eyebrow">Draft 3 · round 1</p>
+      <p class="eyebrow">Draft 3 · round 1 · with the Nov 14 notes</p>
       <h1>LogChamp Arena</h1>
       <p>Draft 2 with the first phone smoke answered. Every state the build has to reach is drawn here and has a switch above the phone, so nothing is left to a description. The build follows this page and <strong>ARENA-ROUND-1.md</strong> beside it.</p>
     </section>
@@ -291,8 +297,8 @@
       <h2>Step through it</h2>
       <ol>
         <li><strong>Place</strong> walks the camera. <strong>State</strong> sets idle, a live workout, a rest, or the moment after Finish, and holds it still.</li>
-        <li><strong>View</strong> is the stage size: open, the strip, or the full view. The logger and the coach are working pages and keep the strip.</li>
-        <li><strong>Keyboard</strong> raises a stand-in keyboard. <strong>Finish sheet</strong> and <strong>Start picker</strong> raise the sheets that slide up. <strong>Short phone</strong> cuts the frame down to draft 2's height.</li>
+        <li><strong>View</strong> is the stage size: open, folded, or the full view. Folded is the scoreboard strip in the logger and a thin rail everywhere else.</li>
+        <li><strong>Keyboard</strong> raises a stand-in keyboard. <strong>Finish sheet</strong> and <strong>Start picker</strong> raise the sheets that slide up. <strong>Setup sheet</strong> raises the logger's settings. <strong>Short phone</strong> cuts the frame down to draft 2's height.</li>
       </ol>
       <p>Everything in the phone still works by hand: start a workout, log a set, finish, ask the coach, tap the arena.</p>
     </section>
@@ -308,7 +314,9 @@
           <tr><td>5 · Empty sky</td><td>The room has a roof: trusses, a lamp can over each place, an upper deck, and a balcony front lettered with the place's name. Drawn to the top of the frame</td></tr>
           <tr><td>6 · Slide-up sheets</td><td>Skinned like the page sheet: squared, accent rule, grip mark, display title, square inputs, rounded main button</td></tr>
           <tr><td>7 · Finish error</td><td>Nothing to see: finishing opens the room in one motion and no error is thrown</td></tr>
-          <tr><td>Coach size</td><td>The strip, always. Never opens tall</td></tr>
+          <tr><td>8 · The banner away from the logger</td><td>The scoreboard strip belongs to the logger only. On every other page the fold goes on to a thin rail: the room's balcony front, lettered with the place's name. A rest or a save takes that one line over. See Analytics, then Folded</td></tr>
+          <tr><td>9 · Logger clutter</td><td>One row, then the lifts: the name, Setup, and the X. The option chips, the view switch and the helper lines are gone from the page; everything set once is in the Setup sheet. See Live workout, then Setup sheet</td></tr>
+          <tr><td>Coach size</td><td>Folded, always: the rail. Never opens tall</td></tr>
           <tr><td>Swipe to walk</td><td>Not in this round. The camera walks when a tab is tapped</td></tr>
         </tbody>
       </table></div>
@@ -319,7 +327,7 @@
       <ul>
         <li><strong>Open when you arrive.</strong> The arena has the top of the screen.</li>
         <li><strong>Scrolling folds it.</strong> The first stretch of a scroll lifts the page instead of moving its contents, 1:1 with your thumb. Scroll back to the top and it returns the same way.</li>
-        <li><strong>Folded, the strip is the scoreboard.</strong> The same board that hangs over the platform, cut close. It fades in place; nothing travels.</li>
+        <li><strong>Folded, it gets out of the way.</strong> In the logger the fold stops at the scoreboard strip, because the board is the logger's header. Everywhere else it goes on to a rail eleven rows tall: the balcony front, with the place's name. Both fade in place; nothing travels.</li>
         <li><strong>Back for the moments.</strong> Starting holds the room for a second so you see the lights come on. Finishing drops the sheet so you see the flashes.</li>
       </ul>
       <p><strong>One motion at a time.</strong> The room is drawn once and rides on the sheet's top edge as a single piece, with no gap. The camera's height never changes: it is fixed to the floor. A taller phone does not move the camera or change the pixel size, it shows more roof.</p>
@@ -352,12 +360,13 @@
     <div class="states" id="states" role="group" aria-label="State switches">
       <div><button type="button" data-place="home">Home</button><button type="button" data-place="analytics">Analytics</button><button type="button" data-place="history">History</button><button type="button" data-place="library">Library</button><button type="button" data-place="profile">Profile</button><button type="button" data-place="coach">Coach</button></div>
       <div><button type="button" data-state="idle">Idle</button><button type="button" data-state="live">Live workout</button><button type="button" data-state="rest">Resting</button><button type="button" data-state="saved">Finished</button></div>
-      <div><button type="button" data-view="open">Open</button><button type="button" data-view="strip">Strip</button><button type="button" data-view="tour">Full view</button></div>
-      <div><button type="button" data-show="kb">Keyboard</button><button type="button" data-show="finish-effort">Finish sheet</button><button type="button" data-show="start">Start picker</button><button type="button" data-show="frame">Short phone</button></div>
+      <div><button type="button" data-view="open">Open</button><button type="button" data-view="strip">Folded</button><button type="button" data-view="tour">Full view</button></div>
+      <div><button type="button" data-show="kb">Keyboard</button><button type="button" data-show="finish-effort">Finish sheet</button><button type="button" data-show="start">Start picker</button><button type="button" data-show="setup">Setup sheet</button><button type="button" data-show="frame">Short phone</button></div>
     </div>
     <div class="phone" id="phone">
       <canvas id="scene" width="100" height="204" aria-label="The arena. Tap for the full view, hold or pinch to look closer."></canvas>
       <canvas id="marquee" width="100" height="37" aria-hidden="true"></canvas>
+      <canvas id="rail" width="100" height="11" aria-hidden="true"></canvas>
       <div class="sheet" id="sheet">
         <button type="button" class="grip" id="grip" aria-label="Resize the sheet"></button>
         <button type="button" class="peek" id="peek" aria-label="Bring the page back" hidden></button>
@@ -392,7 +401,7 @@
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
-  const cv = $("scene"), sceneG = cv.getContext("2d"), mqG = $("marquee").getContext("2d");
+  const cv = $("scene"), sceneG = cv.getContext("2d"), mqG = $("marquee").getContext("2d"), rlG = $("rail").getContext("2d");
   let g = sceneG;
   const W = 100, FLOOR = 150, TRUSS = 22;
   /* Rows in the frame, and in the strip. The camera is fixed to the floor and a pixel is always the
@@ -470,7 +479,7 @@
     barHidden: false, pip: false, histOpen: null, picker: false, justLogged: "", glint: false, savedInfo: null, askTimer: 0,
     w: null, startedAt: 0, restFrom: 0, saved: 0, savedName: "", flashUntil: 0, seats: 0,
     prefs: { unit: "lb", effort: "rir", exNotes: false, setNotes: false, repeat: true, rest: true, restSec: 90 },
-    setup: false, table: false, noteOpen: false,
+    table: false, noteOpen: false,
     kb: false,          // the keyboard stand-in is up
     modal: null,        // a sheet that slides up: finish-effort | finish-left | discard | start
     hold: "",           // a state switch is holding "rest" or "saved" still so it can be looked at
@@ -496,12 +505,16 @@
   /* Three sizes. tour: the arena has the screen and keeps it across tabs.
      strip: the sheet is up and the stage is the scoreboard strip (scrolling, typing, logging, the coach).
      Otherwise open. The coach is a working page: it is on the strip, always. */
-  const FOLD = 0.82;
+  const FOLD = 0.82, RAIL = 11;
+  /* Folded has two sizes. The strip (the scoreboard, 18%) is the logger's header and nothing else's.
+     Everywhere else the fold goes on to the rail (the balcony front, 11 rows): the page gets the height. */
+  const stripPlace = () => live() && s.place === "home";
+  const foldTo = () => (stripPlace() ? FOLD : 1 - RAIL / H);
   const foldDefault = () => (live() && s.place === "home") || s.place === "coach";
   const folded = () => !s.tour && (s.fold || s.kb || s.place === "coach" || (s.place === "analytics" && s.adv));
   function sheetFrac() {
     if (s.tour) return 24 / H;                                  // the one line and the tabs: a fixed size, not a share
-    if (folded()) return FOLD;
+    if (folded()) return foldTo();
     if (s.place === "library" && s.blockOpen) return 0.56;
     return PLACES[s.place].sheet;
   }
@@ -556,8 +569,10 @@
   /* One drawing for the room and for the strip. The strip is the same room, cut close to the scoreboard:
      a fixed window on the board, whatever place you are at. */
   function draw(now, strip) {
-    const VH = strip ? SH : H;
-    if (strip) { g = mqG; zz = 1; cx = 100; cy = 106 - SH; }
+    const rail = strip === "rail";
+    const VH = rail ? RAIL : strip ? SH : H;
+    if (rail) { g = rlG; zz = 1; cx = PLACES[s.place].x; cy = 54; }          // the balcony front over the place you are at
+    else if (strip) { g = mqG; zz = 1; cx = 100; cy = 106 - SH; }
     else {
       // the camera: the place at rest, or a closer look centred on where you pressed
       g = sceneG; zz = s.zoom;
@@ -580,6 +595,7 @@
       g.fillStyle = RAMP[v - lo > BAYER[(y & 3) * 4 + (x & 3)] ? lo + 1 : lo]; g.fillRect(x, y, 1, 1);
     }
     if (cy < 64) house(at, flashing);
+    if (rail) return railFace(now);
     // far stands behind the platform
     const wave = s.egg && now - s.egg < 2600 && !reduced ? 98 + (((now - s.egg) % 1300) / 1300) * 106 : -99;   // the crowd answers the Log
     for (let row = 0; row < 6; row++) for (let x = 98; x < 204; x += 2) {
@@ -688,6 +704,15 @@
     const [l1, l2] = WEEK_FACES[reduced ? 0 : Math.floor(now / 4200) % WEEK_FACES.length];                             // the week, one face at a time
     return { l1, l2 };
   }
+  /* The rail's one line. The balcony's lettering is the place's name; a rest or a save takes the line
+     over, and the rest drains along the balcony's bottom edge. First match wins, as on the board. */
+  function railFace(now) {
+    const m = cx + W / 2, line = (str, c) => { px(cx, 56, RAMP[2], W, 7); mid(str, m, 57, c); };
+    if (resting(now)) {
+      line(`REST ${mmss(Math.ceil((1 - restK(now)) * s.prefs.restSec))}`, RAMP[8]);
+      px(cx, 63, RAMP[3], W, 1); px(cx, 63, RAMP[7], Math.round(W * (1 - restK(now))), 1);
+    } else if (savedNow(now)) line(led(`SAVED ${s.savedName}`, 22), RAMP[8]);
+  }
   function drawFace(f, bx, by, bw, bh, now) {
     const m = bx + bw / 2, fits = !(f.rest || f.wide) || s.wide > 0.9;
     if (f.dots) for (let i = 0; i < f.dots; i++) px(Math.round(m) - 7 + i * 5, by + 7, RAMP[8], 2, 2);
@@ -747,7 +772,7 @@
     s.power += (wantP - s.power) * k; s.board += (wantB - s.board) * k;
     s.wide += (wantWide(now) - s.wide) * Math.min(1, k * 2.4); if (Math.abs(wantWide(now) - s.wide) < 0.03) s.wide = wantWide(now);
     draw(now);
-    if (folded() || s.scrollF > 0) draw(now, true);
+    if (folded() || s.scrollF > 0) draw(now, stripPlace() ? "strip" : "rail");
   }
   const wantWide = (now) => (resting(now) || (live() && s.place === "home") ? 1 : 0);
 
@@ -826,23 +851,6 @@
   const ghost = (ex, f) => (s.prefs.repeat || s.w.block ? (f === "w" ? (ex.last[0] || "") : f === "r" ? ex.last[1] : s.prefs.effort === "rir" ? 3 : 7) : "");
   function logger() {
     const w = s.w, now = performance.now(), E = eff(), left = total() - done();
-    const chips = `<div class="opts">
-      <button type="button" data-pref="effort" data-val="rir" aria-pressed="${s.prefs.effort === "rir"}">RIR</button>
-      <button type="button" data-pref="effort" data-val="rpe" aria-pressed="${s.prefs.effort === "rpe"}">RPE</button>
-      <button type="button" data-tog="exNotes" aria-pressed="${s.prefs.exNotes}">Exercise notes</button>
-      <button type="button" data-tog="repeat" aria-pressed="${s.prefs.repeat}">Repeat last</button>
-      <button type="button" data-act="setup" aria-pressed="${s.setup}">Edit</button></div>`;
-    const onoff = (k) => `<div class="mini"><button type="button" data-pref="${k}" data-val="1" aria-pressed="${Boolean(s.prefs[k])}">On</button><button type="button" data-pref="${k}" data-val="0" aria-pressed="${!s.prefs[k]}">Off</button></div>`;
-    const setup = !s.setup ? "" : `<div class="setup"><small>Logging setup</small>
-      <div class="line"><span>Weight unit</span><div class="mini">${["lb", "kg"].map((v) => `<button type="button" data-pref="unit" data-val="${v}" aria-pressed="${s.prefs.unit === v}">${v}</button>`).join("")}</div></div>
-      <div class="line"><span>Effort scale</span><div class="mini">${["rir", "rpe", "off"].map((v) => `<button type="button" data-pref="effort" data-val="${v}" aria-pressed="${s.prefs.effort === v}">${v === "off" ? "Off" : v.toUpperCase()}</button>`).join("")}</div></div>
-      <div class="line"><span>Exercise notes</span>${onoff("exNotes")}</div>
-      <div class="line"><span>Set notes</span>${onoff("setNotes")}</div>
-      <div class="line"><span>Repeat last time's numbers</span>${onoff("repeat")}</div>
-      <div class="line"><span>Rest timer</span>${onoff("rest")}</div>
-      ${s.prefs.rest ? `<div class="line"><span>Duration</span><div class="mini"><button type="button" data-act="restLen" data-val="-15" aria-label="Shorten rest by 15 seconds">-15</button><button type="button" disabled>${Math.floor(s.prefs.restSec / 60)}:${String(s.prefs.restSec % 60).padStart(2, "0")}</button><button type="button" data-act="restLen" data-val="15" aria-label="Lengthen rest by 15 seconds">+15</button></div></div>` : ""}
-    </div>`;
-    const view = `<div class="seg"><button type="button" data-set="table" data-val="0" aria-pressed="${!s.table}">Builder view</button><button type="button" data-set="table" data-val="1" aria-pressed="${Boolean(s.table)}">Table view</button></div>`;
     const cols = `<div class="row cols ${E ? "" : "two"}"><i></i><span>${s.prefs.unit}</span><span>Reps</span>${E ? `<span>${E}</span>` : ""}<i></i><i></i></div>`;
     const lifts = s.table
       ? tbl(["Exercise", "Set", s.prefs.unit, "Reps", ...(E ? [E] : []), ""], w.ex.flatMap((ex) => ex.sets.map((st, j) => [ex.name + (ex.lr ? " (L/R)" : ""), j + 1, st.done ? st.w || "BW" : "·", st.done ? st.r : "·", ...(E ? [st.done ? st.e : "·"] : []), st.done ? "✓" : ""])))
@@ -865,8 +873,9 @@
           </div>` : ""}</div>`;
       }).join("");
     // No clock line here: under Arena the strip is the logger's header and its one clock.
-    return `<div class="lg-head"><input id="lg-name" aria-label="Workout name" data-f="name" value="${esc(w.name)}" placeholder="Untitled - named for you at finish"><button type="button" data-act="discard" aria-label="Discard workout">✕</button></div>
-      ${w.block ? "" : chips}${setup}${view}${lifts}
+    // One row, then the lifts. Everything you set once (units, effort scale, notes, repeat, rest, layout) is behind Setup.
+    return `<div class="lg-head"><input id="lg-name" aria-label="Workout name" data-f="name" value="${esc(w.name)}" placeholder="Untitled - named for you at finish"><button type="button" data-act="setup">Setup</button><button type="button" data-act="discard" aria-label="Discard workout">✕</button></div>
+      ${lifts}
       ${s.table ? "" : s.picker
         ? `<div class="setup"><input id="pick-q" aria-label="Search exercises" placeholder="Search exercises"><small>Recent</small><div class="list" id="pick-list">${PICKS.map((n) => `<button type="button" data-act="pickEx" data-name="${n}">${n}<span>add</span></button>`).join("")}</div><button class="link" type="button" data-act="addEx">Cancel</button></div>`
         : `<button class="quiet" type="button" data-act="addEx">+ Add exercise</button>`}
@@ -898,6 +907,23 @@
     if (s.modal === "discard") return wrap("Discard workout", `<h3>Discard this workout?</h3>
       <p>Your ${dn} logged ${dn === 1 ? "set" : "sets"} will be deleted.</p>
       <div class="acts"><button class="go" type="button" data-act="discardNow">Discard workout</button><button class="quiet" type="button" data-act="closeModal">Keep logging</button></div>`);
+    if (s.modal === "setup") {
+      const pick = (k, vals) => `<div class="mini">${vals.map(([v, lbl]) => `<button type="button" data-pref="${k}" data-val="${v}" aria-pressed="${s.prefs[k] === v}">${lbl}</button>`).join("")}</div>`;
+      const onoff = (k) => `<div class="mini"><button type="button" data-pref="${k}" data-val="1" aria-pressed="${Boolean(s.prefs[k])}">On</button><button type="button" data-pref="${k}" data-val="0" aria-pressed="${!s.prefs[k]}">Off</button></div>`;
+      return wrap("Logging setup", `<h3>Logging setup</h3>
+        <p>Saved on this device. Changes apply right away.</p>
+        <div class="setup">
+          <div class="line"><span>Weight unit</span>${pick("unit", [["lb", "lb"], ["kg", "kg"]])}</div>
+          <div class="line"><span>Effort scale</span>${pick("effort", [["rir", "RIR"], ["rpe", "RPE"], ["off", "Off"]])}</div>
+          <div class="line"><span>Layout</span><div class="mini"><button type="button" data-set="table" data-val="0" aria-pressed="${!s.table}">Builder</button><button type="button" data-set="table" data-val="1" aria-pressed="${Boolean(s.table)}">Table</button></div></div>
+          <div class="line"><span>Exercise notes</span>${onoff("exNotes")}</div>
+          <div class="line"><span>Set notes</span>${onoff("setNotes")}</div>
+          <div class="line"><span>Repeat last time's numbers</span>${onoff("repeat")}</div>
+          <div class="line"><span>Rest timer</span>${onoff("rest")}</div>
+          ${s.prefs.rest ? `<div class="line"><span>Rest length</span><div class="mini"><button type="button" data-act="restLen" data-val="-15" aria-label="Shorten rest by 15 seconds">-15</button><button type="button" disabled>${Math.floor(s.prefs.restSec / 60)}:${String(s.prefs.restSec % 60).padStart(2, "0")}</button><button type="button" data-act="restLen" data-val="15" aria-label="Lengthen rest by 15 seconds">+15</button></div></div>` : ""}
+        </div>
+        <div class="acts"><button class="go" type="button" data-act="closeModal">Done</button></div>`);
+    }
     return wrap("Start a workout", `<h3>Start a workout</h3>
       <input id="start-q" aria-label="Search workouts" placeholder="Search workouts" style="font-weight:500">
       <small>Next in your block</small>
@@ -1021,7 +1047,9 @@ coach() {
     ph.classList.toggle("live", Boolean(direct)); ph.classList.toggle("tour", s.tour); ph.classList.toggle("folded", folded()); ph.classList.toggle("kb", kb);
     ph.style.setProperty("--kb", kb ? "36%" : "0%");
     ph.style.setProperty("--sheet", `${(base + linked) * 100}%`);
-    ph.style.setProperty("--mq", String(Math.max(0, Math.min(1, (linked / (FOLD - base) - 0.7) / 0.3))));
+    const reveal = String(Math.max(0, Math.min(1, (linked / (foldTo() - base) - 0.7) / 0.3)));
+    ph.classList.toggle("railed", !stripPlace());
+    ph.style.setProperty("--mq", stripPlace() ? reveal : "0"); ph.style.setProperty("--rl", stripPlace() ? "0" : reveal);
   }
   let lastDock = null, lastModal = "";
   function render(keepScroll) {
@@ -1033,8 +1061,13 @@ coach() {
     const dk = dockHTML(now);                                    // rewritten only when it changes, so typing in it is never lost
     if (dk !== lastDock) { $("dock").innerHTML = dk; lastDock = dk; }
     $("dock").hidden = !dk;
-    const mk = s.modal || "";
-    if (mk !== lastModal) { $("modal").innerHTML = mk ? modalHTML() : ""; lastModal = mk; }
+    // the setup sheet redraws when a setting changes, without rising again
+    const mk = s.modal === "setup" ? `setup${JSON.stringify(s.prefs)}${s.table}` : s.modal || "";
+    if (mk !== lastModal) {
+      const same = lastModal.startsWith("setup") && mk.startsWith("setup");
+      $("modal").innerHTML = mk ? modalHTML() : ""; lastModal = mk;
+      if (same) $("modal").querySelectorAll(".msheet, .scrim").forEach((el) => { el.style.animation = "none"; });
+    }
     $("modal").hidden = !mk;
     s.justLogged = ""; s.glint = false;
     if (keepScroll) body.scrollTop = top; else if (!s.tour) countUp(body);
@@ -1051,7 +1084,7 @@ coach() {
     if (bar) $("wbar-t").textContent = `${s.w.name || "Workout"} · set ${done() + 1}`;
     $("coach-btn").setAttribute("aria-pressed", String(s.place === "coach"));
     syncScroll(); syncStates(now);
-    if (reduced) { const t = target(); s.cam.x = t.x; s.cam.y = t.y; s.wide = wantWide(now); draw(now); draw(now, true); }
+    if (reduced) { const t = target(); s.cam.x = t.x; s.cam.y = t.y; s.wide = wantWide(now); draw(now); draw(now, "strip"); draw(now, "rail"); }
   }
   /* Changing place keeps the full view if you are in it; only the arena itself ends it. */
   function go(place) {
@@ -1073,7 +1106,7 @@ coach() {
     s.savedName = short.toUpperCase().replace(/[^A-Z0-9 ]/g, "").slice(0, 9);
     s.savedInfo = { name: s.w.name || "Arm Day", sets: done(), min: 13 + Math.floor((now - s.startedAt) / 60000) };
     if (s.w.block) s.blockDone = Math.min(18, s.blockDone + 1);
-    s.w = null; s.modal = null; s.hold = ""; s.restFrom = 0; s.setup = false; s.table = false; s.noteOpen = false; s.picker = false;
+    s.w = null; s.modal = null; s.hold = ""; s.restFrom = 0; s.table = false; s.noteOpen = false; s.picker = false;
     s.barHidden = false; s.pip = false;
     s.flashUntil = now + 2000; s.saved = now + 4500; s.seats += 1;
     s.fold = false;                                              // the sheet drops so the room has the moment
@@ -1138,7 +1171,7 @@ coach() {
       case "histClose": s.histOpen = null; keep = false; break;
       case "send": { const q = $("coach-q").value.trim(); if (!q) return; ask(q); break; }
       case "stop": clearTimeout(s.askTimer); s.thinking = 0; s.chat.push(["coach", "Stopped. Nothing was saved."]); break;
-      case "setup": s.setup = !s.setup; break;
+      case "setup": s.modal = "setup"; break;
       case "restLen": s.prefs.restSec = Math.max(15, Math.min(600, s.prefs.restSec + Number(d.val))); break;
       case "fold": ex.open = !ex.open; break;
       case "lr": ex.lr = !ex.lr; break;
@@ -1176,7 +1209,7 @@ coach() {
   const bodyEl = $("body"); let lastF = 0;
   function syncScroll() {
     const hpx = $("phone").clientHeight;
-    const f = s.tour || folded() ? 0 : Math.max(0, Math.min((FOLD - sheetFrac()) * hpx, bodyEl.scrollTop));
+    const f = s.tour || folded() ? 0 : Math.max(0, Math.min((foldTo() - sheetFrac()) * hpx, bodyEl.scrollTop));
     if (f === lastF) return;
     lastF = f; s.scrollF = f / hpx; bodyEl.style.paddingTop = `${2 + f}px`;
     applySize(true);
@@ -1335,7 +1368,7 @@ coach() {
     cv.height = H; $("marquee").height = SH;
     $("stick").style.setProperty("--rows", String(H)); $("phone").style.setProperty("--tour", `${(24 / H) * 100}%`);
     s.cam.y = target().y; lastF = -1;
-    render(true); draw(performance.now()); draw(performance.now(), true);
+    render(true); draw(performance.now()); draw(performance.now(), "strip"); draw(performance.now(), "rail");
   }
   $("states").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
@@ -1349,7 +1382,10 @@ coach() {
     if (d.show === "frame") return setFrame(H === 204 ? 178 : 204);
     if (d.show === "kb") { s.kb = !s.kb || s.tour; s.tour = false; s.zoomTo = 1; return render(true); }
     if (s.modal === d.show) s.modal = null;
-    else if (d.show === "finish-effort") {
+    else if (d.show === "setup") {
+      if (!live()) demoWorkout(now);
+      s.hold = ""; s.place = "home"; s.tour = false; s.fold = true; s.modal = "setup";
+    } else if (d.show === "finish-effort") {
       if (!live()) demoWorkout(now);
       if (!noEffort()) { const st = allSets().find((x) => x.done); if (st) st.e = ""; }
       s.hold = ""; s.place = "home"; s.tour = false; s.fold = true; s.modal = "finish-effort";

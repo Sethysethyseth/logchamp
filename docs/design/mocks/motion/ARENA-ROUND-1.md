@@ -9,7 +9,10 @@ history to use this. Read it with the artifact open:
   spec: where this file and the artifact disagree, the artifact wins.
 - **History, do not edit:** `arena-draft-2.html`.
 - **The critique list these rulings answer:**
-  `docs/tasks/ar-critique-ledger.md` (items 1 to 7 and two open calls).
+  `docs/tasks/ar-critique-ledger.md` (items 1 to 10 and two open calls).
+  Items 8 to 10 came from Seth's Nov 14 phone notes and were drawn into
+  draft 3 the same day. Where a ruling for 8 or 9 touches an earlier
+  ruling, 8 and 9 win; each such place is marked "(see 8)".
 
 Everything here is behind Arena view (`html[data-arena]`). With Arena view
 off, the app must look and behave exactly as it does today.
@@ -20,8 +23,8 @@ off, the app must look and behave exactly as it does today.
 | --- | --- |
 | Place | Home, Analytics, History, Library, Profile, Coach. Walks the camera. |
 | State | Idle / Live workout / Resting / Finished. Held still so you can look. The live demo is "Push Day", three sets logged, clock at 12:34. |
-| View | Open / Strip / Full view. Open is greyed out on Coach (it is always the strip). |
-| Bottom row | Keyboard (a stand-in keyboard), Finish sheet, Start picker, Short phone (draft 2's stubbier frame, to show the roof being cut from the top). |
+| View | Open / Folded / Full view. Folded is the strip in the logger and the rail everywhere else (item 8). Open is greyed out on Coach (it is always folded). |
+| Bottom row | Keyboard (a stand-in keyboard), Finish sheet, Start picker, Setup sheet (item 9), Short phone (draft 2's stubbier frame, to show the roof being cut from the top). |
 
 The phone in the artifact is 100 pixels wide and 204 tall by default, the
 shape of a real phone (412 x 839). One room pixel is one square; nothing is
@@ -55,6 +58,9 @@ sheet's 2px rule and 14px top padding). Subtract those under
 `html[data-arena]`.
 
 ### 2 - DESIGN - The strip's look
+
+**Where the strip is shown changed on Nov 14 (see 8):** the logger and
+Home with a workout running, nowhere else. Its look, below, stands.
 
 **Ruling.** The strip is a slice of the room, not a black LED panel. It is
 the room's own drawing, cut close to the scoreboard: the lit, dithered air;
@@ -200,10 +206,93 @@ fix what it is.
 start a workout, log a set, finish. Zero page errors and zero console
 errors, at both phone sizes, and the SAVED face is seen.
 
+### 8 - DESIGN - The banner feels like filler away from Home
+
+**Ruling.** Folded has two sizes, chosen by the route and nothing else.
+
+- **The strip (18svh, the scoreboard)** only where the board is doing a
+  job: the live logger, where it is the page's header and only clock, and
+  Home while a workout is running (as today).
+- **The rail (11 room rows, about 45px on a 412 x 839 phone)** everywhere
+  else the strip used to be: any other page once it is scrolled, Coach,
+  a past workout, the Advanced analytics view, and any page with the
+  keyboard up. The rail is the room cut at its balcony front (world rows
+  54 to 64, over the place you are at), so it reads the place's name:
+  THE SCOREBOARD, THE STANDS, COACH'S CORNER, THE RACK, LOCKER ROOM.
+- **The rail's one line**, first match wins: resting -> `REST m:ss`, and
+  the balcony's bottom edge drains left to right; just finished ->
+  `SAVED <name>` for about 5 seconds; otherwise the place's name.
+- The open room at the top of each page is unchanged. Scrolling folds it
+  1:1 as today; the fold simply continues to the rail. The rail fades in
+  place over the last 30% of the fold, the same rule as the strip.
+- The size never changes with the state. A rest that starts while you
+  read Analytics changes the rail's line and moves nothing.
+
+**Why.** Seth: the banner "makes sense on the home screen but in other
+parts it feels kinda like a filler". Scrolled into Analytics, a fifth of
+the screen said TRICEPS 0 SETS above the same numbers. The board earns
+its height only where it is the header. The rail keeps what the strip was
+for away from the logger (where am I, is a rest running, a way back to
+the full view by tapping it) at a quarter of the height.
+
+**In the artifact.** Place: Analytics, View: Folded. Then State: Resting
+on any place but Home. Place: Coach.
+
+**Build check.** At 412 x 839 and 360 x 740, on every route but the live
+logger and live Home: scrolled to the fold's end, the stage's visible
+height is 11 room pixels (the same pixel size as the room), and the
+sheet's top is directly under it. With a rest running the rail reads
+`REST m:ss` and the stage height has not changed between idle, live and
+resting. Tapping the rail opens the full view.
+
+### 9 - DESIGN - The logger is cluttered
+
+**Ruling.** Under Arena the logger's page starts with one row, then the
+lifts.
+
+| Today, top to bottom | Round 1 |
+| --- | --- |
+| X and Back | The X stays, in the one row. Back is the Home tab. |
+| "Log workout" title | Gone. The strip is the header (item 4). |
+| LIVE clock and set count | Gone (item 4). |
+| Setup hotbar: RIR / RPE, Exercise notes, Repeat last, Edit | One **Setup** button in the one row. It opens the existing Logging setup sheet. |
+| WORKOUT NAME label and box | The box is the first thing in the one row. No label; the placeholder says what it is. |
+| "Add a workout note" | Below the last exercise, after "+ Add exercise". |
+| View: Builder view / Table view | A **Layout** line in the Setup sheet. |
+| "Autosaves as you go..." and "Log at least one set..." above Finish | Gone. The button itself reads `Log a set to finish` until a set is logged, then `Finish workout`. |
+
+The one row is: name box, Setup, X. The Setup sheet (skinned per item 6)
+holds, in order: weight unit, effort scale, layout, exercise notes, set
+notes, repeat last time's numbers, rest timer, rest length. Changing a
+setting redraws the sheet in place; it does not slide up again.
+
+**Why.** Seth: "the log workout screen is cluttered". On his phone the
+first weight box was below the fold. Everything removed from the page is
+either said by the strip or set once and left.
+
+**Stated so nobody restores it silently:** this retires the hotbar
+(`qolf9`) under Arena. Seth can reverse that at his one look. With Arena
+off the logger is exactly as today.
+
+**In the artifact.** State: Live workout. Then Setup sheet.
+
+**Build check.** Arena on, a new empty workout, 412 x 839, no scroll:
+the first exercise's name box and its first weight box are both on
+screen. Every setting in the sheet changes the logger behind it at once.
+Arena off: the page is unchanged.
+
+### 10 - NOTE - The clock stays when the rest timer is off
+
+No change (Seth: "don't mind this actually"). With the rest timer off the
+strip still shows the workout's elapsed time and set; the REST face simply
+never appears.
+
 ### Open call - Coach: open tall, or always the strip
 
-**Ruling.** Always the strip. Coach never takes the open size, on first
-visit or after. The ask box is visible at rest and with the keyboard open
+**Ruling.** Always folded, and since Nov 14 that means the rail (see 8),
+not the strip. Coach never takes the open size, on first visit or after.
+The chalk lines and the thinking dots are on the room's board in the full
+view only; the page's own "Coach is thinking" line covers the rest. The ask box is visible at rest and with the keyboard open
 (item 1). In the full view Coach behaves like every other place.
 
 **Why.** Coach is a working page: the chat and the box need the height.
@@ -230,21 +319,22 @@ artifact.
 | Route | Idle | Live workout | Resting | Just finished |
 | --- | --- | --- | --- | --- |
 | Home `/` | Room open at the platform; board cycles the week; balcony THE PLATFORM. Start buttons pressable. | Strip only (as today). Strip: name over `12:34 · SET n`. The resume card is pressable. Home lit. | Strip: REST + drain bar. | Room open; board SAVED + name for ~5s; lamps flash; saved card. Start buttons pressable again. |
-| Live logger `/sessions/<active id>` | (not reachable) | Strip only. Strip: name over `12:34 · SET n`. No clock line in the page. Home lit. Name box, every weight / reps / effort box typeable. Log, Add set, Add exercise, Finish pressable. | Strip: REST, big countdown, drain bar. -15s / +15s / Skip pressable. Every box still typeable. | Leaves to Home (cell above). No page error. |
-| Analytics `/analytics` | Room open; board opened to the view. View tabs and Advanced pressable. | Same, plus the in-progress bar above the tabs. | Open: the opened board keeps the view. Strip (scrolled): REST. | Strip (scrolled): SAVED for ~5s. |
-| History `/sessions` | Room open at the stands; balcony THE STANDS. Rows pressable. Strip: WORKOUTS / count. | Same + in-progress bar. History lit (you are browsing History). | Strip: REST. | Strip: SAVED; one more seat lit. |
-| Past workout `/sessions/<other id>` | Strip; History lit. Reopen etc. pressable. | Same + in-progress bar. | Strip: REST. | Strip: SAVED. |
-| Library `/templates` and below | Room open at the rack; balcony THE RACK. Strip: block face. Search boxes typeable. | Same + in-progress bar. | Strip: REST. | Strip: SAVED. |
-| Profile `/profile` | Room open at the lockers; balcony LOCKER ROOM. Strip: streak. Settings pressable. | Same + in-progress bar. | Strip: REST. | Strip: SAVED. |
-| Coach `/coach` | Strip only: chalk lines. Ask box above the tabs, typeable; Send and the suggestion chips pressable. | Same; the in-progress bar sits between the ask box and the tabs; **the box is still typeable**. | Strip: REST. Box typeable. | Strip: SAVED. Box typeable. |
+| Live logger `/sessions/<active id>` | (not reachable) | Strip only. Strip: name over `12:34 · SET n`. No clock line, title, hotbar or view switch in the page: one row (name box, Setup, X), then the lifts. Home lit. Name box, every weight / reps / effort box typeable. Setup, Log, Add set, Add exercise, Finish pressable. | Strip: REST, big countdown, drain bar. -15s / +15s / Skip pressable. Every box still typeable. | Leaves to Home (cell above). No page error. |
+| Analytics `/analytics` | Room open; board opened to the view. View tabs and Advanced pressable. Scrolled: the rail, THE SCOREBOARD. | Same, plus the in-progress bar above the tabs. | Open: the opened board keeps the view. Rail (scrolled): REST m:ss, edge draining. | Rail (scrolled): SAVED + name for ~5s. |
+| History `/sessions` | Room open at the stands; balcony THE STANDS. Rows pressable. Scrolled: the rail, THE STANDS. | Same + in-progress bar. History lit (you are browsing History). | Rail: REST. | Rail: SAVED; one more seat lit. |
+| Past workout `/sessions/<other id>` | Rail; History lit. Reopen etc. pressable. | Same + in-progress bar. | Rail: REST. | Rail: SAVED. |
+| Library `/templates` and below | Room open at the rack; balcony THE RACK. Scrolled: the rail, THE RACK. Search boxes typeable. | Same + in-progress bar. | Rail: REST. | Rail: SAVED. |
+| Profile `/profile` | Room open at the lockers; balcony LOCKER ROOM. Scrolled: the rail, LOCKER ROOM. Settings pressable. | Same + in-progress bar. | Rail: REST. | Rail: SAVED. |
+| Coach `/coach` | Rail only: COACH'S CORNER. Ask box above the tabs, typeable; Send and the suggestion chips pressable. | Same; the in-progress bar sits between the ask box and the tabs; **the box is still typeable**. | Rail: REST. Box typeable. | Rail: SAVED. Box typeable. |
 
 Across every route:
 
 | Condition | Must hold |
 | --- | --- |
-| Keyboard open | The strip stays. The focused box is on screen. On Coach the ask box sits on the keyboard. In the logger the focused row is on screen. |
+| Keyboard open | The folded stage stays (strip in the logger, rail elsewhere). The focused box is on screen. On Coach the ask box sits on the keyboard. In the logger the focused row is on screen. |
 | Full view | The room fills the screen down to the one line and the tabs; roof to the top edge; the balcony name of the place is bright; tabs pressable and the full view survives a tab change; tapping the arena or the line brings the page back. |
-| Strip | Fades in place over the last 30% of the fold; never slides. Same face as the room board at that moment. |
+| Strip | Logger and live Home only. Fades in place; never slides. Same face as the room board at that moment. |
+| Rail | Every other folded page. 11 room rows. Fades in place over the last 30% of the fold; never slides. One line: REST, SAVED, or the place's name. |
 | Slide-up sheet open | Squared skin; title readable; main button and the second button pressable; any text box in it typeable; backdrop tap closes it. |
 | At rest | Zero animation frames, as today. The strip redraws only when its face changes (once a second while a clock runs). |
 | Reduced motion | No easing: sizes and faces cut. The week face does not cycle. |
@@ -275,13 +365,24 @@ All under `client/src/`. One-line reason each.
   (workout name, place); keep the stage's size change out of the route's
   view transition on Finish (item 7).
 - `components/arena/arena.css` - only what the new strip needs (it no
-  longer has its own background); no geometry changes to stage, sheet,
-  strip or peek.
+  longer has its own background), plus the rail's height. The Coach page
+  inset (item 1) must use the rail's height, not the strip's.
+- `lib/arenaSheet.js` - a third folded size, the rail, and which routes
+  get it (item 8). The fold and reveal maths are reused with the rail's
+  height as the end of the ride.
 
 **The skin and the pages**
 
 - `styles/arena-skin.css` - skin the portaled sheets (item 6); hide the
   logger's own clock line under Arena (item 4).
+- `pages/SessionDetailPage.jsx` - under Arena, the live logger's one-row
+  header and the note link's new position (item 9). Arena off: untouched.
+- `components/prefs/TrainingPrefsStrip.jsx` - not rendered in the live
+  logger under Arena; a Setup button opens the sheet instead (item 9).
+- `components/prefs/TrainingPrefsSheet.jsx` - a Layout line, Builder or
+  Table, when opened from the live logger (item 9).
+- `components/templates/ViewModeToggle.jsx` - not rendered in the live
+  logger under Arena (item 9).
 - `styles/coach-page.css` - size the Coach page for the strip under Arena
   so the ask box is on screen (item 1).
 
@@ -303,8 +404,9 @@ the delivery report rather than widening quietly.
   the sheet's top edge as one piece with no gap; the strip fades in place;
   scrolling folds 1:1.
 - The camera, the pixel size (4 CSS px per room pixel on a phone), the
-  place positions, the stage sizes in `lib/arenaSheet.js` (open, strip
-  18svh, tour), and the fold / strip-reveal maths.
+  place positions, the open, strip (18svh) and tour sizes in
+  `lib/arenaSheet.js`, and the fold / strip-reveal maths. The rail is a
+  new, smaller end to the same fold (item 8).
 - Everything below row 63 of the room except the board's rigging, the
   board's face and width, and where the banners hang: stands, platform,
   bar, towers, chalkboard, rack, lockers, the Log, the crown rain.
@@ -331,3 +433,9 @@ above; in one list:
    the logger's rest row and Finish are pinned above the tabs.
 6. The artifact's default effort scale is RIR, so the Finish sheet reads
    as in the ledger.
+7. Nov 14: the strip is the logger's only; other pages fold to the rail
+   (item 8). This replaces "Coach: always the strip" with "always the
+   rail" and removes the History / Library / Profile / Analytics strip
+   faces (those faces still show on the room's board when open).
+8. Nov 14: the logger's hotbar and view switch move into the Setup sheet
+   under Arena (item 9).
