@@ -1,6 +1,6 @@
 # TASK ar-r1b: ARENA round 1 - build the design of record (strip from the room, the rail, one-row logger, roof, skinned sheets, Coach + Finish fixes)
 
-STATUS: QUEUED
+STATUS: BOUNCED (1)
 MODEL: opus
 MODE: 1-relay
 
@@ -252,6 +252,66 @@ Arena OFF
   first, from the untouched tree) and after the change, pixel-diffed:
   zero differing pixels (report the diff counts). State how every new
   code path is gated on Arena.
+
+BOUNCE 1 (reviewer, Nov 14 - first delivery on the auto rung, audited in
+the cloud smoke rig). The working tree in the lane holds your first
+delivery; FIX these on top of it, keep everything else, then rewrite
+DELIVERY.md in full (a new "Bounce 1" section first, evidence per item):
+
+B1. THE STRIP IS MISCUT (blocker, ledger 2). On the live logger and live
+    Home the strip shows the board blown up past the room's pixel size and
+    cut off at the top (unreadable glyphs, the lamps as big bars). The
+    artifact (State: Live workout, View: Folded) shows the WHOLE scoreboard
+    at the room's own pixel size: crown, `PUSH DAY` over `12:35 · SET 4`,
+    the two tower lamps either side, the week's seven lamps under it - its
+    `draw(now, strip)` uses zoom 1 and `cx = 100, cy = 106 - SH` (line
+    571-576). Same pixel size as the room (4 css px per room pixel on a
+    phone), the board centred in the strip. Proof: a crop of the strip at
+    412 x 839 and 360 x 740 beside a crop of the artifact's strip in the
+    same state, and the measured room-pixel size in the strip vs the open
+    room (equal).
+B2. BLOCK DAY LOSES ITS PROGRESS (ledger 4 + "Nothing is lost"). Under
+    Arena you hide `BlockSessionHeader` (sets logged of total) and the
+    strip falls back to `SET n` (your deviation 1). The page already holds
+    `blockProgress`: publish it (and the workout's name and start time if
+    the stage does not already have them) through `publishArenaFacts` from
+    `lib/arenaFacts.js` - import it, do not edit that file - so the strip
+    reads `m:ss · n OF total` on a block day. Prove it on a real block day
+    (create a block and start a day in the rig if the seed has none).
+B3. WHAT THE LIVE LINE CARRIED. Today's `LoggerLiveStrip` also shows the
+    reopened state and the template it came from. Under Arena say in
+    DELIVERY.md where each one is shown now; if nowhere, STOP and report
+    it (do not invent a home).
+B4. SLIDE-UP SHEETS NOT ALL SKINNED (ledger 6). Only the start picker and
+    the confirm panels got the skin. Also skin the Logging setup sheet
+    (`TrainingPrefsSheet`), add exercise, and the two info sheets: square
+    corners, 2px accent rule, the 34 x 3 grip, title in the display face,
+    square dark inputs and segmented controls, squared list rows; main
+    button stays rounded. One screenshot each beside the artifact's
+    Finish sheet / Start picker / Setup sheet.
+B5. CONSOLE ERROR. "flushSync was called from inside a lifecycle method"
+    fires in the live logger (seen in your 360 Finish run and again in
+    the reviewer's run: open logger, Setup, discard). Find which call
+    fires it. If your change causes it, fix it. If it also fires on the
+    untouched base (`git stash` is NOT allowed - check the same flow
+    against a second worktree at the base commit or read the code path
+    and prove it), say so with the evidence.
+B6. RAIL LETTERING. The rail reads "COACH 5 CORNER" - the apostrophe
+    comes out as a glyph that reads as a 5. Draw it as the artifact does.
+B7. ARENA OFF NOT PROVEN for Home and Coach (1744 px and "large"). Redo
+    before/after on the same data (the same session state, the Coach note
+    dismissed in both) so the diff is 0, or show the diff is only data.
+    "Before" = a second worktree at the base commit, not a stash.
+B8. STATE MATRIX INCOMPLETE. The block asks for every cell of the matrix
+    with typing proof and one contact sheet per route beside the
+    artifact; you sent representative shots and two contact sheets.
+    Supply the full matrix, including Resting (REST on the strip with the
+    drain bar, `REST m:ss` on the rail with its edge draining, stage
+    height unchanged) and Just finished (SAVED on board and rail).
+Accepted as is: `components/prefs/TrainingPrefsForm.jsx` outside FILES TO
+TOUCH (the Layout line; reported, small, gated on a prop) - you may keep
+editing it for B4. The rig DB has three stray live workouts from the first
+run; clear them in the throwaway DB before the matrix.
 
 STOP CONDITION (standing footer - keep verbatim in every block):
 Stop when the acceptance criteria are met. If a criterion cannot be met,
