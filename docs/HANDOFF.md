@@ -24,13 +24,22 @@
 >   lost" states how: Arena is a skin over the same pages, unlisted
 >   routes keep their page and get the rail, only the logger's controls
 >   move, and the build proves each route.
-> - **Next action:** the build block is AUTHORED and QUEUED (Nov 14,
->   Opus seat): `docs/tasks/ar-r1b-arena-round-1-build.md` - the
->   artifact as spec, the full state matrix with side-by-side proof,
->   every FIX with its check, the "Nothing is lost" route check, Arena
->   OFF pixel-diffed. Next: dispatch (`dispatch-unit`, named rung, long
->   kill), audit, land, light smoke, Seth smokes. Nothing is built yet:
->   the app on staging still shows the old strip.
+> - **BUILT (Nov 14, later): ar-r1b LANDED `58d2615`** on
+>   `ccr-ac9fe067-pc08f1` (= `claude/inspiring-darwin-s2cr9p` + this
+>   session). Cursor named credit is capped to 11/18 (Opus and GPT-5.6
+>   Sol both refused), so Seth sent it to the AUTO rung: one bounce
+>   (strip miscut, block-day n OF total, sheet skins, flushSync, rail
+>   apostrophe, proofs), then three reviewer fixes - sticky exercise
+>   header now stops under the folded stage; Finish now really takes the
+>   fade path and Home opens at the top on the SAVED room (RouteTransition
+>   read the stage mode after ArenaStage had already switched it); a
+>   reopened workout keeps its "Editing" line. Detail in QUEUE.
+> - **Seth's standing call (Nov 14):** if a Cursor delivery fails twice
+>   this wave, the Opus seat takes the edits itself (Sonnet does not
+>   re-check that work); proof sweeps go to a Sonnet subagent.
+> - **Next action:** the reviewer's light smoke (Sonnet subagent, full
+>   state matrix vs arena-draft-3.html) then Seth's phone smoke. Not
+>   merged anywhere.
 > - Not in this round, unchanged: AR6 light-mode arena, AR7 Arena as
 >   default, swipe-to-walk, What's New (bookmarked).
 
