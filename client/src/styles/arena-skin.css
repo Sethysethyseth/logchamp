@@ -172,20 +172,45 @@ html[data-arena] #root .session-finish-dock {
   box-shadow: none;
 }
 
-/* The live logger's Finish: one slim squared bar sitting on the tabs (Seth,
-   Nov 14: fit it, give the lifts the room). */
+/* The live logger's Finish is the last thing on the page, not a bar over it
+   (Seth, Nov 15): the lifts get the whole screen, and you finish where the
+   workout ends - after the last exercise, Add exercise and the note. */
+html[data-arena] #root .session-detail-page--arena {
+  padding-bottom: 0;
+}
+
 html[data-arena] #root .session-detail-page--arena .session-finish-dock {
-  padding: 0;
-  border-top: 0;
-  background: var(--color-bg);
+  position: static;
+  margin-top: 8px;
+  padding: 14px 0 0;
+  border-top: 2px solid color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
+  background: none;
+  /* in the flow it has nothing to slide away from when the keyboard opens */
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+html[data-arena] #root .session-detail-page--arena .session-finish-dock__inner {
+  gap: 10px;
+}
+
+html[data-arena] #root .arena-finish-tally {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display, inherit);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
 }
 
 html[data-arena] #root .session-detail-page--arena .session-finish-dock__btn {
-  min-height: 44px;
+  min-height: 52px;
   border-radius: 0;
-  border-width: 2px 0 0;
 }
-
 
 /* ---------- controls ---------- */
 

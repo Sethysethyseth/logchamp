@@ -9,12 +9,12 @@
 >   `ARENA-ROUND-1.md` INCLUDING its Nov 14-15 amendments (items 8 and
 >   9: fold carries across tabs, THE HOME CROWD / THE PLAYBOOK, quick
 >   chip row, the logger's strip is its rest timer). Every finding and
->   ruling is a row in `docs/tasks/ar-critique-ledger.md` (1-24).
+>   ruling is a row in `docs/tasks/ar-critique-ledger.md` (1-25).
 > - **GATE: look hardest here.** After ar-r1b `58d2615` and the
 >   light-smoke fixes `868b801`, Seth gave the frontier seat the final
 >   say and leave to edit directly, so six commits were written AND
 >   landed by one seat with no second review: `302a308`, `11feb85`,
->   `cac8006`, `a825af2`, `2ef8fec` (code) and `32617ba` (docs). 20
+>   `cac8006`, `a825af2`, `2ef8fec`, and the row-25 commit after `4fa84a7` (code) and `32617ba` (docs). 20
 >   client files, +580 / -74. Each was rig-proved at 412 + 360 (zero
 >   console errors; unit 587/587, build, check-hex), but the gate is
 >   their first independent read. What they change:
@@ -23,7 +23,9 @@
 >     drawn - the strip is the rest readout with -15s / +15s / Skip on
 >     it (`RestTimerBar onStrip`, `.rest-strip`); rest timer off = rail
 >     with the clock on its line (`arenaSize restOn`, `railFace`);
->     Finish is a slim bar. "Raw log" title for a workout with no
+>     Finish is in the page flow, last on the page, with a tally line
+>     (row 25; no fixed bar under Arena). The layout choice is now saved
+>     (`workoutdb-logger-layout`). "Raw log" title for a workout with no
 >     template or block.
 >   - Finish dock (Arena ON AND OFF): bottom = the bottom nav's measured
 >     height (`--finish-dock-bottom`). The one change that touches

@@ -2687,6 +2687,22 @@ function SessionExerciseBlock({
   );
 }
 
+const LOGGER_LAYOUT_KEY = "workoutdb-logger-layout";
+function loadLoggerLayout() {
+  try {
+    return localStorage.getItem(LOGGER_LAYOUT_KEY) === "table" ? "table" : "builder";
+  } catch {
+    return "builder";
+  }
+}
+function saveLoggerLayout(mode) {
+  try {
+    localStorage.setItem(LOGGER_LAYOUT_KEY, mode === "table" ? "table" : "builder");
+  } catch {
+    /* quota / private mode */
+  }
+}
+
 export function SessionDetailPage() {
   const { id } = useParams();
   const location = useLocation();
@@ -2700,7 +2716,13 @@ export function SessionDetailPage() {
   const [error, setError] = useState(null);
   const [addingExercise, setAddingExercise] = useState(false);
   const [sessionNotesDraft, setSessionNotesDraft] = useState("");
-  const [liveViewMode, setLiveViewMode] = useState("builder");
+  /* The layout choice is a logger setting like the rest: it carries over to
+     the next workout on this device (it used to reset to Builder each time). */
+  const [liveViewMode, setLiveViewModeState] = useState(loadLoggerLayout);
+  const setLiveViewMode = useCallback((mode) => {
+    setLiveViewModeState(mode);
+    saveLoggerLayout(mode);
+  }, []);
   const [seededUseRIR, setSeededUseRIR] = useState(false);
   const [seededUseRPE, setSeededUseRPE] = useState(false);
   const [workoutNoteOpen, setWorkoutNoteOpen] = useState(false);
@@ -4980,6 +5002,13 @@ export function SessionDetailPage() {
             onStrip={arenaLive}
           />
           <div className="session-finish-dock__inner stack">
+            {arenaLive && totalSetsLogged >= 1 ? (
+              <p className="arena-finish-tally" aria-hidden="true">
+                {`${sessionExercises.length} ${sessionExercises.length === 1 ? "exercise" : "exercises"} \u00b7 ${totalSetsLogged} ${
+                  totalSetsLogged === 1 ? "set" : "sets"
+                } logged`}
+              </p>
+            ) : null}
             {!arenaLive && totalSetsLogged < 1 ? (
               <>
                 <p className="muted small session-finish-dock__hint" style={{ margin: 0 }}>
