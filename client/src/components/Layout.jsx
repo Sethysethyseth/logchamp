@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useArenaView } from "../lib/arenaPref.js";
 import { useArenaTour } from "../lib/arenaTour.js";
@@ -10,11 +10,13 @@ import { PersistentWorkoutBar } from "./workout/PersistentWorkoutBar.jsx";
 import { WhatsNewGate } from "./whatsnew/WhatsNewGate.jsx";
 
 export function Layout() {
-  /* Arena view (beta, Appearance): the stage sits above the top of every
-     page and the page becomes the sheet. Off = today's layout, untouched. */
+  /* Arena view (Appearance; the default look): the stage sits above the top
+     of every page and the page becomes the sheet. Classic = the earlier
+     layout, untouched. A layout effect, so the first paint already carries
+     data-arena (no frame of unskinned sheet on a cold open). */
   const arena = useArenaView();
   const tour = useArenaTour();
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.toggleAttribute("data-arena", arena);
     return () => document.documentElement.removeAttribute("data-arena");
   }, [arena]);
