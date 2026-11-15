@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
-/* Arena view (beta): a per-device switch, like the theme. Off by default.
+/* Arena view: a per-device switch, like the theme. On by default.
+ * Stored values: "1" = Arena, "0" = Classic, absent/anything else = Arena.
  * (Storage key keeps the workoutdb- prefix - see the rename boundary.) */
 
 const KEY = "workoutdb-arena";
@@ -8,16 +9,16 @@ const EVENT = "workoutdb-arena-change";
 
 export function readArenaView() {
   try {
-    return localStorage.getItem(KEY) === "1";
+    return localStorage.getItem(KEY) !== "0";
   } catch {
-    return false;
+    return true;
   }
 }
 
 export function setArenaView(on) {
   try {
     if (on) localStorage.setItem(KEY, "1");
-    else localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, "0");
   } catch {
     /* private mode: the switch just does not stick */
   }
@@ -34,5 +35,5 @@ function subscribe(onChange) {
 }
 
 export function useArenaView() {
-  return useSyncExternalStore(subscribe, readArenaView, () => false);
+  return useSyncExternalStore(subscribe, readArenaView, () => true);
 }

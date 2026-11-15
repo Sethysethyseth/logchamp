@@ -35,7 +35,7 @@ async function open({ arena = false, reduced = false, theme, palette, device = "
   await ctx.addInitScript(
     ([token, arena, theme, palette]) => {
       localStorage.setItem("authToken", token);
-      if (arena) localStorage.setItem("workoutdb-arena", "1");
+      localStorage.setItem("workoutdb-arena", arena ? "1" : "0");
       if (theme) localStorage.setItem("workoutdb-theme", theme);
       if (palette) localStorage.setItem("workoutdb-palette", palette);
       window.__raf = 0;

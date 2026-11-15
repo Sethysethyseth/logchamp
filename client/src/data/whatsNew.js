@@ -21,6 +21,9 @@
  *   paragraphs. `where` is a plain tap path such as "Profile, then
  *   Training". Releases without `details` render exactly as the concise
  *   layer alone.
+ * - `action` is optional: `{ label: string, to: string }` - an in-app
+ *   route shown as a link under the concise sections (modal and archive).
+ *   Releases without it render exactly as they did before.
  *
  * The modal + archive page are PROD-ONLY (gated via isProdEnv); publishing
  * a release still just means prepend an entry here and merge to main.
@@ -28,6 +31,81 @@
  * (see isWhatsNewPreview). The modal has no preview path.
  */
 export const RELEASES = [
+  {
+    id: "2026-11-arena",
+    date: "2026-11-15",
+    title: "A new look: the Arena",
+    tagline: "The feel is the same. It just looks better.",
+    action: { label: "Change the look in Appearance", to: "/profile/appearance" },
+    sections: [
+      {
+        heading: "The Arena",
+        items: [
+          "LogChamp now opens in the Arena: a pixel gym at the top of every screen. Each tab is a place in it.",
+          "Everything works the way it did. Your workouts, numbers and settings are right where you left them.",
+          "Prefer the old look? Go to Profile, then Appearance, and choose Classic. You can switch back any time.",
+        ],
+      },
+      {
+        heading: "Also new",
+        items: [
+          "Analytics cards rise in, numbers roll up and charts draw. Tap an exercise to open its details under it.",
+          "The coach keeps working while you do something else, tells you when it has answered, and chats are saved in History.",
+        ],
+      },
+    ],
+    details: [
+      {
+        heading: "Switching back to Classic",
+        body: [
+          "Classic is the look from before this update. Nothing is lost either way: your workouts, numbers and settings stay put. The choice is per device, so one phone can stay Classic while another opens in the Arena.",
+        ],
+        where: "Profile, then Appearance, then Arena view",
+      },
+      {
+        heading: "The places",
+        body: [
+          "Each tab is a place in the gym. Home is the platform. Analytics is the scoreboard. History is the home crowd. Library is the playbook. The coach is coach's corner. Profile is the locker room. Boards show your own numbers for that place.",
+        ],
+        where: "Any tab, at the top of the screen",
+      },
+      {
+        heading: "Scrolling and the full view",
+        body: [
+          "As you scroll, the room folds to a scoreboard strip or a thin rail. Tap the arena for the full view. Hold or pinch to look closer and drag around.",
+        ],
+        where: "Any tab with the arena at the top",
+      },
+      {
+        heading: "Logging in the Arena",
+        body: [
+          "A live workout starts with one row: the name, Setup, and X to discard. Under that, chips for RIR or RPE, Exercise notes, Repeat last, and Timer. The scoreboard strip is the workout's clock and rest timer. Finish workout sits at the end of the page.",
+        ],
+        where: "Any live workout",
+      },
+      {
+        heading: "Motion everywhere else",
+        body: [
+          "Moving between tabs slides pages in tab order. A finished workout in History grows into its summary. On Analytics, cards rise in, numbers roll up, and charts draw. Tap an exercise to open its details right under it.",
+        ],
+        where: "Bottom tabs, History, Analytics",
+      },
+      {
+        heading: "Coach",
+        body: [
+          "Ask a question and go do something else: the coach keeps working, and a bar tells you when it has answered. Saved chats live in History next to your workouts. On a phone, the question box sits right above the keyboard.",
+        ],
+        where: "Home, Ask the coach, or History, then Coach",
+      },
+      {
+        heading: "Small things",
+        body: [
+          "Swipe the workout bar or the coach bar sideways to clear it off the screen. Your workout stays on Home and the coach's answer still arrives. Logging on a phone keeps what you type, without bumps or lost numbers.",
+        ],
+        where: "The bars at the bottom of any page, and any live workout",
+      },
+    ],
+  },
   {
     id: "2026-10-quality-of-life",
     date: "2026-10-09",

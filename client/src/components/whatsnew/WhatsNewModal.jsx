@@ -50,6 +50,15 @@ export function WhatsNewModal({ release, onDismiss }) {
             <WhatsNewReleaseHeader release={release} headingId="whats-new-title" />
           </div>
           <WhatsNewReleaseSections release={release} />
+          {release.action?.label && release.action?.to ? (
+            <Link
+              className="btn btn-secondary btn--compact whats-new-action"
+              to={release.action.to}
+              onClick={onDismiss}
+            >
+              {release.action.label}
+            </Link>
+          ) : null}
         </div>
         <footer className="whats-new-footer">
           <div className="whats-new-footer__actions">

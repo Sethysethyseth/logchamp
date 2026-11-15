@@ -309,17 +309,17 @@ export function AppearancePage() {
 
       <section className="settings-section" aria-labelledby="settings-arena-heading">
         <h2 id="settings-arena-heading" className="settings-section-heading">
-          Arena view (beta)
+          Arena view
         </h2>
         <div className="settings-group settings-group--tight">
           <p className="settings-group-hint muted small">
-            Puts the arena at the top of every screen. Each tab is a place in it, and your pages
-            slide up over it. Every feature stays where it is. This device only.
+            The arena sits at the top of every screen and each tab is a place in it. Everything
+            works the way it did. Prefer the old look? Choose Classic. This device only.
           </p>
           <div className="settings-theme-seg" role="radiogroup" aria-label="Arena view">
             {[
-              [false, "Classic"],
               [true, "Arena"],
+              [false, "Classic"],
             ].map(([value, label]) => (
               <button
                 key={label}

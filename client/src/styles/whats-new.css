@@ -40,6 +40,13 @@
   scroll-margin-top: 5rem;
 }
 
+.whats-new-action {
+  display: inline-flex;
+  margin-top: 0.65rem;
+  width: fit-content;
+  text-decoration: none;
+}
+
 .whats-new-details {
   margin-top: 0.35rem;
 }

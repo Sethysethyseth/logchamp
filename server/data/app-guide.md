@@ -8,7 +8,15 @@ The wordmark sits at the top with the date under it. A round button on the right
 
 Start a workout is the main button. Start empty workout begins a blank workout right away. The setup bar sits at the top of a live workout. Tap RIR or RPE to pick the effort scale, and tap Exercise notes or Repeat last to turn them on or off. Edit opens the rest of Logging setup. The same choices live under Profile, then Training.
 
-If a block is running, Home shows that block and the next day. Recent workouts lists what you finished. A live workout stays on screen until you finish or discard it.
+If a block is running, Home shows that block and the next day. Recent workouts lists what you finished. A live workout stays on screen until you finish or discard it. Swipe the In progress bar or the coach bar sideways to clear it off the screen. Your workout stays on Home and the coach's answer still arrives.
+
+# Arena
+
+LogChamp opens in the Arena: a pixel gym at the top of every screen. Each tab is a place in it. Home is the platform. Analytics is the scoreboard. History is the home crowd. Library is the playbook. The coach is coach's corner. Profile is the locker room. Boards show your own numbers.
+
+As you scroll, the room folds to a strip or a thin rail. Tap the arena for the full view. Hold or pinch to look closer.
+
+During a live workout the scoreboard strip is the clock and the rest timer. The page starts with one row for the name, Setup, and discard. Finish workout sits at the end of the page. Prefer the earlier look? Profile, then Appearance, then Classic.
 
 # Logging a workout
 
@@ -46,23 +54,15 @@ Add exercise lists Recent lifts before you type. If the lift is not in the catal
 
 # Templates
 
-A template here is a saved single workout, not a multi-week block. Library's Workouts tab lists them. Create workout is parked, so you cannot build a new saved workout from that button. Use a block, or start from Home with Start empty workout or a workout you already saved.
-
-From Home, Start a workout can also open Start workout, where Empty workout and your Saved workouts are listed. Making a saved workout public is Make public on its card. Make private takes it back.
+A template is a saved single workout, not a multi-week block. Library's Workouts tab lists them. Create workout is parked. Use a block, or start from Home with Start workout or a saved workout. Start a workout can open Raw log (a blank workout) and your Saved workouts. Make public / Make private are on a saved workout's card.
 
 # Library (Blocks, Workouts, Exercises)
 
-Open Library from the bottom bar, or from the top bar on a wide screen. The title is Library.
+Open Library from the bottom or top bar. Yours is your stuff; Community browses public workouts and blocks. Under Yours: Blocks, Workouts, and Exercises.
 
-Yours is your own stuff. Community browses public workouts and blocks from other people. Under Yours, three tabs: Blocks, Workouts, and Exercises. Each tab shows as soon as it is ready.
+Blocks are multi-week plans. New block and Import sit at the top. A card offers Start or Resume, Edit, and Delete. Delete block removes the plan; logged workouts stay in History. Workouts are saved single sessions; Create workout is parked.
 
-Blocks are the multi-week plans. New block and Import sit at the top. A card offers Start or Resume, Edit, and Delete. Delete block removes the plan. Logged workouts stay in History.
-
-Workouts are saved single sessions. Create workout is parked.
-
-Exercises lists movements you added yourself. Tap the card, or tap Edit, to open Edit exercise. Change the name or the muscles, then Save changes. Delete exercise removes it from your library. Sessions that already used it keep their logged sets, but analytics stops tying those sets to its muscles.
-
-To add one: in the block builder, or while logging, choose Add to your library, name the exercise, pick at least one Main muscle, then Add exercise. It shows up under Library, Exercises.
+Exercises lists movements you added. Tap Edit to rename or change muscles, then Save changes. Delete exercise removes it from your library; past sets stay logged. To add one: in the builder or while logging, Add to your library, name it, pick a Main muscle, then Add exercise.
 
 # History
 
@@ -87,19 +87,13 @@ The coach can sit on this page and explain the window you are looking at. That n
 
 # Importing a block or history
 
-Open Library, then Import. The screen title is Import a block. Four sources: Paste, File, Old app, and Any AI.
+Open Library, then Import. Four sources: Paste, File, Old app, and Any AI.
 
-Paste: copy a table from a spreadsheet, including the header row, then Preview. Useful headers include Week, Day, Exercise, Sets, Reps, and Load.
+Paste: copy a spreadsheet table with its header row, then Preview. Useful headers: Week, Day, Exercise, Sets, Reps, Load. File: choose a spreadsheet, csv, tsv, text, or json; pick a sheet if needed, then Preview.
 
-File: choose a spreadsheet, a csv, a tsv, a text file, or a json file. If the file has several sheets, pick one. Then Preview.
+Old app: Strong or Hevy export. Strong: Settings, then Export Strong Data. Hevy: Profile, then Settings, then Export and Import Data, then Export Workouts. Set Weeks to build, and for Strong set Unit you logged in. This rebuilds recent training as an editable block; it does not copy every past workout into History. More than seven different workouts keeps the seven most-logged and names the rest.
 
-Old app: Strong or Hevy. Export from that app first. Strong: Settings, then Export Strong Data. Hevy: Profile, then Settings, then Export and Import Data, then Export Workouts. Choose the export file, set Weeks to build, and for Strong set Unit you logged in. This rebuilds your recent training as a block you can edit. It does not copy every past workout into History.
-
-Any AI: paste a plan written as prose and let LogChamp turn it into a block.
-
-If the preview has problems, Have AI fix this file can try again when the coach is available. Save the preview into your library when it looks right. The new block shows up under Library, Blocks.
-
-Old app keeps your seven most-logged workouts when the export has more than seven different ones, and names the ones it skipped. A paste that is too large to send says so, and asks you to try a smaller file or less text.
+Any AI: paste a plan in prose. Have AI fix this file can retry a bad preview when the coach is available. Save into Library, Blocks. A paste that is too large says so.
 
 # Profile (Training, Appearance, AI access, Security, What's new)
 
@@ -107,7 +101,7 @@ Open Profile. The top shows a few counts. Settings is the list under that.
 
 Training: Weight unit (lbs or kg), Effort scale (RIR or RPE), Exercise notes, Set notes, Repeat last time's numbers, and Rest timer. Weights you already logged are not converted when you switch units. Blocks and templates keep the effort scale they were built with. Rest timer starts after you log a set. A block's own rest time wins. The setup bar sits at the top of a live workout. The same choices live under Profile, then Training.
 
-Appearance: Theme (light, dark, or system) and Accent color (Champ, Iron, Forest, Crimson, Chill, or a custom palette). Describe a look in your own words when AI access is on. On Crimson, good results show in green.
+Appearance: Theme (light, dark, or system), Accent color (Champ, Iron, Forest, Crimson, Chill, or a custom palette), and Arena view. Arena is the default look; Classic is the earlier look. Profile, then Appearance. The choice is per device. Describe a look in your own words when AI access is on. On Crimson, good results show in green.
 
 AI access: the switch labeled AI access is on or AI access is off. On lets the coach read your computed training summary and lets an outside assistant connect. Off still lets the coach answer how-to questions from this guide, with no training numbers attached. Use your own Anthropic key saves that key for you, so you enter it once. The page shows the last four characters. Remove key takes it away. Connect an outside AI assistant is the section for Claude, ChatGPT, Grok, or another assistant, using the connector address shown there.
 

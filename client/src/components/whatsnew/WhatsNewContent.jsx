@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { formatReleaseDate } from "../../data/whatsNew.js";
 import "../../styles/whats-new.css";
 
@@ -95,6 +96,11 @@ export function WhatsNewContent({ release, headingId, layout = "default", id }) 
         <WhatsNewReleaseHeader release={release} headingId={headingId} />
       )}
       <WhatsNewReleaseSections release={release} />
+      {release.action?.label && release.action?.to ? (
+        <Link className="btn btn-secondary btn--compact whats-new-action" to={release.action.to}>
+          {release.action.label}
+        </Link>
+      ) : null}
       <WhatsNewDetails release={release} />
     </div>
   );
