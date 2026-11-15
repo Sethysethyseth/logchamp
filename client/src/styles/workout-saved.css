@@ -191,3 +191,18 @@
     }
   }
 }
+
+/* Reduced motion: the faces swap, nothing travels and nothing fades (the
+   keyframes above are already gated; these transitions were not - found at
+   the pre-main gate, Nov 15). */
+@media (prefers-reduced-motion: reduce) {
+  .workout-hero__face,
+  .workout-hero > .workout-hero__stamp {
+    transition: none;
+  }
+
+  .workout-hero__face--saved,
+  .workout-hero.is-saved .workout-hero__face--idle {
+    transform: none;
+  }
+}

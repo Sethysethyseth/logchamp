@@ -1,59 +1,56 @@
 # HANDOFF — current state
 
-> **Nov 15 (cloud session, frontier seat): ARENA ROUND 1 IS BUILT, SMOKED
-> AND READY FOR THE PRE-MAIN GATE.** Seth, Nov 15: "do what you need then
-> imma clear chat and do a pre main" - taken as his go for the gate.
-> - **Branch:** `ccr-ac9fe067-pc08f1` (motion wave + AR1-AR5 + round 1 +
->   the phone-smoke rounds), pushed, not merged anywhere, no PR.
-> - **Design of record:** `docs/design/mocks/motion/arena-draft-3.html` +
->   `ARENA-ROUND-1.md` INCLUDING its Nov 14-15 amendments (items 8 and
->   9: fold carries across tabs, THE HOME CROWD / THE PLAYBOOK, quick
->   chip row, the logger's strip is its rest timer). Every finding and
->   ruling is a row in `docs/tasks/ar-critique-ledger.md` (1-25).
-> - **GATE: look hardest here.** After ar-r1b `58d2615` and the
->   light-smoke fixes `868b801`, Seth gave the frontier seat the final
->   say and leave to edit directly, so six commits were written AND
->   landed by one seat with no second review: `302a308`, `11feb85`,
->   `cac8006`, `a825af2`, `2ef8fec`, and the row-25 commit after `4fa84a7` (code) and `32617ba` (docs). 20
->   client files, +580 / -74. Each was rig-proved at 412 + 360 (zero
->   console errors; unit 587/587, build, check-hex), but the gate is
->   their first independent read. What they change:
->   - logger (Arena): quick chip row under the one row (RIR / RPE,
->     Exercise notes, Repeat last, Timer); rest bar over Finish not
->     drawn - the strip is the rest readout with -15s / +15s / Skip on
->     it (`RestTimerBar onStrip`, `.rest-strip`); rest timer off = rail
->     with the clock on its line (`arenaSize restOn`, `railFace`);
->     Finish is in the page flow, last on the page, with a tally line
->     (row 25; no fixed bar under Arena). The layout choice is now saved
->     (`workoutdb-logger-layout`). "Raw log" title for a workout with no
->     template or block.
->   - Finish dock (Arena ON AND OFF): bottom = the bottom nav's measured
->     height (`--finish-dock-bottom`). The one change that touches
->     Arena-off layout - check it.
->   - navigation: a folded room stays folded across tabs
->     (`lib/arenaFold.js`, RouteTransition, `data-arena-snap`); the
->     "leaving the logger" fade keys on `data-arena-working`.
->   - room: History's near stands = THE HOME CROWD (a row per week, a fan
->     per workout; `roomFacts.crowd`, `arenaBoards.seatSpot`); Library
->     = THE PLAYBOOK (name only).
->   - loader: the full-page loader's crown can be grabbed and thrown
->     (`motion/useCrownThrow.js`). Home's button: "Start workout", 5% a
->     rare line (`lib/startLines.js`).
-> - **Not verified on Seth's phone:** the crown throw (he could not
->   reach the loader), the Finish gap fix (the rig has no gesture-bar
->   inset; proved with a simulated taller nav), the fold carry through
->   a rail-only page (Coach, a past workout).
-> - **Open ledger rows:** 11 (Reopen under the bar at 360), 12 (no
->   in-progress bar on Coach), 13 (note). Seth has not ruled on 11-12.
-> - **Not in this round:** AR6 light-mode arena, AR7 Arena as default,
->   swipe-to-walk, What's New (bookmarked, QUEUE DRAFT).
-> - **Next action:** the pre-main gate (`pre-main-review` skill, Opus
->   seat). Merge stays behind Seth's "push to main".
-> - Older notes (the Nov 14 design/build note, Nov 12 notes, the AR1-AR5
->   smoke checklist) moved verbatim to HANDOFF-ARCHIVE.md (Nov 15
->   entry). This file is still over its ~300-line cap: the sections from
->   "Smoke for the next round" down pre-date the ARENA wave and need a
->   proper rewrite at the next state update.
+> **Nov 15, second cloud session (frontier seat): PRE-MAIN GATE = PASS
+> WITH FIXES, ALL FIXES LANDED. Waiting on Seth's verbatim "push to
+> main".** Branch `ccr-ac9fe067-pc08f1`, pushed; `main` = `b82ad8c` is its
+> merge base, so the merge is a fast-forward. 195+ files, client + 5
+> coach server files. NO schema change, NO migration, NO new env or
+> dependency - a code-only merge.
+> - **New this session (Seth: "have arena as default", What's New curated
+>   by the seat):** `ar7-wn` landed `ed36b7b` (Cursor, auto rung) - Arena
+>   is the default look on every device (`workoutdb-arena`: "0" = Classic,
+>   anything else = Arena), Appearance reads "Arena view" with Arena /
+>   Classic, release `2026-11-arena` ("A new look: the Arena" / "The feel
+>   is the same. It just looks better."), an in-modal link to Appearance,
+>   app guide. Ledger moved to RELEASED.
+> - **Gate findings fixed in-seat:** `ead7e54` the What's New pop-up, the
+>   username prompt and Add to your library were SEE-THROUGH under Arena
+>   (arena-skin's unfilled `.card` rule); `1a55dc9` `data-arena` set in a
+>   layout effect (no unskinned first frame); the saved-workout card
+>   still slid under reduced motion (this commit); app guide named old
+>   button labels.
+> - **Read directly at the gate:** the six in-seat commits `302a308`..
+>   `686ab7b` (no defect), the coach server surface (`streamRegistry`,
+>   `/coach/stop`: user-scoped, silent 204, bounded maps), fresh lanes
+>   (unit 587, build, check-hex). Rig proof at 412 + 360: a device with no
+>   stored choice opens in Arena; Classic still whole (full workout, fixed
+>   Finish dock, rest bar); Arena full workout (strip rest timer, Finish in
+>   the flow, Home at scroll 0); light mode x 3 palettes; zero console
+>   errors; scrollWidth == innerWidth everywhere.
+> - **Gate fuel (Cursor report lanes, auto rung, lanes 2 + 3, ~6-7 min
+>   each, porcelain clean):** `docs/tasks/ar-gate-r1-FINDINGS.md`
+>   (Arena-as-default readiness) and `ar-gate-r2-FINDINGS.md` (defect hunt
+>   over the Nov 10 direct builds).
+> - **Accepted, not blocking (follow-ups, none authored):** light mode
+>   keeps a DARK room over a light page (AR6 undesigned - reads fine, Seth
+>   to look); the folded strip is not keyboard-reachable (scrolling up
+>   reopens the room); a new account's Library board has a blank second
+>   line; crown intro has no watchdog if frames never run; a swipe
+>   interrupted mid-drag can leave an inert canvas until the next
+>   navigation; login / signup pages are Classic-looking (outside Layout).
+> - **Seth has NOT seen on a phone:** Arena-as-default on a fresh device,
+>   the What's New pop-up (prod-only; staging shows the page at
+>   `/profile/whats-new?preview=1`), plus the three items carried from the
+>   last note (crown throw, Finish gap fix, fold carry through a rail-only
+>   page). Open ledger rows 11-13 unchanged.
+> - **After the merge:** prod Vercel + Render deploy from `main`
+>   (code-only); every prod user sees the What's New pop-up once and the
+>   Arena. Then: repoint staging Render to `main`, rewrite this file (it
+>   is far over its cap; everything from "Smoke for the next round" down
+>   pre-dates the ARENA wave).
+> - **Next action (Seth):** say "push to main" to start the merge ritual
+>   (one command at a time, each approved), or smoke the branch preview
+>   first.
 > **FOR THE OPUS SEAT (Nov 13): Fable is NOT a standing dependency.**
 > Fable 5.2 is on Cursor today, but it can leave, get quota-capped, or
 > be unavailable for a wave. Do not plan a wave around it. When it is

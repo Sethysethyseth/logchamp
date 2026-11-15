@@ -1,4 +1,63 @@
 ## ARCHIVED November 15, 2026 (cloud session, frontier seat, ARENA round 1
+## Nov 15, 2026 (second cloud session, pre-main gate) - the first Nov 15
+## top note (ARENA round 1 ready for the gate), moved verbatim.
+
+> **Nov 15 (cloud session, frontier seat): ARENA ROUND 1 IS BUILT, SMOKED
+> AND READY FOR THE PRE-MAIN GATE.** Seth, Nov 15: "do what you need then
+> imma clear chat and do a pre main" - taken as his go for the gate.
+> - **Branch:** `ccr-ac9fe067-pc08f1` (motion wave + AR1-AR5 + round 1 +
+>   the phone-smoke rounds), pushed, not merged anywhere, no PR.
+> - **Design of record:** `docs/design/mocks/motion/arena-draft-3.html` +
+>   `ARENA-ROUND-1.md` INCLUDING its Nov 14-15 amendments (items 8 and
+>   9: fold carries across tabs, THE HOME CROWD / THE PLAYBOOK, quick
+>   chip row, the logger's strip is its rest timer). Every finding and
+>   ruling is a row in `docs/tasks/ar-critique-ledger.md` (1-25).
+> - **GATE: look hardest here.** After ar-r1b `58d2615` and the
+>   light-smoke fixes `868b801`, Seth gave the frontier seat the final
+>   say and leave to edit directly, so six commits were written AND
+>   landed by one seat with no second review: `302a308`, `11feb85`,
+>   `cac8006`, `a825af2`, `2ef8fec`, and the row-25 commit after `4fa84a7` (code) and `32617ba` (docs). 20
+>   client files, +580 / -74. Each was rig-proved at 412 + 360 (zero
+>   console errors; unit 587/587, build, check-hex), but the gate is
+>   their first independent read. What they change:
+>   - logger (Arena): quick chip row under the one row (RIR / RPE,
+>     Exercise notes, Repeat last, Timer); rest bar over Finish not
+>     drawn - the strip is the rest readout with -15s / +15s / Skip on
+>     it (`RestTimerBar onStrip`, `.rest-strip`); rest timer off = rail
+>     with the clock on its line (`arenaSize restOn`, `railFace`);
+>     Finish is in the page flow, last on the page, with a tally line
+>     (row 25; no fixed bar under Arena). The layout choice is now saved
+>     (`workoutdb-logger-layout`). "Raw log" title for a workout with no
+>     template or block.
+>   - Finish dock (Arena ON AND OFF): bottom = the bottom nav's measured
+>     height (`--finish-dock-bottom`). The one change that touches
+>     Arena-off layout - check it.
+>   - navigation: a folded room stays folded across tabs
+>     (`lib/arenaFold.js`, RouteTransition, `data-arena-snap`); the
+>     "leaving the logger" fade keys on `data-arena-working`.
+>   - room: History's near stands = THE HOME CROWD (a row per week, a fan
+>     per workout; `roomFacts.crowd`, `arenaBoards.seatSpot`); Library
+>     = THE PLAYBOOK (name only).
+>   - loader: the full-page loader's crown can be grabbed and thrown
+>     (`motion/useCrownThrow.js`). Home's button: "Start workout", 5% a
+>     rare line (`lib/startLines.js`).
+> - **Not verified on Seth's phone:** the crown throw (he could not
+>   reach the loader), the Finish gap fix (the rig has no gesture-bar
+>   inset; proved with a simulated taller nav), the fold carry through
+>   a rail-only page (Coach, a past workout).
+> - **Open ledger rows:** 11 (Reopen under the bar at 360), 12 (no
+>   in-progress bar on Coach), 13 (note). Seth has not ruled on 11-12.
+> - **Not in this round:** AR6 light-mode arena, AR7 Arena as default,
+>   swipe-to-walk, What's New (bookmarked, QUEUE DRAFT).
+> - **Next action:** the pre-main gate (`pre-main-review` skill, Opus
+>   seat). Merge stays behind Seth's "push to main".
+> - Older notes (the Nov 14 design/build note, Nov 12 notes, the AR1-AR5
+>   smoke checklist) moved verbatim to HANDOFF-ARCHIVE.md (Nov 15
+>   entry). This file is still over its ~300-line cap: the sections from
+>   "Smoke for the next round" down pre-date the ARENA wave and need a
+>   proper rewrite at the next state update.
+
+
 ## ready for the gate) - the Nov 14 design/build/phone-smoke note, the
 ## Nov 12 notes and the AR1-AR5 smoke checklist as they stood; moved
 ## verbatim.
