@@ -225,24 +225,37 @@ export function AppearancePage() {
           Theme
         </h2>
         <div className="settings-group settings-group--tight">
-          <p className="settings-group-hint muted small">Applies to this device only.</p>
+          <p className="settings-group-hint muted small">
+            Arena is the new look, with its own lighting. Light, Dark and System are the Classic
+            look from before. Everything works the same in both. This device only.
+          </p>
           <div className="settings-theme-seg" role="radiogroup" aria-label="Theme">
             {[
+              ["arena", "Arena"],
               ["light", "Light"],
               ["dark", "Dark"],
               ["system", "System"],
-            ].map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={theme === value}
-                className={`settings-theme-seg__btn${theme === value ? " settings-theme-seg__btn--active" : ""}`}
-                onClick={() => setTheme(value)}
-              >
-                {label}
-              </button>
-            ))}
+            ].map(([value, label]) => {
+              const active = arenaView ? value === "arena" : theme === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  className={`settings-theme-seg__btn${active ? " settings-theme-seg__btn--active" : ""}`}
+                  onClick={() => {
+                    if (value === "arena") setArenaView(true);
+                    else {
+                      setTheme(value);
+                      setArenaView(false);
+                    }
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
           <div className="settings-palette-block">
             <span className="settings-palette-block__label muted small">Accent color</span>
@@ -303,35 +316,6 @@ export function AppearancePage() {
                 </label>
               ) : null}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="settings-section" aria-labelledby="settings-arena-heading">
-        <h2 id="settings-arena-heading" className="settings-section-heading">
-          Arena view
-        </h2>
-        <div className="settings-group settings-group--tight">
-          <p className="settings-group-hint muted small">
-            The arena sits at the top of every screen and each tab is a place in it. Everything
-            works the way it did. Prefer the old look? Choose Classic. This device only.
-          </p>
-          <div className="settings-theme-seg" role="radiogroup" aria-label="Arena view">
-            {[
-              [true, "Arena"],
-              [false, "Classic"],
-            ].map(([value, label]) => (
-              <button
-                key={label}
-                type="button"
-                role="radio"
-                aria-checked={arenaView === value}
-                className={`settings-theme-seg__btn${arenaView === value ? " settings-theme-seg__btn--active" : ""}`}
-                onClick={() => setArenaView(value)}
-              >
-                {label}
-              </button>
-            ))}
           </div>
         </div>
       </section>

@@ -336,7 +336,7 @@ export function boardFace(input = {}) {
       return { l1: ledFit(lib.label, 9), l2: `${lib.done ?? 0} OF ${lib.total}` };
     }
     const n = lib?.workouts;
-    if (n == null) return { l1: "LIBRARY", l2: "" };
+    if (n == null) return { l1: "LIBRARY", l2: "PLAYBOOK" }; // not counted yet: never a blank line
     return { l1: "LIBRARY", l2: ledFit(count(n, "WORKOUT", "WORKOUTS"), 9) };
   }
   if (place === "profile") {

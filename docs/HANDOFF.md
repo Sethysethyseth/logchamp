@@ -31,9 +31,7 @@
 >   each, porcelain clean):** `docs/tasks/ar-gate-r1-FINDINGS.md`
 >   (Arena-as-default readiness) and `ar-gate-r2-FINDINGS.md` (defect hunt
 >   over the Nov 10 direct builds).
-> - **Accepted, not blocking (follow-ups, none authored):** light mode
->   keeps a DARK room over a light page (AR6 undesigned - reads fine, Seth
->   to look); the folded strip is not keyboard-reachable (scrolling up
+> - **Accepted, not blocking (follow-ups, none authored):** the folded strip is not keyboard-reachable (scrolling up
 >   reopens the room); a new account's Library board has a blank second
 >   line; crown intro has no watchdog if frames never run; a swipe
 >   interrupted mid-drag can leave an inert canvas until the next
@@ -48,9 +46,30 @@
 >   Arena. Then: repoint staging Render to `main`, rewrite this file (it
 >   is far over its cap; everything from "Smoke for the next round" down
 >   pre-dates the ARENA wave).
-> - **Next action (Seth):** say "push to main" to start the merge ritual
->   (one command at a time, each approved), or smoke the branch preview
->   first.
+> - **Seth's Nov 15 phone look at the branch, ruled and built in-seat
+>   (after the verdict; rig-proved 412 + 360, unit 587, build, hex):**
+>   - the loader no longer sits under an arena reading "0 WORKOUTS":
+>     no stage until the session has loaded (`Layout.jsx`, `authLoading`)
+>   - **Arena is its own look, always dark; Light / Dark / System are
+>     Classic.** ONE control in Appearance > Theme: Arena | Light | Dark |
+>     System (the separate Arena section is gone). `ThemeContext`
+>     resolves dark while Arena is on and keeps the stored theme for
+>     Classic. This closes AR6 (no light-mode arena to design). What's New
+>     bullet 3, its first detail and the app guide say so.
+>   - the wordmark's M is redrawn as a stepped pixel M
+>     (`assets/brand/wordmark_white.png`; P moved 30px left)
+>   - the loader crown is a rigid body: it pivots on the point you grab
+>     (hold the bottom and the top drops over), swings when shaken, leaves
+>     with its spin (`motion/useCrownThrow.js`)
+>   - gate follow-ups closed: crown intro steps aside if no frame ever
+>     runs, an interrupted swipe no longer leaves its canvas, a new
+>     account's Library board reads PLAYBOOK instead of a blank line
+>   - NOT seen on a phone: all five. Rig note: the first synthetic touch
+>     after a page load never reaches the crown (every later one does) -
+>     check the first grab on a real phone.
+> - **Next action (Seth):** look at the branch preview once more (loader,
+>   Appearance > Theme, the crown), then say "push to main" to start the
+>   merge ritual (one command at a time, each approved).
 > **FOR THE OPUS SEAT (Nov 13): Fable is NOT a standing dependency.**
 > Fable 5.2 is on Cursor today, but it can leave, get quota-capped, or
 > be unavailable for a wave. Do not plan a wave around it. When it is

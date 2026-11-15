@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+import { useArenaView } from "../lib/arenaPref.js";
 import {
   createContext,
   useCallback,
@@ -123,10 +124,15 @@ export function ThemeProvider({ children }) {
     writeStoredPalette(CUSTOM_PALETTE_ID);
   }, []);
 
+  /* The Arena is its own look with its own lighting: always dark. Light,
+     dark and system are choices for Classic (Seth, Nov 15). The stored
+     theme is kept, so going back to Classic brings it back. */
+  const arenaView = useArenaView();
   const resolved = useMemo(() => {
+    if (arenaView) return "dark";
     if (theme === "dark" || theme === "light") return theme;
     return systemDark ? "dark" : "light";
-  }, [theme, systemDark]);
+  }, [arenaView, theme, systemDark]);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = resolved;

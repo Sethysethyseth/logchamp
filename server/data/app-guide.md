@@ -16,7 +16,7 @@ LogChamp opens in the Arena: a pixel gym at the top of every screen. Each tab is
 
 As you scroll, the room folds to a strip or a thin rail. Tap the arena for the full view. Hold or pinch to look closer.
 
-During a live workout the scoreboard strip is the clock and the rest timer. The page starts with one row for the name, Setup, and discard. Finish workout sits at the end of the page. Prefer the earlier look? Profile, then Appearance, then Classic.
+During a live workout the scoreboard strip is the clock and the rest timer. The page starts with one row for the name, Setup, and discard. Finish workout sits at the end of the page. Prefer the earlier look? Profile, then Appearance, then Light, Dark or System under Theme.
 
 # Logging a workout
 
@@ -101,7 +101,7 @@ Open Profile. The top shows a few counts. Settings is the list under that.
 
 Training: Weight unit (lbs or kg), Effort scale (RIR or RPE), Exercise notes, Set notes, Repeat last time's numbers, and Rest timer. Weights you already logged are not converted when you switch units. Blocks and templates keep the effort scale they were built with. Rest timer starts after you log a set. A block's own rest time wins. The setup bar sits at the top of a live workout. The same choices live under Profile, then Training.
 
-Appearance: Theme (light, dark, or system), Accent color (Champ, Iron, Forest, Crimson, Chill, or a custom palette), and Arena view. Arena is the default look; Classic is the earlier look. Profile, then Appearance. The choice is per device. Describe a look in your own words when AI access is on. On Crimson, good results show in green.
+Appearance: Theme (Arena, Light, Dark, or System) and Accent color (Champ, Iron, Forest, Crimson, Chill, or a custom palette). Arena is the default look and has its own lighting; Light, Dark and System are the Classic look from before. Per device. Describe a look in your own words when AI access is on. On Crimson, good results show in green.
 
 AI access: the switch labeled AI access is on or AI access is off. On lets the coach read your computed training summary and lets an outside assistant connect. Off still lets the coach answer how-to questions from this guide, with no training numbers attached. Use your own Anthropic key saves that key for you, so you enter it once. The page shows the last four characters. Remove key takes it away. Connect an outside AI assistant is the section for Claude, ChatGPT, Grok, or another assistant, using the connector address shown there.
 

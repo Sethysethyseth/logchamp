@@ -449,6 +449,7 @@ export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
      before its close animation unmounted it): start from a clean slate. */
   useLayoutEffect(() => {
     clearEnd();
+    gestureRef.current?.shedder?.stop(); // or its canvas outlives the drag
     gestureRef.current = null;
     phaseRef.current = "idle";
     const el = ref.current;
@@ -458,6 +459,7 @@ export function useSwipeDismiss({ onDismiss, resetKey, scatter } = {}) {
   useEffect(
     () => () => {
       clearEnd();
+      gestureRef.current?.shedder?.stop();
       if (suppressTimerRef.current) window.clearTimeout(suppressTimerRef.current);
     },
     [clearEnd]

@@ -43,7 +43,7 @@ export const RELEASES = [
         items: [
           "LogChamp now opens in the Arena: a pixel gym at the top of every screen. Each tab is a place in it.",
           "Everything works the way it did. Your workouts, numbers and settings are right where you left them.",
-          "Prefer the old look? Go to Profile, then Appearance, and choose Classic. You can switch back any time.",
+          "Prefer the old look? Go to Profile, then Appearance, and pick Light, Dark or System under Theme. Switch back any time.",
         ],
       },
       {
@@ -58,9 +58,10 @@ export const RELEASES = [
       {
         heading: "Switching back to Classic",
         body: [
-          "Classic is the look from before this update. Nothing is lost either way: your workouts, numbers and settings stay put. The choice is per device, so one phone can stay Classic while another opens in the Arena.",
+          "Classic is the look from before this update, and it still comes in Light, Dark and System. Pick any of them under Theme and the Arena steps aside. Pick Arena to bring it back. The Arena has its own lighting, so it has no light or dark setting.",
+          "Nothing is lost either way: your workouts, numbers and settings stay put. The choice is per device.",
         ],
-        where: "Profile, then Appearance, then Arena view",
+        where: "Profile, then Appearance, then Theme",
       },
       {
         heading: "The places",

@@ -10,6 +10,7 @@ import {
 } from "./crownIntroStore.js";
 import "./crown-intro.css";
 
+const STALL_MS = 1500;
 const SLOW_MS = 4000;
 
 /* Boot plays for someone who has signed in on this device before - a first
@@ -75,6 +76,7 @@ export function CrownIntroHost() {
       setIntro(null);
     };
     let engine;
+    let framed = false;
     try {
       engine = startCrownIntro({
         canvas: canvasRef.current,
@@ -83,7 +85,10 @@ export function CrownIntroHost() {
         isReady: () => intro.mode !== "boot" || readyRef.current,
         wordmarkSrc: wordmarkWhite,
         crownSrc: crownMask,
-        onFirstFrame: () => root?.classList.remove("crown-intro--solid"),
+        onFirstFrame: () => {
+          framed = true;
+          root?.classList.remove("crown-intro--solid");
+        },
         onCovered: () => {
           coveredRef.current?.();
           coveredRef.current = null;
@@ -99,8 +104,18 @@ export function CrownIntroHost() {
     }
     engineRef.current = engine;
     const slowTimer = setTimeout(() => setSlow(true), SLOW_MS);
+    /* No frame at all (a background tab, a stalled compositor): the intro
+       is a nicety, so it steps aside rather than sit over the app. */
+    const stallTimer = setTimeout(() => {
+      if (framed) return;
+      engine.stop();
+      coveredRef.current?.();
+      coveredRef.current = null;
+      end();
+    }, STALL_MS);
     return () => {
       clearTimeout(slowTimer);
+      clearTimeout(stallTimer);
       engine.stop();
     };
   }, [intro]);
