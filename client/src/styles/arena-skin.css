@@ -172,6 +172,21 @@ html[data-arena] #root .session-finish-dock {
   box-shadow: none;
 }
 
+/* The live logger's Finish: one slim squared bar sitting on the tabs (Seth,
+   Nov 14: fit it, give the lifts the room). */
+html[data-arena] #root .session-detail-page--arena .session-finish-dock {
+  padding: 0;
+  border-top: 0;
+  background: var(--color-bg);
+}
+
+html[data-arena] #root .session-detail-page--arena .session-finish-dock__btn {
+  min-height: 44px;
+  border-radius: 0;
+  border-width: 2px 0 0;
+}
+
+
 /* ---------- controls ---------- */
 
 html[data-arena] #root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),

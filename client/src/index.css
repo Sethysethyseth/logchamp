@@ -4172,8 +4172,12 @@ html[data-theme="dark"] .checkbox-inline:hover {
 /* Phone: the dock sits on top of the bottom nav, not under it. Quick and
    block loggers share this. Keyboard mode slides the dock off screen. */
 @media (max-width: 719px) {
+  /* --finish-dock-bottom is the bottom nav's measured height
+     (SessionDetailPage): the nav's safe-area padding sits inside its
+     min-height, so adding the inset again left a see-through gap between
+     the dock and the nav on phones with a gesture bar. */
   .session-finish-dock {
-    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+    bottom: var(--finish-dock-bottom, calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px)));
     padding-bottom: 10px;
   }
 }

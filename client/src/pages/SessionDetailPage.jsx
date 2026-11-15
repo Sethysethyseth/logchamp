@@ -2705,6 +2705,23 @@ export function SessionDetailPage() {
   const [seededUseRPE, setSeededUseRPE] = useState(false);
   const [workoutNoteOpen, setWorkoutNoteOpen] = useState(false);
   const [arenaSetupOpen, setArenaSetupOpen] = useState(false);
+  /* The Finish dock sits exactly on the bottom nav: measure the nav rather
+     than assume its height (index.css, --finish-dock-bottom). A callback
+     ref, so it follows the dock whenever it mounts. */
+  const finishDockWatch = useRef(null);
+  const finishDockRef = useCallback((dock) => {
+    finishDockWatch.current?.disconnect();
+    finishDockWatch.current = null;
+    const nav = document.querySelector(".bottom-nav");
+    if (!dock || !nav || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const h = nav.offsetHeight; // 0 while the keyboard hides the nav: keep the last value
+      if (h > 0) dock.style.setProperty("--finish-dock-bottom", `${h}px`);
+    };
+    measure();
+    finishDockWatch.current = new ResizeObserver(measure);
+    finishDockWatch.current.observe(nav, { box: "border-box" });
+  }, []);
   const quickNoteRef = useRef(null);
   const trainingPrefs = useTrainingPrefs();
   const arenaView = useArenaView();
@@ -4952,6 +4969,7 @@ export function SessionDetailPage() {
 
       {!isCompleted ? (
         <div
+          ref={finishDockRef}
           className={`session-finish-dock${totalSetsLogged >= 1 ? " session-finish-dock--logged" : ""}`}
           role="region"
           aria-label="Finish workout"

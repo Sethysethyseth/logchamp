@@ -74,6 +74,9 @@
 >   its clock on the rail line; a Timer chip in the quick row.
 >   RouteTransition's "leaving the logger" fade now keys on
 >   `data-arena-working` (live Home / live logger), not strip mode.
+> - **Nov 15 (row 24, built in-seat):** the Finish dock now sits on the
+>   bottom nav's measured height (gap fix, Arena on and off); under
+>   Arena it is one slim edge-to-edge bar.
 > - **Next action (human):** Seth looks at these on
 >   his phone and signs off round 1 or adds ledger rows. Rows 11-13 are
 >   still open. HANDOFF is over its cap and needs a trim to the archive.
