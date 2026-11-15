@@ -568,6 +568,17 @@ html[data-arena] .confirm-panel__sheet {
   background: var(--color-bg);
 }
 
+/* Floating cards INSIDE #root (the What's New pop-up, the username prompt,
+   Add to your library): the unfilled-panel rule at the top of this file
+   would leave them see-through over the page. They are sheets, so they
+   take the sheet's face. (Found at the pre-main gate, Nov 15.) */
+html[data-arena] #root .whats-new-card,
+html[data-arena] #root .username-required-overlay .card,
+html[data-arena] #root .add-exercise-library-sheet__card {
+  border-top: 2px solid color-mix(in srgb, var(--color-interactive) 60%, var(--color-border));
+  background: var(--color-bg);
+}
+
 html[data-arena] .start-workout-picker__handle,
 html[data-arena] .confirm-panel__sheet .start-workout-picker__handle {
   width: 34px;
