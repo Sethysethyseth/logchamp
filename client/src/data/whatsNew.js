@@ -33,7 +33,7 @@
 export const RELEASES = [
   {
     id: "2026-11-arena",
-    date: "2026-11-15",
+    date: "2026-11-16",
     title: "A new look: the Arena",
     tagline: "The feel is the same. It just looks better.",
     action: { label: "Change the look in Appearance", to: "/profile/appearance" },
