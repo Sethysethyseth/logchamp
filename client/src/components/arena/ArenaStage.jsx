@@ -31,6 +31,7 @@ import { noteArenaFold, setArenaFoldRoom } from "../../lib/arenaFold.js";
 import { useTrainingPrefs } from "../../lib/trainingPrefs.js";
 import { setArenaTour, useArenaTour } from "../../lib/arenaTour.js";
 import { REST_TIMER_EVENT, readRestRun } from "../../lib/restTimer.js";
+import { TAB_SWIPE_EVENT } from "../../lib/tabSwipe.js";
 import { SCENE_SIGNAL_EVENT } from "../../lib/sceneSignal.js";
 import { sessionDisplayTitle } from "../../lib/sessionDisplay.js";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
@@ -620,6 +621,17 @@ export function ArenaStage() {
     arenaRef.current?.set({ place, facet, foldMode: toStrip ? "strip" : "rail" });
   }, [place, facet, toStrip]);
 
+  /* A sideways drag between tabs: the camera travels with the finger toward
+     the next tab's place (lib/tabSwipe.js, useTabSwipe). */
+  useEffect(() => {
+    const onSwipe = (event) => {
+      const { to, t } = event.detail || {};
+      arenaRef.current?.scrub(to ? placeFor(to, activeId)[0] : null, t);
+    };
+    window.addEventListener(TAB_SWIPE_EVENT, onSwipe);
+    return () => window.removeEventListener(TAB_SWIPE_EVENT, onSwipe);
+  }, [activeId]);
+
   /* A closer look ends with the full view, and on any change of tab. */
   useEffect(() => {
     stageRef.current?.back();
@@ -654,9 +666,14 @@ export function ArenaStage() {
 
   // A summary published for another range than the page's is not shown.
   const analytics = published.analytics;
+  /* The exercise open on the Analytics page, if any: its top set goes on the board's bar. */
+  const openExercise = new URLSearchParams(search).get("exercise");
   const faces = useMemo(
-    () => (analytics && analytics.weeks === weeks ? analyticsFaces(analytics.summary) : null),
-    [analytics, weeks]
+    () =>
+      analytics && analytics.weeks === weeks
+        ? analyticsFaces(analytics.summary, { unit, selected: openExercise })
+        : null,
+    [analytics, weeks, unit, openExercise]
   );
   const view = viewIndex(search);
   const board = faces ? faces[view] : null;

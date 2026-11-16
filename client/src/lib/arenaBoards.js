@@ -48,48 +48,136 @@ function hasData(summary) {
   return Boolean(summary) && (list(summary.perMuscle).length > 0 || list(summary.perExercise).length > 0);
 }
 
-/* The Analytics board is a scoreboard, not a second chart (Seth, Nov 16:
-   the board and the page were drawing the same bars). It carries the
-   headline number for the view; the page under it carries the chart. */
+/* The Analytics board shows a picture the page under it does not (Seth, Nov
+   16: no second copy of what is already there). Muscles: a body, lit by how
+   much work each muscle got, and the muscle that has waited longest.
+   Strength and Exercises: the bar, loaded to the lift. The numbers and the
+   charts stay on the page. */
+
+/* Each muscle's letter in the body sprites (arenaEngine BODY_FRONT / BODY_BACK). */
+const BODY_PART = {
+  chest: "C",
+  shoulders: "S",
+  biceps: "B",
+  forearms: "F",
+  abdominals: "A",
+  abs: "A",
+  quadriceps: "Q",
+  calves: "K",
+  traps: "T",
+  lats: "L",
+  "middle back": "M",
+  "lower back": "W",
+  triceps: "R",
+  glutes: "G",
+  hamstrings: "H",
+};
+
+/* Eight LED characters at most: the column beside the body is that wide. */
+const MUSCLE_LED = {
+  "middle back": "MID BACK",
+  "lower back": "LOW BACK",
+  quadriceps: "QUADS",
+  hamstrings: "HAMS",
+  shoulders: "DELTS",
+  abdominals: "ABS",
+};
+const muscleLed = (name) => MUSCLE_LED[String(name ?? "").toLowerCase()] || ledFit(name, 8);
+
+/* A muscle is "due" once it has waited this many days. */
+const DUE_DAYS = 5;
+
 function musclesFace(summary) {
   const sorted = [...list(summary.perMuscle)].sort((a, b) => (b.effectiveSets ?? 0) - (a.effectiveSets ?? 0));
   const top = sorted[0];
   const lines = top ? [ledFit(top.muscle, 9), count(Math.round(Number(top.effectiveSets) || 0), "SET", "SETS")] : ["MUSCLES", "--"];
-  const total = sorted.reduce((sum, m) => sum + (Number(m.effectiveSets) || 0), 0);
+  if (!top) return { title: "MUSCLES", lines, heat: null };
+  const peak = Math.max(1e-9, Number(top.effectiveSets) || 0);
+  const heat = {};
+  for (const m of sorted) {
+    const part = BODY_PART[String(m.muscle ?? "").toLowerCase()];
+    if (part) heat[part] = Math.max(heat[part] || 0, (Number(m.effectiveSets) || 0) / peak);
+  }
+  // Longest wait first; ties, the one with less work.
+  const waiting = sorted
+    .filter((m) => Number.isFinite(m.daysSinceLast) && m.daysSinceLast >= DUE_DAYS)
+    .sort((a, b) => b.daysSinceLast - a.daysSinceLast || (a.effectiveSets ?? 0) - (b.effectiveSets ?? 0))[0];
   return {
     title: "MUSCLES",
     lines,
-    total: top ? total : null,
-    top: top ? { name: ledFit(top.muscle, 12), value: (Number(top.effectiveSets) || 0).toFixed(1) } : null,
+    heat,
+    hot: muscleLed(top.muscle),
+    due: waiting ? { name: muscleLed(waiting.muscle), days: Math.round(waiting.daysSinceLast) } : null,
   };
 }
 
-function strengthFace(summary, toUnit) {
+const LB_PLATES = [45, 35, 25, 10, 5, 2.5];
+const KG_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+/* The most plates the board has room for on one side. */
+const MAX_PLATES = 6;
+
+/**
+ * The plates on ONE side of the bar for a total weight, biggest first, as
+ * indexes into the unit's plate list (0 = the biggest plate). A weight at
+ * or under the bar is an empty bar.
+ */
+export function platesFor(total, unit = "LB") {
+  const sizes = unit === "KG" ? KG_PLATES : LB_PLATES;
+  let side = (Number(total) - (unit === "KG" ? 20 : 45)) / 2;
+  const out = [];
+  if (!(side > 0)) return out;
+  sizes.forEach((size, i) => {
+    while (side >= size - 1e-9 && out.length < MAX_PLATES) {
+      out.push(i);
+      side -= size;
+    }
+  });
+  return out;
+}
+
+const exerciseParamOf = (ex) => (ex?.userExerciseId != null ? `user:${ex.userExerciseId}` : (ex?.exerciseId ?? null));
+
+/* Strength: the lift with the highest estimated max right now, on the bar. */
+function strengthFace(summary, unit) {
   let best = null;
+  let bestMax = 0;
   for (const ex of list(summary.perExercise)) {
-    const n = list(ex?.e1rmSeries).length;
-    if (n > 0 && (!best || n > list(best.e1rmSeries).length)) best = ex;
+    const series = list(ex?.e1rmSeries);
+    const latest = series.length ? Number(series[series.length - 1].epley) || 0 : 0;
+    if (latest > bestMax) {
+      best = ex;
+      bestMax = latest;
+    }
   }
-  if (!best) return { title: "STRENGTH", lines: ["E1RM", "--"], e1rm: null, name: "", delta: 0 };
-  const series = list(best.e1rmSeries).map((p) => toUnit(Number(p.epley) || 0));
-  const e1rm = Math.round(series[series.length - 1]);
+  if (!best) return { title: "STRENGTH", lines: ["E1RM", "--"], bar: null };
+  const e1rm = Math.round(bestMax);
   return {
     title: "STRENGTH",
     lines: [`E1RM ${e1rm}`, ledFit(best.name, 9)],
-    e1rm,
-    name: String(best.name ?? ""),
-    // Latest against the first session in the range; 0 with a single session.
-    delta: e1rm - Math.round(series[0]),
+    bar: { label: "E1RM", total: e1rm, num: String(e1rm), plates: platesFor(e1rm, unit), name: String(best.name ?? "") },
   };
 }
 
-function exercisesFace(summary, toUnit) {
-  const rows = withTopSet(summary.perExercise)
-    .sort(byTopSet)
-    .slice(0, 4)
-    .map((ex) => ({ name: String(ex.name ?? ""), set: setText(ex.topSet, toUnit) }));
-  const lines = rows.length ? [ledFit(rows[0].name, 9), rows[0].set] : ["EXERCISES", "--"];
-  return { title: "EXERCISES", lines, rows };
+/* Exercises: the heaviest set in the range on the bar - or, with an exercise
+   open on the page (`selected`, its ?exercise= value), that exercise's. */
+function exercisesFace(summary, unit, selected) {
+  const sets = withTopSet(summary.perExercise);
+  const pick = (selected && sets.find((ex) => exerciseParamOf(ex) === selected)) || [...sets].sort(byTopSet)[0];
+  if (!pick) return { title: "EXERCISES", lines: ["EXERCISES", "--"], bar: null };
+  const weight = Number(pick.topSet.weight);
+  const reps = pick.topSet.reps != null ? Math.round(Number(pick.topSet.reps)) : null;
+  return {
+    title: "EXERCISES",
+    lines: [ledFit(pick.name, 9), setText(pick.topSet, (n) => n)],
+    bar: {
+      label: "TOP",
+      total: weight,
+      num: weightText(weight),
+      reps,
+      plates: platesFor(weight, unit),
+      name: String(pick.name ?? ""),
+    },
+  };
 }
 
 function executionFace(summary) {
@@ -114,9 +202,9 @@ function executionFace(summary) {
  * The four Analytics views as board faces, in the page's tab order:
  * muscles, strength, exercises, execution. `null` without data.
  */
-export function analyticsFaces(summary, { toUnit = (n) => n } = {}) {
+export function analyticsFaces(summary, { unit = "LB", selected = null } = {}) {
   if (!hasData(summary)) return null;
-  return [musclesFace(summary), strengthFace(summary, toUnit), exercisesFace(summary, toUnit), executionFace(summary)];
+  return [musclesFace(summary), strengthFace(summary, unit), exercisesFace(summary, unit, selected), executionFace(summary)];
 }
 
 /** Home's week, one face at a time: sets, workouts, then what the 7-day summary has. */

@@ -73,7 +73,7 @@ export const RELEASES = [
       {
         heading: "Scrolling and the full view",
         body: [
-          "As you scroll, the room folds to a scoreboard strip or a thin rail. Pull down at the top of a page, or tap the arena, for the full view. Push it back up, or tap again, to return. Hold or pinch to look closer and drag around.",
+          "As you scroll, the room folds to a scoreboard strip or a thin rail. Drag sideways to move between tabs. Pull down at the top of a page, or tap the arena, for the full view. Push it back up, or tap again, to return. Hold or pinch to look closer and drag around.",
         ],
         where: "Any tab with the arena at the top",
       },
