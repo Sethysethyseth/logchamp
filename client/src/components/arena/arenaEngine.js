@@ -389,30 +389,32 @@ export function createArena(canvas, strip) {
   function viewBoard(face, bx, by, bw, bh, gr) {
     text(face.title, bx + 3, by + 3, RAMP[6]);
     const view = VIEW_TITLES.indexOf(face.title);
+    /* Muscles and Strength: one big number that counts up as the board opens,
+       what it measures beside it, and one line of detail under a rule. */
+    const score = (num, side1, side2, label, detail, value) => {
+      text(num, bx + 6, by + 13, RAMP[8], 3);
+      const sx = bx + 10 + num.length * 12;
+      text(side1, sx, by + 15, RAMP[6]);
+      text(side2, sx, by + 23, RAMP[5]);
+      px(bx + 4, by + 34, RAMP[3], bw - 8, 1);
+      text(label, bx + 4, by + 40, RAMP[5]);
+      const room = Math.floor((bw - 12 - (label.length + value.length) * 4) / 4);
+      text(ledFit(detail, room), bx + 8 + label.length * 4, by + 40, RAMP[7]);
+      text(value, bx + bw - 3 - value.length * 4, by + 40, RAMP[8]);
+    };
     if (view === 0) {
-      const peak = Math.max(1e-9, ...face.rows.map((r) => r.value));
-      const room = bw - 21;
-      face.rows.forEach((r, i) => {
-        const y = by + 11 + i * 8;
-        text(r.label, bx + 3, y, RAMP[5]);
-        px(bx + 17, y, i === 0 ? RAMP[8] : RAMP[6], Math.max(1, Math.round((r.value / peak) * room * gr)), 5);
-      });
+      if (face.total == null) {
+        mid("--", bx + bw / 2, by + 24, RAMP[5]);
+        return;
+      }
+      score((face.total * gr).toFixed(1), "SETS", "A WEEK", "TOP", face.top.name, face.top.value);
     } else if (view === 1) {
       if (face.e1rm == null) {
         mid("--", bx + bw / 2, by + 24, RAMP[5]);
         return;
       }
-      const head = `E1RM ${face.e1rm}`;
-      text(head, bx + bw - 2 - head.length * 4, by + 3, RAMP[8]);
-      const lo = Math.min(...face.spark);
-      const hi = Math.max(...face.spark);
-      const x0 = bx + Math.round((bw - face.spark.length * 7) / 2);
-      face.spark.forEach((v, i) => {
-        const h0 = hi > lo ? 4 + Math.round(((v - lo) / (hi - lo)) * 23) : 14;
-        const h = Math.max(1, Math.round(h0 * gr));
-        px(x0 + i * 7, by + bh - 5 - h, RAMP[i === face.spark.length - 1 ? 8 : 7], 7, 1);
-        px(x0 + i * 7, by + bh - 4 - h, RAMP[3], 7, h);
-      });
+      const moved = face.delta > 0 ? `UP ${face.delta}` : face.delta < 0 ? `DOWN ${-face.delta}` : "";
+      score(String(Math.round(face.e1rm * gr)), "E1RM", moved, "", face.name, "");
     } else if (view === 2) {
       face.rows.forEach((r, i) => {
         const y = by + 12 + i * 9;

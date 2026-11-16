@@ -48,14 +48,20 @@ function hasData(summary) {
   return Boolean(summary) && (list(summary.perMuscle).length > 0 || list(summary.perExercise).length > 0);
 }
 
+/* The Analytics board is a scoreboard, not a second chart (Seth, Nov 16:
+   the board and the page were drawing the same bars). It carries the
+   headline number for the view; the page under it carries the chart. */
 function musclesFace(summary) {
   const sorted = [...list(summary.perMuscle)].sort((a, b) => (b.effectiveSets ?? 0) - (a.effectiveSets ?? 0));
-  const rows = sorted
-    .slice(0, 5)
-    .map((m) => ({ label: String(m.muscle ?? "").slice(0, 3).toUpperCase(), value: Number(m.effectiveSets) || 0 }));
   const top = sorted[0];
   const lines = top ? [ledFit(top.muscle, 9), count(Math.round(Number(top.effectiveSets) || 0), "SET", "SETS")] : ["MUSCLES", "--"];
-  return { title: "MUSCLES", lines, rows };
+  const total = sorted.reduce((sum, m) => sum + (Number(m.effectiveSets) || 0), 0);
+  return {
+    title: "MUSCLES",
+    lines,
+    total: top ? total : null,
+    top: top ? { name: ledFit(top.muscle, 12), value: (Number(top.effectiveSets) || 0).toFixed(1) } : null,
+  };
 }
 
 function strengthFace(summary, toUnit) {
@@ -64,12 +70,17 @@ function strengthFace(summary, toUnit) {
     const n = list(ex?.e1rmSeries).length;
     if (n > 0 && (!best || n > list(best.e1rmSeries).length)) best = ex;
   }
-  if (!best) return { title: "STRENGTH", lines: ["E1RM", "--"], spark: [], e1rm: null };
-  const spark = list(best.e1rmSeries)
-    .slice(-10)
-    .map((p) => toUnit(Number(p.epley) || 0));
-  const e1rm = Math.round(spark[spark.length - 1]);
-  return { title: "STRENGTH", lines: [`E1RM ${e1rm}`, ledFit(best.name, 9)], spark, e1rm };
+  if (!best) return { title: "STRENGTH", lines: ["E1RM", "--"], e1rm: null, name: "", delta: 0 };
+  const series = list(best.e1rmSeries).map((p) => toUnit(Number(p.epley) || 0));
+  const e1rm = Math.round(series[series.length - 1]);
+  return {
+    title: "STRENGTH",
+    lines: [`E1RM ${e1rm}`, ledFit(best.name, 9)],
+    e1rm,
+    name: String(best.name ?? ""),
+    // Latest against the first session in the range; 0 with a single session.
+    delta: e1rm - Math.round(series[0]),
+  };
 }
 
 function exercisesFace(summary, toUnit) {

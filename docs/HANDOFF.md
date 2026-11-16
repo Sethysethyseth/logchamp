@@ -1,5 +1,30 @@
 # HANDOFF — current state
 
+> **Nov 16, third cloud session (Seth, direct ask after the merge; built
+> in-seat, NOT on main - branch + `motion-wave` only, NOT seen on a phone):**
+> - **Swipe in and out of the full view** (Seth's video: the full view
+>   swallowed every swipe, only a tap got out). Pull down at the top of an
+>   open page and the room follows the finger to the full view; push up in
+>   the full view and the page comes back under the finger. Short drags
+>   spring back, a flick decides, tap still toggles. `ArenaStage.jsx`
+>   `bindSwipe` + `--arena-drag-h` in `arena.css`. Rail / strip pages have
+>   no open size: an upward flick leaves the full view. Side effect:
+>   `overscroll-behavior-y: contain` on open + full-view pages (no browser
+>   pull-to-refresh there).
+> - **Appearance:** "Look" = Arena | Classic; Light / Dark / System show
+>   under Classic only. "Make your own" is hidden behind `SHOW_STUDIO =
+>   false` in `AppearancePage.jsx` (a saved custom palette still lists).
+>   What's New `2026-11-arena` copy follows (Look, pull down). The older
+>   release note that mentions describing a look is unchanged.
+> - **Analytics:** the Scoreboard no longer redraws the page's chart.
+>   Muscles = sets a week (counts up) + top muscle; Strength = E1RM + UP /
+>   DOWN + the lift. Exercises / Execution unchanged. Page charts hold
+>   their entrance until the card scrolls into view (`data-hold` /
+>   `data-seen`, `analytics-motion.css`).
+> - Lanes: unit 587, build, check-hex clean; rig 412 (swipe both ways,
+>   spring-back, flick, fold still scrolls, reduced motion, coach rail,
+>   History). Pre-existing lint error `arenaEngine.js` paintFace `bh`.
+
 > **Nov 15, second cloud session (frontier seat): PRE-MAIN GATE = PASS
 > WITH FIXES, ALL FIXES LANDED. MERGED TO MAIN Nov 16 (`3a03bc5`).** Branch `ccr-ac9fe067-pc08f1`, pushed; `main` = `b82ad8c` is its
 > merge base, so the merge is a fast-forward. 195+ files, client + 5

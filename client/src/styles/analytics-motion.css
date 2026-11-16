@@ -471,3 +471,13 @@
     display: none;
   }
 }
+
+/* A card that has not come on screen yet holds its data draw at the first
+   frame (AnalyticsPage.jsx sets data-hold, then data-seen once it is in
+   view). Only what is inside the card waits: the card itself still rises in
+   with the rest of the page. */
+.analytics-page [data-hold]:not([data-seen]) *,
+.analytics-page [data-hold]:not([data-seen]) *::before,
+.analytics-page [data-hold]:not([data-seen]) *::after {
+  animation-play-state: paused !important;
+}

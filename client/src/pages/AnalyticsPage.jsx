@@ -824,6 +824,34 @@ export function AnalyticsPage() {
     if (summary) markEntrancePlayed();
   }, [summary]);
 
+  /* A chart plays its entrance when it comes on screen, not when the page
+     loads (Seth, Nov 16: under the Arena the charts start below the fold, so
+     the bars had finished charging before anyone saw them). Each card of the
+     open view holds its data draw (analytics-motion.css, [data-hold]) until
+     its top is a quarter of the way up the screen. */
+  const pageRef = useRef(null);
+  const hasSummary = Boolean(summary);
+  useEffect(() => {
+    const page = pageRef.current;
+    if (!page || !hasSummary || typeof IntersectionObserver === "undefined") return undefined;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.setAttribute("data-seen", "");
+          io.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -25% 0px" }
+    );
+    for (const card of page.querySelectorAll(".analytics-view > *")) {
+      if (card.hasAttribute("data-seen")) continue;
+      card.setAttribute("data-hold", "");
+      io.observe(card);
+    }
+    return () => io.disconnect();
+  }, [hasSummary, view, summaryWeeks]);
+
   useEffect(() => {
     publishArenaFacts({ analytics: { weeks: summaryWeeks, summary } });
   }, [summary, summaryWeeks]);
@@ -843,7 +871,7 @@ export function AnalyticsPage() {
   );
 
   return (
-    <div className={`stack analytics-page${quiet ? " mx-quiet" : ""}`}>
+    <div ref={pageRef} className={`stack analytics-page${quiet ? " mx-quiet" : ""}`}>
       <div>
         <h1 className="page-title">Analytics</h1>
         <p className="muted analytics-intro">

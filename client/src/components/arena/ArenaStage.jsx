@@ -193,6 +193,13 @@ function measureStage(st) {
   setArenaFoldRoom(st.mode === "open" ? Math.ceil(st.geom.openPx - st.geom.stripPx) : 0);
 }
 
+/* A size from arenaSheet.js as the css height of the stage. */
+function stageHeight(size) {
+  if (size.mode === "tour") return `calc(${size.svh}svh - var(--arena-tour-gap) - var(--arena-top))`;
+  if (size.mode === "rail") return `calc(${size.rows} * var(--arena-px, 4px))`;
+  return `${size.svh}svh`;
+}
+
 const HOLD_MS = 480;
 /* Css px a press may wander and still count as a tap or a hold. */
 const TAP_PX = 10;
@@ -307,6 +314,141 @@ function bindLook(st, stage, canvas) {
   };
 }
 
+/* Css px a touch must travel before it is read as a swipe on the sheet. */
+const SWIPE_SLOP = 6;
+/* Px per ms: a flick this fast decides the way, wherever the edge was let go. */
+const FLICK = 0.35;
+const NO_PULL = 'input, textarea, select, [contenteditable="true"], [role="dialog"], [aria-modal="true"], [data-no-arena-pull]';
+
+/* Swipe in and out of the full view (Seth, Nov 16: the full view felt locked -
+   only a tap got you out). The sheet's edge follows the finger between the
+   open room and the full view: pull down at the top of an open page to bring
+   the whole room in, push up in the full view to bring the page back. While
+   the finger is down --arena-drag-h overrides the route's height with no
+   transition; on release the same 440ms curve carries it to wherever it is
+   going. Pages that fold to the strip or the rail have no open size to track
+   through, so there an upward flick just leaves the full view. Returns the
+   cleanup. */
+function bindSwipe(st, stage) {
+  const root = document.documentElement;
+  let g = null;
+  let settle = 0;
+  const clear = () => {
+    window.clearTimeout(settle);
+    delete root.dataset.arenaDrag;
+    root.style.removeProperty("--arena-drag-h");
+  };
+  st.clearDrag = () => {
+    if (g) drop(g);
+    g = null;
+    clear();
+  };
+  const restPx = () => {
+    if (!st.tour) return st.geom.openPx;
+    st.probe.style.height = st.restCss;
+    const px = st.probe.offsetHeight;
+    st.probe.style.height = "";
+    return px;
+  };
+  const start = (e) => {
+    if (g) drop(g);
+    g = null;
+    if (e.touches.length !== 1 || st.arena.zoomed()) return;
+    const el = e.target instanceof Element ? e.target : null;
+    if (!el || el.closest(NO_PULL) || document.body.style.overflow === "hidden") return;
+    if (st.tour) {
+      if (!el.closest(".arena-stage, .arena-peek, .arena-sheet")) return;
+    } else if (st.mode !== "open" || window.scrollY > 0 || !el.closest(".arena-spacer, .arena-sheet")) {
+      return;
+    }
+    const t = e.touches[0];
+    window.clearTimeout(settle);
+    g = { id: t.identifier, x0: t.clientX, y0: t.clientY, fromTour: st.tour, on: false, h: 0, trail: [], el };
+    // On the touched element itself: a touch keeps reporting to its target
+    // even after React takes that element out of the page (the full view's line).
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+  };
+  const drop = (was) => {
+    was.el.removeEventListener("touchmove", move);
+    was.el.removeEventListener("touchend", end);
+    was.el.removeEventListener("touchcancel", end);
+  };
+  const move = (e) => {
+    if (!g) return;
+    const t = e.touches.length === 1 && e.touches[0].identifier === g.id ? e.touches[0] : null;
+    if (!t) {
+      end(e);
+      return;
+    }
+    const dx = t.clientX - g.x0;
+    const dy = t.clientY - g.y0;
+    if (!g.on) {
+      if (Math.hypot(dx, dy) < SWIPE_SLOP) return;
+      const mine = (g.fromTour ? dy < 0 : dy > 0) && Math.abs(dy) > Math.abs(dx);
+      if (!mine || e.defaultPrevented || st.arena.zoomed() || (!g.fromTour && window.scrollY > 0)) {
+        drop(g);
+        g = null;
+        return;
+      }
+      const top = parseFloat(root.style.getPropertyValue("--arena-top")) || 0;
+      g.on = true;
+      g.hi = stage.offsetHeight - top;
+      g.lo = restPx();
+      g.dy0 = dy;
+      g.track = st.restMode === "open" && g.hi - g.lo > 40;
+      g.h = g.fromTour ? g.hi : g.lo;
+      st.swallow = true; // this touch is a swipe, not the tap that toggles the full view
+      if (g.track) {
+        root.dataset.arenaDrag = "";
+        root.style.setProperty("--arena-drag-h", `${g.h}px`);
+        // The page comes back under the finger, not after it.
+        if (g.fromTour) setArenaTour(false);
+      }
+    }
+    if (e.cancelable) e.preventDefault();
+    g.trail.push([e.timeStamp, t.clientY]);
+    if (g.trail.length > 6) g.trail.shift();
+    if (!g.track) return;
+    let h = (g.fromTour ? g.hi : g.lo) + dy - g.dy0;
+    // Past the open size the edge gives a little, then holds.
+    if (h < g.lo) h = g.lo - Math.min(28, (g.lo - h) * 0.25);
+    g.h = Math.min(g.hi, h);
+    root.style.setProperty("--arena-drag-h", `${g.h}px`);
+  };
+  const end = (e) => {
+    const was = g;
+    g = null;
+    if (!was) return;
+    drop(was);
+    if (!was.on) return;
+    const [t0, y0] = was.trail[0] || [0, 0];
+    const [t1, y1] = was.trail[was.trail.length - 1] || [0, 0];
+    const v = t1 - t0 > 0 && e.timeStamp - t1 < 120 ? (y1 - y0) / (t1 - t0) : 0;
+    const cancelled = e.type === "touchcancel";
+    if (!was.track) {
+      if (!cancelled && was.fromTour && (v < -FLICK || y1 - was.y0 < -48)) setArenaTour(false);
+      return;
+    }
+    const at = (was.h - was.lo) / (was.hi - was.lo);
+    let toTour = was.fromTour ? at > 0.72 : at > 0.28;
+    if (cancelled) toTour = was.fromTour;
+    else if (Math.abs(v) > FLICK) toTour = v > 0;
+    // Hand the edge to the stage's own transition, from where the finger left it.
+    delete root.dataset.arenaDrag;
+    void stage.offsetHeight;
+    root.style.setProperty("--arena-drag-h", `${toTour ? was.hi : was.lo}px`);
+    setArenaTour(toTour);
+    settle = window.setTimeout(clear, SETTLE_MS);
+  };
+  document.addEventListener("touchstart", start, { passive: true });
+  return () => {
+    st.clearDrag();
+    document.removeEventListener("touchstart", start);
+  };
+}
+
 /**
  * Arena view (beta). The stage sits in the page flow above the sheet and
  * moves with the sheet's top edge as one piece: the window scroll carries
@@ -331,6 +473,8 @@ export function ArenaStage() {
   const live = activeId != null;
   const restOn = useTrainingPrefs().restTimer?.enabled !== false;
   const size = arenaSize({ pathname, tour, live, activeId, restOn });
+  /* Where this route's stage rests once the full view ends (the swipe's other end). */
+  const rest = tour ? arenaSize({ pathname, tour: false, live, activeId, restOn }) : size;
   const toStrip = stripPlace({ pathname, live, activeId, restOn });
   /* The working pages (live Home, the live logger): leaving one fades and
      opens the next page at the top (RouteTransition reads this). */
@@ -351,6 +495,10 @@ export function ArenaStage() {
       geom: { openPx: 0, stripPx: 0, reveal: -1, covered: false, strip: false },
       foldStrip: true,
       mode: null,
+      tour: false,
+      restMode: null,
+      restCss: "",
+      clearDrag: () => {},
       coverTimer: 0,
       swallow: false, // the next click belongs to a closer-look gesture, not the full-view toggle
     };
@@ -372,6 +520,7 @@ export function ArenaStage() {
     arenaRef.current = arena;
     stageRef.current = st;
     const unbindLook = bindLook(st, stage, canvas);
+    const unbindSwipe = bindSwipe(st, stage);
     arena.resize();
     const ro = new ResizeObserver(() => {
       arena.resize();
@@ -401,6 +550,7 @@ export function ArenaStage() {
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       unbindLook();
+      unbindSwipe();
       ro.disconnect();
       navMo.disconnect();
       mo.disconnect();
@@ -415,12 +565,8 @@ export function ArenaStage() {
   }, []);
 
   /* The stage's height belongs to the route (or the full view); the sheet starts below it. */
-  const height =
-    size.mode === "tour"
-      ? `calc(${size.svh}svh - var(--arena-tour-gap) - var(--arena-top))`
-      : size.mode === "rail"
-        ? `calc(${size.rows} * var(--arena-px, 4px))`
-        : `${size.svh}svh`;
+  const height = stageHeight(size);
+  const restHeight = stageHeight(rest);
   /* Leaving an open page: remember whether its room was folded, so the next
      page arrives the same way (lib/arenaFold.js). Runs before the effect
      below, while the geometry and the mode are still the old route's. */
@@ -429,6 +575,8 @@ export function ArenaStage() {
     const st = stageRef.current;
     if (leftPathRef.current === pathname) return;
     leftPathRef.current = pathname;
+    // A swipe still settling belongs to the page being left.
+    st?.clearDrag();
     if (!st || st.mode !== "open") return;
     const roomPx = st.geom.openPx - st.geom.stripPx;
     noteArenaFold(roomPx > 0 && window.scrollY >= roomPx - 1);
@@ -442,6 +590,9 @@ export function ArenaStage() {
     if (!st) return;
     st.foldStrip = toStrip;
     st.mode = size.mode;
+    st.tour = tour;
+    st.restMode = rest.mode;
+    st.restCss = restHeight;
     measureStage(st);
     applyStrip(st, true);
     st.arena?.set({ foldMode: toStrip ? "strip" : "rail" });
@@ -449,7 +600,7 @@ export function ArenaStage() {
        already resizes on a foldMode change; this covers same-mode remounts
        and the first paint after --arena-strip-h flips to 18svh. */
     st.arena?.resize();
-  }, [height, toStrip, size.mode, working]);
+  }, [height, toStrip, size.mode, working, tour, rest.mode, restHeight]);
   useEffect(
     () => () => {
       document.documentElement.style.removeProperty("--arena-h");
@@ -457,6 +608,8 @@ export function ArenaStage() {
       document.documentElement.style.removeProperty("--arena-strip-h");
       document.documentElement.style.removeProperty("--arena-stage-h");
       document.documentElement.style.removeProperty("--arena-px");
+      document.documentElement.style.removeProperty("--arena-drag-h");
+      delete document.documentElement.dataset.arenaDrag;
       delete document.documentElement.dataset.arenaMode;
       delete document.documentElement.dataset.arenaWorking;
     },

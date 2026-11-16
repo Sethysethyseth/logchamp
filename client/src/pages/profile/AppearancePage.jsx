@@ -13,6 +13,11 @@ import { setArenaView, useArenaView } from "../../lib/arenaPref.js";
 import { CUSTOM_PALETTE_ID } from "../../lib/customPalette.js";
 import { AiWait } from "../../components/coach/AiWait.jsx";
 
+/* "Make your own" (the AI palette studio) is hidden for now (Seth, Nov 16).
+   The studio and a palette someone already saved are untouched: flip this
+   back to bring the section back. */
+const SHOW_STUDIO = false;
+
 const PALETTE_VERB = "Designing your palette...";
 
 const PALETTE_OPTIONS = [
@@ -122,6 +127,7 @@ export function AppearancePage() {
   const aliveRef = useRef(true);
   const abortCtlRef = useRef(null);
   useEffect(() => {
+    if (!SHOW_STUDIO) return undefined;
     let cancelled = false;
     (async () => {
       try {
@@ -222,41 +228,53 @@ export function AppearancePage() {
 
       <section className="settings-section" aria-labelledby="settings-appearance-heading">
         <h2 id="settings-appearance-heading" className="settings-section-heading">
-          Theme
+          Look
         </h2>
         <div className="settings-group settings-group--tight">
           <p className="settings-group-hint muted small">
-            Arena is the new look, with its own lighting. Light, Dark and System are the Classic
-            look from before. Everything works the same in both. This device only.
+            Arena is the new look, with its own lighting. Classic is the look from before, in
+            light or dark. Everything works the same in both. This device only.
           </p>
-          <div className="settings-theme-seg" role="radiogroup" aria-label="Theme">
+          <div className="settings-theme-seg" role="radiogroup" aria-label="Look">
             {[
-              ["arena", "Arena"],
-              ["light", "Light"],
-              ["dark", "Dark"],
-              ["system", "System"],
-            ].map(([value, label]) => {
-              const active = arenaView ? value === "arena" : theme === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  className={`settings-theme-seg__btn${active ? " settings-theme-seg__btn--active" : ""}`}
-                  onClick={() => {
-                    if (value === "arena") setArenaView(true);
-                    else {
-                      setTheme(value);
-                      setArenaView(false);
-                    }
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
+              [true, "Arena"],
+              [false, "Classic"],
+            ].map(([value, label]) => (
+              <button
+                key={label}
+                type="button"
+                role="radio"
+                aria-checked={arenaView === value}
+                className={`settings-theme-seg__btn${arenaView === value ? " settings-theme-seg__btn--active" : ""}`}
+                onClick={() => setArenaView(value)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
+          {arenaView ? null : (
+            <div className="settings-palette-block">
+              <span className="settings-palette-block__label muted small">Classic theme</span>
+              <div className="settings-theme-seg" role="radiogroup" aria-label="Classic theme">
+                {[
+                  ["light", "Light"],
+                  ["dark", "Dark"],
+                  ["system", "System"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={theme === value}
+                    className={`settings-theme-seg__btn${theme === value ? " settings-theme-seg__btn--active" : ""}`}
+                    onClick={() => setTheme(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="settings-palette-block">
             <span className="settings-palette-block__label muted small">Accent color</span>
             <div className="settings-palette-grid" role="radiogroup" aria-label="Accent color">
@@ -320,6 +338,7 @@ export function AppearancePage() {
         </div>
       </section>
 
+      {SHOW_STUDIO ? (
       <section className="settings-section" aria-labelledby="settings-studio-heading">
         <h2 id="settings-studio-heading" className="settings-section-heading">
           Make your own
@@ -466,6 +485,7 @@ export function AppearancePage() {
           ) : null}
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

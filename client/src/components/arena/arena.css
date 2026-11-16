@@ -25,9 +25,12 @@ html[data-arena] {
 }
 
 .arena-spacer {
+  /* A swipe between the open room and the full view owns the height while
+     the finger is down (--arena-drag-h, ArenaStage.jsx bindSwipe). */
+  --arena-now-h: var(--arena-drag-h, var(--arena-h, 40svh));
   position: sticky;
-  top: calc(var(--arena-top, 0px) + var(--arena-strip-h) - var(--arena-h, 40svh));
-  height: var(--arena-h, 40svh);
+  top: calc(var(--arena-top, 0px) + var(--arena-strip-h) - var(--arena-now-h));
+  height: var(--arena-now-h);
   transition:
     height 440ms var(--mx-ease-out-expo),
     top 440ms var(--mx-ease-out-expo);
@@ -40,8 +43,16 @@ html[data-arena-snap] body {
   overflow-anchor: none;
 }
 
-html[data-arena-snap] .arena-spacer {
+html[data-arena-snap] .arena-spacer,
+html[data-arena-drag] .arena-spacer {
   transition: none;
+}
+
+/* Pulling down at the top of the page brings the full view in, so the
+   browser's own pull-to-refresh and edge glow step aside there. */
+html[data-arena-mode="open"],
+html[data-arena-mode="tour"] {
+  overscroll-behavior-y: contain;
 }
 
 .arena-stage {
