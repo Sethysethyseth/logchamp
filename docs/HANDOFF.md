@@ -1,8 +1,7 @@
 # HANDOFF — current state
 
 > **Nov 15, second cloud session (frontier seat): PRE-MAIN GATE = PASS
-> WITH FIXES, ALL FIXES LANDED. Waiting on Seth's verbatim "push to
-> main".** Branch `ccr-ac9fe067-pc08f1`, pushed; `main` = `b82ad8c` is its
+> WITH FIXES, ALL FIXES LANDED. MERGED TO MAIN Nov 16 (`3a03bc5`).** Branch `ccr-ac9fe067-pc08f1`, pushed; `main` = `b82ad8c` is its
 > merge base, so the merge is a fast-forward. 195+ files, client + 5
 > coach server files. NO schema change, NO migration, NO new env or
 > dependency - a code-only merge.
@@ -67,9 +66,17 @@
 >   - NOT seen on a phone: all five. Rig note: the first synthetic touch
 >     after a page load never reaches the crown (every later one does) -
 >     check the first grab on a real phone.
-> - **Next action (Seth):** look at the branch preview once more (loader,
->   Appearance > Theme, the crown), then say "push to main" to start the
->   merge ritual (one command at a time, each approved).
+> - **MERGED TO MAIN Nov 16 (Opus seat, "push to main", each command
+>   approved):** `git push origin 3a03bc5:main`, fast-forward
+>   `b82ad8c..3a03bc5` (132 commits: motion wave + ARENA wave + gate
+>   fixes + ar7-wn). Confirmed `origin/main` = `3a03bc5`. Code-only: no
+>   migration, no env change. Prod deploy NOT verified from the cloud
+>   session (its network denies the prod Vercel host) - Seth verifies.
+>   Release `2026-11-arena` re-dated 2026-11-16.
+> - **Next action (Seth):** confirm the prod deploy (Vercel + Render
+>   dashboards show `3a03bc5`), smoke prod on the phone (login, the What's
+>   New pop-up once, Appearance > Theme, one workout), then repoint
+>   staging Render from `motion-wave` to `main`.
 > **FOR THE OPUS SEAT (Nov 13): Fable is NOT a standing dependency.**
 > Fable 5.2 is on Cursor today, but it can leave, get quota-capped, or
 > be unavailable for a wave. Do not plan a wave around it. When it is
