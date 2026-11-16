@@ -4,6 +4,21 @@
 **Previous version:** v16 (three-file split: handoff → `docs/HANDOFF.md`, rituals → `docs/RUNBOOK.md`)
 **This version:** the theme system shipped and its architecture is now stable, load-bearing context — the Theming section is rewritten to describe the **two-axis palette system** (`data-theme` × `data-palette`), hand-authored palette surfaces, and the scene layer as built. The theme-storage fork is resolved (device-local). The grouped-blocks card pattern and L-bar status semantics are recorded as design language. Everything else unchanged from v16.
 
+> **READ FIRST - partly superseded (spring cleaning, Nov 16, 2026).** This
+> file is the June 12 snapshot. Where it disagrees with these, THEY win:
+> - Workflow, roles, who commits/pushes, model routing -> `CLAUDE.md` +
+>   `AGENTS.md` (relay v5: Claude Code commits and pushes to staging; prod
+>   migrations run under the "migrate prod" trigger phrase).
+> - Command gate, conventions, palettes/tokens, rename boundary -> `AGENTS.md`.
+> - Current state, open work -> `docs/HANDOFF.md`; standing context and
+>   deploy topology -> `docs/REFERENCE.md`; rituals -> `docs/RUNBOOK.md`.
+> - Incident history -> `docs/HANDOFF-ARCHIVE.md` (there is no
+>   `docs/incidents/` folder).
+> Sections still accurate and worth reading: product vision and
+> positioning, foundational schema decisions, data honesty, the migration
+> method, connection identity. Lines that went stale are marked inline
+> "(Nov 16: ...)" below.
+
 ---
 
 ## Convention (revised in v16: three-file system)
@@ -21,7 +36,7 @@ Three project docs, three cadences:
 What does NOT live here:
 - Open work, current bugs, in-flight branches → `docs/HANDOFF.md` / GitHub issues
 - Command sequences and checklists → `docs/RUNBOOK.md`
-- Incident play-by-play → `docs/incidents/`
+- Incident play-by-play → `docs/HANDOFF-ARCHIVE.md`
 - Commit conventions, branch state → git itself
 
 **Session start = load this file + current `HANDOFF.md`.** Session end = update `HANDOFF.md` (a one-paragraph rewrite, not a ceremony). The master is regenerated only when fundamentals change — a handoff update never bumps the master version.
@@ -72,11 +87,13 @@ Mix of personal tool, learning project, and potential product. If it gets good e
 - Being a beginner app and an intermediate app simultaneously.
 - Out-feature-ing Strong/Hevy on logging UX. They've spent years there; we won't beat them.
 - Inferring training style from data ("are you a powerlifter?"). A settings toggle gets 90% of the value at 0% of the risk. Defer smart inference to v3+.
-- Over-built motion. Professional = restraint. ~150–250ms, ease-out, subtle, consistent. Flashy animation reads as amateur. One motion system applied uniformly, not per-screen bespoke effects.
+- ~~Over-built motion.~~ (Nov 16: REPLACED by Seth on Oct 9, 2026 - motion should feel wicked where it earns it; bounds and the current stance are in `AGENTS.md` -> Project.)
 
 ---
 
-## UI/UX overhaul direction (active track)
+## UI/UX overhaul direction (June track - since shipped)
+
+(Nov 16: the rebrand, IA (Home / Analytics / History / Library / Profile tabs), profile hub, theming, motion and the Arena look have all shipped. Read this section as design history; the app is the source of truth.)
 
 First-class track running in parallel with (and currently ahead of) the analytics/catalog work. Goal: take the app from functional-but-alpha to polished, personal, professional, while keeping logging fast. Decisions made:
 
@@ -104,10 +121,10 @@ Currently rudimentary (email + light/dark + password + feedback + logout — a s
 
 **Two independent axes on `<html>`:**
 - `data-theme` — light / dark / system (pre-existing, unchanged)
-- `data-palette` — named environment: `champ | iron | forest | crimson`. Absent/unknown value renders identically to `champ` (`:root` IS champ; champ palette blocks carry no surface overrides).
+- `data-palette` — named environment: `champ | iron | chill | forest | crimson` (+ `custom`, an AI-generated palette; see AGENTS.md). Absent/unknown value renders identically to `champ` (`:root` IS champ; champ palette blocks carry no surface overrides).
 
 **Architecture rules for all future UI work:**
-- All styling is **tokens-only** (CSS custom properties in `client/src/index.css`). Never hardcode colors — every surface must render correctly across 4 palettes × 2 modes (8 combos) automatically.
+- All styling is **tokens-only** (CSS custom properties in `client/src/index.css`). Never hardcode colors — every surface must render correctly across 5 palettes × 2 modes (10 combos) automatically. (Nov 16: the Arena look, the default since Nov 15, is always dark; Light / Dark / System apply to Classic.)
 - Rings, nav-active, and pill states derive from `--color-interactive` via `color-mix` — new accent-adjacent styles should follow this pattern so palettes inherit them for free.
 - Each palette = a light block (`html[data-palette="X"]`) + a dark variant (`html[data-theme="dark"][data-palette="X"]`, specificity 0,2,1 out-specifies both the light palette block and the generic dark block). Palette surfaces are **hand-authored hexes**, not algorithmic tints (a `color-mix` tint mechanism was built and replaced — it reads as "a hue over it," not a distinct environment).
 - **Scene layer:** fixed full-viewport `body::before` (pointer-events: none, z-index 0) with per-palette CSS-gradient + inline-SVG-data-URI scenes (champ stars/glow, iron grain + chalk barbell + forge glow, forest pixel treeline, crimson moon + gothic skyline). **`#root` has `position: relative; z-index: 1`** as the stacking fix — anything rendered via portal OUTSIDE `#root` must be checked against this. Scene blocks are structured per-palette so rotating scene *variants* (planned fast-follow) are purely additive.
@@ -175,10 +192,10 @@ Username is a foundational identity field (personalization + future community/pu
 The Exercise table is **additive** — no FKs from existing exercise-bearing models yet. Existing data uses free-text `exerciseName` on `TemplateExercise`, `SessionExercise`, `BlockWorkoutExercise`.
 
 Path forward = **Path B (catalog + FKs), staged:**
-1. ✅ Stage 1: Catalog table exists + seeded. (branch `exercise-catalog-seed`, migration `20260527120000_add_exercise_catalog`.) **Committed but NOT merged to main — see handoff.**
-2. ⏳ Stage 2: Add nullable `exerciseId String?` FK to each of the three models. Keep `exerciseName` as display fallback. New writes set both. Old rows null until backfilled.
-3. ⏳ Stage 3: Backfill `exerciseId` where `exerciseName` string-matches a catalog entry with high confidence.
-4. ⏳ Stage 4: Exercise picker UI writes catalog-resolved entries.
+1. ✅ Stage 1: Catalog table exists + seeded. (branch `exercise-catalog-seed`, migration `20260527120000_add_exercise_catalog`.) (Nov 16: merged long ago.)
+2. ✅ Stage 2 (A4): Add nullable `exerciseId String?` FK to each of the three models. Keep `exerciseName` as display fallback. New writes set both. Old rows null until backfilled.
+3. ✅ Stage 3 (A6b): Backfill `exerciseId` where `exerciseName` string-matches a catalog entry with high confidence.
+4. ✅ Stage 4 (A5): Exercise picker UI writes catalog-resolved entries.
 
 **Why Path B not Path A:** string-match-at-query-time is fragile and slow. Exact FK join is fast and exact. Staged because each stage is small, reversible, verifiable.
 
@@ -202,7 +219,7 @@ Snapshot pattern means: editing the block template affects future instantiations
 
 ---
 
-## Analytics engine (paused, not dropped)
+## Analytics engine (shipped - `server/src/analytics/`, spec `docs/specs/analytics-engine.md`)
 
 ### Architecture
 - **Compute on read, not on write.** No denormalized aggregate tables. Add a cache later only if needed.
@@ -220,7 +237,9 @@ Not a training-style classifier; not a real-time set-by-set layer; not a "what t
 
 ---
 
-## Product roadmap (sequenced)
+## Product roadmap (sequenced) - JUNE 12 SNAPSHOT, HISTORICAL
+
+(Nov 16: nearly all of this shipped - catalog + FK linkage, units toggle, analytics (volume, E1RM, PRs, trends), blocks v2 with plan-vs-actual, the MCP connector, the in-app coach. Current candidates live in `docs/tasks/QUEUE.md` "Candidates" and HANDOFF "PICK UP HERE".)
 
 **UI/UX track (active):**
 - U1. ✅ Partial LogChamp rebrand + login warmth + Library rename strings (bundled into the username commit; full display pass still pending — see UI section)
@@ -255,13 +274,13 @@ Not a training-style classifier; not a real-time set-by-set layer; not a "what t
 - Work organized into tiered units (red/yellow/green) by risk and reversibility.
 - Cursor prompts bundled where units are low-risk and cohesive; delivered as inline triple-backtick blocks.
 - Cursor self-greenlighting acceptable on yellow/green; flagged deviations logged as tech debt.
-- **All git operations (commit, push, merge) run by me, manually, in PowerShell — never by Cursor.** Standing rule: no `Co-authored-by: Cursor` trailer in commits. Commit workaround: `git hash-object` + temp UTF-8 file to dodge the auto-injected trailer. Author: `Seth Knisel <SethjKnisel@gmail.com>`.
-- **All production database operations run by me, manually, in the Neon SQL editor — never by Cursor.** (Reinforced by the v15 prod incident below.)
+- (Nov 16: SUPERSEDED - Claude Code now commits and pushes to staging; merges to `main` run behind "push to main"; see AGENTS.md. Still true: never Cursor.) ~~**All git operations (commit, push, merge) run by me, manually, in PowerShell — never by Cursor.**~~ Standing rule: no `Co-authored-by: Cursor` trailer in commits. Commit workaround: `git hash-object` + temp UTF-8 file to dodge the auto-injected trailer. Author: `Seth Knisel <SethjKnisel@gmail.com>`.
+- (Nov 16: SUPERSEDED Oct 9 - Claude Code runs prod migrations under "migrate prod", one command at a time, Seth approving each; AGENTS.md gate 3. Still true: never Cursor.) ~~**All production database operations run by me, manually, in the Neon SQL editor — never by Cursor.**~~ (Reinforced by the v15 prod incident below.)
 - **Clarifying-question discipline:** surface real forks explicitly when scope is genuinely ambiguous; decide low-stakes ones, flag genuine ones. Don't over-ask.
 
 ### Schema-change deploy discipline (NEW in v15 — LOAD-BEARING)
 
-**Pushing code to `main` does NOT migrate any database.** Code deploys (Render auto-builds on push) and schema migrations (applied to Neon) are on **separate, manual tracks.** Neither Render service runs `prisma migrate deploy` in its build or start command — confirmed June 08. Build = `npm install`; Start = `node src/server.js` on both prod and staging. So a migration only reaches a database when **I apply it by hand.**
+**Pushing code to `main` does NOT migrate any database.** Code deploys (Render auto-builds on push) and schema migrations (applied to Neon) are on **separate, manual tracks.** (Nov 16: CHANGED - the STAGING Render build now runs `prisma migrate deploy`, so a staging deploy is also a staging migration; PROD's build still never migrates. Verify from the Render API.)
 
 **The rule, every time a unit includes a schema change** (exact command/SQL blocks: `docs/RUNBOOK.md` → "Schema-change deploy"):
 1. **Apply the migration to the target Neon DB first** (or in lockstep with the code deploy), by running the migration SQL in the Neon SQL editor for that database. Confirm the host in the URL bar before running (`snowy-resonance` = prod, `noisy-surf`/LogChamp-staging = staging).
@@ -302,7 +321,7 @@ Build-passing and grep-clean are Cursor's self-report; the build claim is cheap 
 
 ### Staging branch discipline (load-bearing)
 
-**The Render staging service's deploy branch is a setting that must be verified, not assumed.** The three-week decimal-reps loop was caused by staging deploying from `main` instead of the feature branch under test. When testing a branch on staging, point staging at that branch — and **set it back to the correct long-term branch when done.** Leaving staging on a stale feature branch is the exact trap. (Open item at v15 cut — see handoff: staging may still be on `add-username`.)
+**The Render staging service's deploy branch is a setting that must be verified, not assumed.** The three-week decimal-reps loop was caused by staging deploying from `main` instead of the feature branch under test. When testing a branch on staging, point staging at that branch — and **set it back to the correct long-term branch when done.** Leaving staging on a stale feature branch is the exact trap. (Nov 16: staging tracks `main` between waves.)
 
 ### Data honesty principle
 
@@ -325,6 +344,8 @@ The DB has known out-of-band drift: a `connect-pg-simple` `session` table create
 
 ## Model escalation policy
 
+(Nov 16: SUPERSEDED - model roles live in `CLAUDE.md` "Model selection / division of labor".)
+
 Defaults to **Sonnet** for token economy.
 
 **Escalate to Opus for:** red-tier tasks (auth, sessions, schema, infra, product direction); bugs resisting one diagnosis round; hard-to-reverse architecture calls; designing prompts for tricky/high-risk work; master prompt regeneration when fundamentals change; planning sessions where structural decisions get baked in.
@@ -339,8 +360,8 @@ Prefer a new Opus chat over mid-chat model switches.
 
 - **Prod Neon:** project `snowy-resonance-34178668` ("LogChamp"), hostname `ep-solitary-sea-an56mioq` (denylisted in `dbHostGuard`)
 - **Staging Neon:** project `noisy-surf-48238263` ("LogChamp-staging"), hostname `ep-bitter-breeze-am81izlh` (allowlisted in `dbHostGuard`)
-- **Prod Render service:** `workout-db-l3gc` → `https://workout-db-l3gc.onrender.com` (Build: `npm install` · Start: `node src/server.js` — no auto-migrate)
-- **Staging Render service:** `workout-db-staging` → `https://workout-db-staging.onrender.com` (Build: `npm install` · Start: `node src/server.js` — no auto-migrate)
+- **Prod Render service:** `workout-db-l3gc` → `https://workout-db-l3gc.onrender.com` (Build: `npm install && npx prisma generate` · Start: `npm start` — no auto-migrate; Nov 16)
+- **Staging Render service:** `workout-db-staging` → `https://workout-db-staging.onrender.com` (Build: `npm install && npx prisma generate && npx prisma migrate deploy` · Start: `node src/server.js` — DOES migrate staging; Nov 16)
 - **Prod Vercel:** `workout-db-psi.vercel.app`
 - **GitHub:** `Sethysethyseth/logchamp` (renamed from `workout-db`, Nov 10, 2026)
 - **Git author:** `Seth Knisel <SethjKnisel@gmail.com>`
@@ -351,7 +372,7 @@ Prefer a new Opus chat over mid-chat model switches.
 
 ## Lessons preserved from prior incidents
 
-(Full detail in `docs/incidents/`.)
+(Full detail in `docs/HANDOFF-ARCHIVE.md`.)
 
 - **May 20 / May 23 prod wipes:** root cause never definitively identified. The `server/.env`-at-prod theory was disproven in v10. `dbHostGuard` blocks the suspected mechanism as defense-in-depth, not a confirmed root-cause fix. Any destructive event on prod again = critical signal.
 - **June 08 prod login outage (NOT a wipe — recovered, zero data loss):** after merging `add-username` to main, prod auto-redeployed code that expected `displayName`/`usernameKey` columns, but the username migration had only ever been applied to *staging* Neon, never prod. Prod login crashed with `Invalid prisma.user.findFirst() invocation: The column User.displayName does not exist`. Initially feared as a data wipe; confirmed via `information_schema.columns` + `count(*)` that all 3 prod users were intact and only the columns were missing. Fixed by applying the three migration statements + a manual `_prisma_migrations` row directly in the prod Neon SQL editor. **Root lesson → the schema-change deploy discipline above.** This was a process gap (code and DB on separate manual tracks), not an infra failure.
@@ -364,7 +385,7 @@ Prefer a new Opus chat over mid-chat model switches.
 
 - **connect-pg-simple `session` table drift** — see migration method. Resolve before any non-additive schema change.
 - **Integration test suite is unreliable on shared staging.** Three suites (`sessions.lifecycle`, `blockTemplates.integration`, `templates.integration`) fail on `main` itself with P2003 FK violations stemming from shared-staging data pollution / persisted sessions, not the code under test. Until fixed, a failing integration suite is NOT automatically a regression signal — check whether the same failures occur on main. Tracked for cleanup (needs per-run isolation / teardown).
-- **Render services do not auto-migrate** (build = `npm install`, start = `node src/server.js`). Every schema change requires a manual migration step per the schema-change deploy discipline. Recorded as a known operational property, not a bug to fix unless/until automation is deliberately adopted.
+- **Prod Render does not auto-migrate** (Nov 16: staging does - its build runs `prisma migrate deploy`). Every prod schema change requires the manual "migrate prod" step per the schema-change deploy discipline.
 
 ---
 
@@ -375,7 +396,7 @@ Prefer a new Opus chat over mid-chat model switches.
 | Stable identity, vision, schema, principles | **This file** |
 | Open bugs, in-flight units, branch decisions, next unit, open forks | **`docs/HANDOFF.md`** (+ GitHub issues) |
 | Recurring command rituals (session start, merge, schema deploy, verification) | **`docs/RUNBOOK.md`** |
-| Incident play-by-play | `docs/incidents/` |
+| Incident play-by-play | `docs/HANDOFF-ARCHIVE.md` |
 | Commit conventions, branch state | Git itself |
 | Curation reasoning (muscle weights) | `*-rationale.md` files in the repo |
 

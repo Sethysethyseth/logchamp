@@ -4,9 +4,15 @@ Format: `<status> | <file> | <one-line scope> | <notes>`
 Statuses: DRAFT / QUEUED / DISPATCHED / AWAITING-REVIEW / LANDED <sha> / BOUNCED
 (protocol in README.md)
 
-## Active
+## Waves (newest first)
 
-**Motion wave (MX), opened October 9, 2026 (Opus seat; Fable 5.1 via Cursor is the designer).**
+**No wave is active (Nov 16, 2026).** Every wave below is merged to `main`
+(two DRAFT units were never built: `bk0-privacy-terms-pages.md` and
+`fp8-pwa-icons.md`, both waiting on Seth - see HANDOFF);
+the MX + ARENA waves merged Nov 16 (`b82ad8c..3a03bc5`, fast-forward,
+code-only). The heading was "Active" until then. New waves go at the top.
+
+**Motion wave (MX), opened October 9, 2026 (Opus seat; Fable 5.1 via Cursor is the designer).** **MERGED to `main` Nov 16, 2026 (`3a03bc5`) with the ARENA wave. Units still TODO in ROADMAP.md are candidates, not open work.**
 Branch `motion-wave` (cut from `quality-of-life-updates` at `a681217`).
 Design of record: `docs/design/mocks/motion/MOTION-DIRECTION.md` (Seth's
 rulings at the top override the rest) + `ROADMAP.md` beside it (written by
@@ -16,7 +22,7 @@ thinking and its suggestions win. Cursor usage is capped this month: every
 Fable run leaves ROADMAP.md current so a later run (or a cheaper model) can
 pick up. N is open until ROADMAP.md lands (Fable's breakdown is MX1-MX12).
 
-**ARENA wave (AR), opened November 11, 2026** - plan in ROADMAP.md
+**ARENA wave (AR), opened November 11, 2026** - **MERGED to `main` Nov 16, 2026 (`3a03bc5`) after the pre-main gate PASS WITH FIXES; prod verified.** Plan in ROADMAP.md
 "ARENA wave (AR)". Authored from a cloud session (no lane worktrees
 reachable, so recon was done in-seat and nothing is dispatched yet).
 Dispatch AR1 first; AR2 only after AR1 lands. MODEL is `opus` on both

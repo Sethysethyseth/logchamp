@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to WorkoutDB.
+Thanks for your interest in contributing to LogChamp (formerly WorkoutDB).
 
 ## Development setup
 

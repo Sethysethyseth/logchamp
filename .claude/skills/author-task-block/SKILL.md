@@ -23,7 +23,7 @@ Seth by hand, same line either way - the file must stand alone.
   wave has an artifact / prototype as its design of record, the block
   may only ask for what the artifact SHOWS - quote it by line. If the
   unit needs a state or a look the artifact does not draw, the design
-  seat (Fable) draws it there first; the block author never fills the
+  seat (Opus) draws it there first; the block author never fills the
   gap with invented visual rules. Every UI block carries a STATE MATRIX
   in its acceptance criteria (idle / live workout / resting / finished;
   keyboard open where there is a text box; each layout mode the surface

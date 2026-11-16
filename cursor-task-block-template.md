@@ -77,7 +77,7 @@ stop and say so.
 
 ---
 
-## Unit-scale variant (for Fable-on-Cursor)
+## Unit-scale variant (for a capable model on Cursor)
 
 When Cursor is running a capable model AND Claude Code is doing the
 review, the scope cap moves from "1-3 files, diff reviewable in a minute" to

@@ -1,6 +1,8 @@
 # MX wave roadmap - motion + visuals for LogChamp
 
-**Last checkpoint:** MX7a (Nov 10, 2026): logger floor PARTIAL + Home saved moment built direct (`a6338da`), see MX7; then Champ Arena shipped as the default (champ) scene with a lit layer that follows live workouts (see MX10 note). Before that - MXF11 (Nov 9, 2026): Seth's Nov 9 smoke passed everything. DONE since Oct 11: MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6` (exercise detail inline under the tapped row), MXF10 `f5826af` (coach box above the Android keyboard - edge-to-edge Chrome's keyboard rect ignored the nav bar; /coach drops viewport-fit=cover in Chromium), MXF11 `1bf3ee7` (IDEAS 16 promoted: swipe the workout bar and coach bar away sideways). Seth on MXF11 (Nov 9): "it definitely works in the barest sense" - the mechanics pass, the FEEL needs a pass (MXF12, ask Seth what is missing first; HANDOFF PICK UP HERE 0). Then the next code unit is MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. Fable 5.2 is now on the Cursor CLI (`claude-fable-5-2-high` etc.). MX1-MX6, MX-S, MXF1-MXF11 and MXC1 stay DONE.
+**Wave state (Nov 16, 2026):** the MX units marked DONE / PARTIAL / BUILT and the whole ARENA wave below are MERGED TO MAIN (`3a03bc5`, then `729f2b4` and `d5a9b9d`). Units still TODO here (MX5b, MX7 rest, MX8, MX9, MX10 other palettes, MX11-MX16) are candidates for a future wave, not open work; some predate the Arena and need re-checking against it before authoring.
+
+**Last checkpoint (Nov 10, superseded by the line above):** MX7a (Nov 10, 2026): logger floor PARTIAL + Home saved moment built direct (`a6338da`), see MX7; then Champ Arena shipped as the default (champ) scene with a lit layer that follows live workouts (see MX10 note). Before that - MXF11 (Nov 9, 2026): Seth's Nov 9 smoke passed everything. DONE since Oct 11: MXF8 `9a500e8` (Analytics replays faster on return), MXF9 `78a4cd6` (exercise detail inline under the tapped row), MXF10 `f5826af` (coach box above the Android keyboard - edge-to-edge Chrome's keyboard rect ignored the nav bar; /coach drops viewport-fit=cover in Chromium), MXF11 `1bf3ee7` (IDEAS 16 promoted: swipe the workout bar and coach bar away sideways). Seth on MXF11 (Nov 9): "it definitely works in the barest sense" - the mechanics pass, the FEEL needs a pass (MXF12, ask Seth what is missing first; HANDOFF PICK UP HERE 0). Then the next code unit is MX7 (logger floor) - or MX5b / MX10 if Seth picks scenes first. Fable 5.2 is now on the Cursor CLI (`claude-fable-5-2-high` etc.). MX1-MX6, MX-S, MXF1-MXF11 and MXC1 stay DONE.
 
 This file is the wave's state. It stands on its own next to
 `MOTION-DIRECTION.md` (the design) and needs no chat history. Whoever picks
@@ -681,6 +683,10 @@ Conventions for every unit below:
 
 ## ARENA wave (AR) - the look transformation (Seth's go, Nov 11, 2026)
 
+**MERGED TO MAIN Nov 16, 2026** (`b82ad8c..3a03bc5`, with the MX units
+above; post-merge direct builds `729f2b4`, `d5a9b9d` also on `main`).
+Arena is the default look; the beta switch wording below is history.
+
 Seth, Nov 11: "I really like this, I think I'm ready to transition over
 to this." Design of record: `arena-draft-2.html` (Artifact
 BxNBepax8Fg99q3sUvaUaU). Cursor builds it; the frontier seat only authors
@@ -718,15 +724,15 @@ the strip is a flat scoreboard that fades in place.
 
 | Unit | What | Status |
 | --- | --- | --- |
-| AR1 | Stage v2: one motion, three sizes (tour / open / strip), scroll-linked fold, scoreboard strip, full view that sticks across tabs | QUEUED `docs/tasks/ar1-arena-stage-one-motion.md` |
-| AR2 | Look closer: hold / pinch zoom, the Log + up-close details, crown rain / hold-Start / tower sequence moved into the room. After AR1 (same files) | QUEUED `docs/tasks/ar2-arena-closer-look-and-eggs.md` |
+| AR1 | Stage v2: one motion, three sizes (tour / open / strip), scroll-linked fold, scoreboard strip, full view that sticks across tabs | LANDED `eb2b5eb` (`ar1-arena-stage-one-motion.md`) |
+| AR2 | Look closer: hold / pinch zoom, the Log + up-close details, crown rain / hold-Start / tower sequence moved into the room. After AR1 (same files) | LANDED `3efc76d` (`ar2-arena-closer-look-and-eggs.md`) |
 | AR2f | Open size back to the prototype's (the room gets 54-62% - AR1 wrote the sheet's share down as the room's), live workout folds Home, strip and board polish. From Seth's Nov 12 phone smoke | LANDED `af50434` |
 | AR3 | The sheet's skin under Arena view: squared panels, accent rules, display face on titles - one stylesheet over the existing pages, Home + logger first. Waits on Seth's nitpick notes | LANDED `cfc6da7` (`ar3-arena-sheet-skin.md`) |
 | AR4 | Boards from real data: the four Analytics faces on the scoreboard, week faces with top set / top gain (from the WeeklyReport summary), the block on the rack's program board, coach answer headline on the chalkboard | LANDED `38362ef` (`ar4-arena-boards-from-real-data.md`) |
 | AR5 | Places: History seat follows the selected workout, banners from real milestones in the locker room, strip headlines for Library / Profile | LANDED `a152bf9` (`ar5-arena-places.md`) |
-| AR-R1 | Round 1 from Seth's phone smoke: design step DONE Nov 14 (`arena-draft-3.html` + `ARENA-ROUND-1.md`, Seth said go) - strip as a room slice and for the logger only, a thin rail on every other folded page, roof, one clock, live logger lights Home, one-row logger header, skinned slide-up sheets, Coach ask box and Finish error fixes. Supersedes the strip descriptions in AR1 / AR4 / AR5 above and "the strip is a flat scoreboard" | Build block TODO (frontier seat, from ARENA-ROUND-1.md) |
-| AR6 | Light-mode arena. DESIGN GAP - needs a frontier-seat prototype first, not a Cursor block | TODO (design) |
-| AR7 | Arena becomes the default (Seth's call after smoke), Classic stays as the switch; What's New unit | TODO |
+| AR-R1 | Round 1 from Seth's phone smoke: design step DONE Nov 14 (`arena-draft-3.html` + `ARENA-ROUND-1.md`, Seth said go) - strip as a room slice and for the logger only, a thin rail on every other folded page, roof, one clock, live logger lights Home, one-row logger header, skinned slide-up sheets, Coach ask box and Finish error fixes. Supersedes the strip descriptions in AR1 / AR4 / AR5 above and "the strip is a flat scoreboard" | LANDED `58d2615` (`ar-r1b-arena-round-1-build.md`) + phone-smoke rounds `2ef8fec` (ledger rows 14-24) |
+| AR6 | Light-mode arena | CLOSED by Seth's Nov 15 ruling: Arena is its own look, always dark; Light / Dark / System belong to Classic |
+| AR7 | Arena becomes the default (Seth's call after smoke), Classic stays as the switch; What's New unit | LANDED `ed36b7b` (`ar7-wn-arena-default-whats-new.md`), release `2026-11-arena` |
 
 Already true in the app, no unit needed: the in-progress bar drags in any
 direction, tilts, arms at 72px and scatters to Home (MXF12); Last 7 days

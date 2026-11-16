@@ -35,6 +35,13 @@
 
 ## Prior waves - CLOSED, detail archived
 
+- **Motion wave (MX) + ARENA wave (AR)** - merged `b82ad8c..3a03bc5` Nov 16
+  (fast-forward, code-only, gate PASS WITH FIXES); post-merge direct builds
+  `729f2b4`, `d5a9b9d`. Arena is the default look. Unit audits in QUEUE;
+  gate notes in the archive (Nov 15-16 entries).
+- **Quality-of-life wave (QOL)** - merged `b5c6777..b82ad8c` Oct 9 (prod
+  migrated first under "migrate prod").
+- **Blocks-v2 wave (BK)** + its smoke-fix waves (bkr, sr3) - merged Oct 7.
 - **Patch wave** (CP2 faster coach, CQ1 7-per-week coach cap, WD1 discard X) -
   merged `bdad1c1..7d3b91e` Sept 27 (smoke waived by Seth, gate PASS). Gate
   verdict, prod SQL and P-A/P-B research archived Sept 28.

@@ -1,12 +1,17 @@
-# WorkoutDB
+# LogChamp
 
-WorkoutDB is a mobile‑first workout tracker built for **fast logging**, **reusable templates/programs**, and a clean “workout session” history.
+LogChamp (formerly WorkoutDB) is a mobile-first, **analytics-first** weightlifting tracker for intermediate lifters: weekly volume per muscle, PR detection, estimated 1RM and progressive-overload trends, on top of fast logging, reusable workouts and multi-week blocks.
+
+The rename is display-layer only: service names, env vars, package names, cookies and storage keys keep the `workout-db` / `workoutdb` names (see `AGENTS.md`, "Rename boundary").
+
+Agent and contributor context lives in `AGENTS.md` (conventions, command gate) and `docs/HANDOFF.md` (current state).
 
 ## Tech stack
 
 - **Client**: React + Vite (`client/`)
 - **Server**: Express + sessions (`server/`)
-- **DB**: Postgres via Prisma
+- **DB**: Postgres (Neon) via Prisma 6 (config in `server/prisma.config.ts`)
+- **Analytics engine**: pure functions in `server/src/analytics/` (no DB)
 
 ## Repo structure
 
@@ -72,3 +77,4 @@ Vite bakes `VITE_API_URL` at **build** time, so set it per Vercel environment (P
 
 - `client`: `npm run dev`, `npm run dev:mobile`, `npm run build`
 - `server`: `npm run dev`, `npm run start`, `npm run prisma:studio`
+- `server`: `npm run test:unit` (pure-function lane, no DB, runs in CI) and `npm test` (both lanes; the integration lane migrates and resets the STAGING DB)
