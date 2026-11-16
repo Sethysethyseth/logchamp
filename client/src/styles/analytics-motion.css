@@ -119,13 +119,11 @@
 .analytics-page .st-delta--up,
 .analytics-page .st-matched--up,
 .analytics-page .st-compact-delta--up,
-.analytics-page .exercise-roster-stat__value.is-up,
 .analytics-page .stat-tile-value--up {
   color: var(--chart-up);
 }
 
-.analytics-page .st-compact-delta--down,
-.analytics-page .exercise-roster-stat__value.is-down {
+.analytics-page .st-compact-delta--down {
   color: var(--chart-down-text);
 }
 

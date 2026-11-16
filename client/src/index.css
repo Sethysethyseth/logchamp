@@ -10532,38 +10532,6 @@ html[data-theme="dark"] .session-discard-confirm__discard {
   fill: none;
 }
 
-.exercise-roster-stat {
-  display: grid;
-  gap: 1px;
-  text-align: right;
-}
-
-.exercise-roster-stat__value {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  color: var(--color-text);
-}
-
-.exercise-roster-stat__value.is-up {
-  color: var(--color-success-text);
-}
-
-.exercise-roster-stat__value.is-down {
-  color: var(--color-warn-text);
-}
-
-.exercise-roster-stat__label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-}
-
 @media (max-width: 719px) {
   .exercise-roster-row {
     grid-template-columns: minmax(0, 1fr) auto auto;
@@ -10580,18 +10548,6 @@ html[data-theme="dark"] .session-discard-confirm__discard {
   .exercise-roster-spark {
     grid-area: spark;
     display: none;
-  }
-
-  .exercise-roster-stat:nth-of-type(1) {
-    grid-area: top;
-  }
-
-  .exercise-roster-stat:nth-of-type(2) {
-    display: none;
-  }
-
-  .exercise-roster-stat--delta {
-    grid-area: delta;
   }
 }
 

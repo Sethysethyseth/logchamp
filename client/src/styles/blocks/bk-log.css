@@ -552,10 +552,6 @@
   gap: 14px;
 }
 
-.bk-log-effort-slot {
-  margin: 0;
-}
-
 /* Live block day: hide the resume bar. The Finish dock sits above the
    bottom nav (index.css), so the nav stays reachable. */
 html.bk-log-focus .persistent-workout-bar-wrap {
