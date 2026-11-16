@@ -70,11 +70,15 @@
 >   approved):** `git push origin 3a03bc5:main`, fast-forward
 >   `b82ad8c..3a03bc5` (132 commits: motion wave + ARENA wave + gate
 >   fixes + ar7-wn). Confirmed `origin/main` = `3a03bc5`. Code-only: no
->   migration, no env change. Prod deploy NOT verified from the cloud
->   session (its network denies the prod Vercel host) - Seth verifies.
+>   migration, no env change. PROD VERIFIED from the cloud session
+>   (hosts + a Render API key added to the `logchamp` environment Nov
+>   16): Render `workout-db` live on `3a03bc5` (manual deploy, 00:14Z),
+>   Vercel prod bundle `index-PvAImFrL.js` carries `2026-11-arena`,
+>   `/coach/stop` 401 on prod. Zero `server/prisma` changes: no Neon or
+>   migration step. Staging Render `workout-db-staging` still tracks
+>   `motion-wave` (live `5855beb`).
 >   Release `2026-11-arena` re-dated 2026-11-16.
-> - **Next action (Seth):** confirm the prod deploy (Vercel + Render
->   dashboards show `3a03bc5`), smoke prod on the phone (login, the What's
+> - **Next action (Seth):** smoke prod on the phone (login, the What's
 >   New pop-up once, Appearance > Theme, one workout), then repoint
 >   staging Render from `motion-wave` to `main`.
 > **FOR THE OPUS SEAT (Nov 13): Fable is NOT a standing dependency.**
