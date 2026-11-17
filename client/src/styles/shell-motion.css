@@ -23,6 +23,34 @@ html {
   min-width: 0;
 }
 
+/* A sideways drag between tabs (useTabSwipe.js). The page moves under the
+   finger, so nothing may scroll sideways or grow the document while it is
+   off to one side: clip, never a scroll container (sticky keeps working). */
+html[data-tab-swipe] .app {
+  overflow-x: clip;
+}
+
+html[data-tab-swipe] .mx-route {
+  will-change: transform;
+}
+
+/* The next tab's outline. Fixed, so the dragged page's own height and
+   scroll never move it; under the bottom nav and the folded room. */
+.mx-tab-ghost {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform;
+}
+
+html[data-arena] .mx-tab-ghost {
+  background: var(--color-bg);
+}
+
 html[data-mx-dir] .mx-route {
   view-transition-name: mx-page;
 }

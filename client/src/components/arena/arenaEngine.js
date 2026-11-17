@@ -76,6 +76,101 @@ const DOTS_MS = 280;
 /* The Analytics board's views, in the page's tab order. */
 const VIEW_TITLES = ["MUSCLES", "STRENGTH", "EXERCISES", "EXECUTION"];
 
+/* The Analytics board's body (Muscles view), front and back. A letter is a
+   muscle (arenaBoards BODY_PART): C chest, S shoulders, B biceps, F forearms,
+   A abs, Q quads, K calves, T traps, L lats, M middle back, W lower back,
+   R triceps, G glutes, H hamstrings. `o` is the rest of the body. */
+const BODY_FRONT = [
+  "........ooooo........",
+  ".......ooooooo.......",
+  ".......ooooooo.......",
+  ".......ooooooo.......",
+  "........ooooo........",
+  ".........ooo.........",
+  "......TTToooTTT......",
+  "...SSSSCCCCCCCSSSS...",
+  "..SSSSCCCCCCCCCSSSS..",
+  "..SSSSCCCC.CCCCSSSS..",
+  "..SSSCCCCC.CCCCCSSS..",
+  "..BBB.CCCC.CCCC.BBB..",
+  "..BBB..AAAAAAA..BBB..",
+  "..BBB..AAA.AAA..BBB..",
+  "..BBB..AAAAAAA..BBB..",
+  "..BBB..AAA.AAA..BBB..",
+  "..FFF..AAAAAAA..FFF..",
+  "..FFF..AAA.AAA..FFF..",
+  "..FFF..AAAAAAA..FFF..",
+  "..FFF...ooooo...FFF..",
+  "..FF...ooooooo...FF..",
+  "..oo..QQQQ.QQQQ..oo..",
+  "..oo..QQQQ.QQQQ..oo..",
+  "......QQQQ.QQQQ......",
+  "......QQQQ.QQQQ......",
+  "......QQQQ.QQQQ......",
+  "......QQQQ.QQQQ......",
+  "......QQQQ.QQQQ......",
+  "......QQQQ.QQQQ......",
+  ".......QQQ.QQQ.......",
+  ".......QQQ.QQQ.......",
+  ".......ooo.ooo.......",
+  ".......ooo.ooo.......",
+  "......KKKK.KKKK......",
+  "......KKKK.KKKK......",
+  "......KKKK.KKKK......",
+  "......KKKK.KKKK......",
+  ".......KKK.KKK.......",
+  ".......KKK.KKK.......",
+  ".......KKK.KKK.......",
+  ".......ooo.ooo.......",
+  "......oooo.oooo......",
+];
+const BODY_BACK = [
+  "........ooooo........",
+  ".......ooooooo.......",
+  ".......ooooooo.......",
+  ".......ooooooo.......",
+  "........ooooo........",
+  ".........ooo.........",
+  "......TTTTTTTTT......",
+  "...SSSSTTTTTTTSSSS...",
+  "..SSSSLTTTTTTTLSSSS..",
+  "..SSSSLLMMMMMLLSSSS..",
+  "..SSSLLLMMMMMLLLSSS..",
+  "..RRR.LLLMMMLLL.RRR..",
+  "..RRR.LLLMMMLLL.RRR..",
+  "..RRR..LLLMLLL..RRR..",
+  "..RRR..LLWWWLL..RRR..",
+  "..RRR...WWWWW...RRR..",
+  "..FFF...WWWWW...FFF..",
+  "..FFF...WWWWW...FFF..",
+  "..FFF..GGGGGGG..FFF..",
+  "..FFF.GGGGGGGGG.FFF..",
+  "..FF..GGGG.GGGG..FF..",
+  "..oo..GGGG.GGGG..oo..",
+  "..oo..GGGG.GGGG..oo..",
+  "......HHHH.HHHH......",
+  "......HHHH.HHHH......",
+  "......HHHH.HHHH......",
+  "......HHHH.HHHH......",
+  "......HHHH.HHHH......",
+  "......HHHH.HHHH......",
+  ".......HHH.HHH.......",
+  ".......HHH.HHH.......",
+  ".......ooo.ooo.......",
+  ".......ooo.ooo.......",
+  "......KKKK.KKKK......",
+  "......KKKK.KKKK......",
+  "......KKKK.KKKK......",
+  "......KKKK.KKKK......",
+  ".......KKK.KKK.......",
+  ".......KKK.KKK.......",
+  ".......KKK.KKK.......",
+  ".......ooo.ooo.......",
+  "......oooo.oooo......",
+];
+/* Plate heights on the board's bar, biggest plate first (arenaBoards platesFor). */
+const PLATE_H = [23, 19, 15, 11, 9, 7, 5];
+
 /** Where each place sits in the world: the x of its centre. The camera never moves vertically. */
 export const ARENA_PLACES = {
   history: { x: 46 },
@@ -140,6 +235,7 @@ export function createArena(canvas, strip) {
   const ease = { power: 0.5, board: 0, wide: 0 };
   const s = {
     place: "home",
+    scrub: null, // { place, t } while a sideways drag holds the camera between two places
     facet: null, // route facet for place faces: home | analytics | history | coach | library | profile | null
     live: null, // { startedAtMs, sets, name?, block?: { done, total } }
     rest: null, // { startedAtMs, durationMs }
@@ -219,8 +315,8 @@ export function createArena(canvas, strip) {
     return Math.max(0, s.rest.startedAtMs + s.rest.durationMs - now);
   }
 
-  function targetX() {
-    const place = ARENA_PLACES[s.place] || ARENA_PLACES.home;
+  function targetX(name = s.place) {
+    const place = ARENA_PLACES[name] || ARENA_PLACES.home;
     // Never look past the ends of the room; a view wider than the room centres it.
     return W >= 500 ? 250 - W / 2 : Math.max(-4, Math.min(504 - W, place.x - W / 2));
   }
@@ -387,41 +483,66 @@ export function createArena(canvas, strip) {
 
   /* The open Analytics board: the view the page is on. `gr` charges bars and columns in as it opens. */
   function viewBoard(face, bx, by, bw, bh, gr) {
-    text(face.title, bx + 3, by + 3, RAMP[6]);
     const view = VIEW_TITLES.indexOf(face.title);
-    /* Muscles and Strength: one big number that counts up as the board opens,
-       what it measures beside it, and one line of detail under a rule. */
-    const score = (num, side1, side2, label, detail, value) => {
-      text(num, bx + 6, by + 13, RAMP[8], 3);
-      const sx = bx + 10 + num.length * 12;
-      text(side1, sx, by + 15, RAMP[6]);
-      text(side2, sx, by + 23, RAMP[5]);
-      px(bx + 4, by + 34, RAMP[3], bw - 8, 1);
-      text(label, bx + 4, by + 40, RAMP[5]);
-      const room = Math.floor((bw - 12 - (label.length + value.length) * 4) / 4);
-      text(ledFit(detail, room), bx + 8 + label.length * 4, by + 40, RAMP[7]);
-      text(value, bx + bw - 3 - value.length * 4, by + 40, RAMP[8]);
-    };
+    // Muscles: the body takes the board's full height, so the title heads the column beside it.
+    text(face.title, view === 0 ? bx + 50 : bx + 3, by + 3, RAMP[6]);
     if (view === 0) {
-      if (face.total == null) {
+      if (!face.heat) {
         mid("--", bx + bw / 2, by + 24, RAMP[5]);
         return;
       }
-      score((face.total * gr).toFixed(1), "SETS", "A WEEK", "TOP", face.top.name, face.top.value);
-    } else if (view === 1) {
-      if (face.e1rm == null) {
+      /* The body, front and back. Each muscle glows with its share of the
+         hardest-worked muscle's sets; it warms up as the board opens. A
+         muscle with no work stays dark against the body. */
+      const figure = (rows, x0) =>
+        rows.forEach((row, ry) =>
+          [...row].forEach((ch, rx) => {
+            if (ch === ".") return;
+            const f = ch === "o" ? -1 : (face.heat[ch] || 0) * gr;
+            const c = f < 0 ? RAMP[3] : f <= 0 ? RAMP[2] : RAMP[Math.min(8, 4 + Math.round(f * 4))];
+            px(x0 + rx, by + 5 + ry, c);
+          })
+        );
+      figure(BODY_FRONT, bx + 3);
+      figure(BODY_BACK, bx + 26);
+      const tx = bx + 50;
+      text("TOP", tx, by + 14, RAMP[5]);
+      text(face.hot, tx, by + 21, RAMP[8]);
+      text(face.due ? "DUE" : "NONE DUE", tx, by + 31, RAMP[5]);
+      if (face.due) {
+        text(face.due.name, tx, by + 38, RAMP[7]);
+        text(`${face.due.days} DAYS`, tx, by + 45, RAMP[6]);
+      } else {
+        // With nothing waiting, the key to the glow: no work up to the most.
+        [2, 4, 5, 6, 7, 8].forEach((step, i) => px(tx + i * 5, by + 42, RAMP[step], 4, 4));
+      }
+    } else if (view === 1 || view === 2) {
+      const bar = face.bar;
+      if (!bar) {
         mid("--", bx + bw / 2, by + 24, RAMP[5]);
         return;
       }
-      const moved = face.delta > 0 ? `UP ${face.delta}` : face.delta < 0 ? `DOWN ${-face.delta}` : "";
-      score(String(Math.round(face.e1rm * gr)), "E1RM", moved, "", face.name, "");
-    } else if (view === 2) {
-      face.rows.forEach((r, i) => {
-        const y = by + 12 + i * 9;
-        text(ledFit(r.name, Math.floor((bw - 10 - r.set.length * 4) / 4)), bx + 3, y, RAMP[7]);
-        text(r.set, bx + bw - 3 - r.set.length * 4, y, RAMP[5]);
+      /* The bar, loaded to the lift: the plates go on from the collar out
+         as the board opens. Top right, what the bar weighs. */
+      const num = bar.num;
+      const nx = bx + bw - 3 - num.length * 8;
+      text(num, nx, by + 3, RAMP[8], 2);
+      const lx = nx - 3 - bar.label.length * 4;
+      if (lx > bx + 5 + face.title.length * 4) text(bar.label, lx, by + 8, RAMP[5]);
+      const m = bx + bw / 2;
+      const y = by + 29;
+      px(bx + 4, y, RAMP[5], bw - 8, 1);
+      px(m - 13, y - 2, RAMP[6], 1, 5);
+      px(m + 12, y - 2, RAMP[6], 1, 5);
+      const on = Math.ceil(bar.plates.length * gr - 1e-9);
+      bar.plates.slice(0, on).forEach((size, i) => {
+        const h = PLATE_H[Math.min(size, PLATE_H.length - 1)];
+        const c = RAMP[size === 0 ? 8 : size < 3 ? 7 : 6];
+        px(m - 13 - 4 - i * 4, y - (h - 1) / 2, c, 3, h);
+        px(m + 14 + i * 4, y - (h - 1) / 2, c, 3, h);
       });
-      if (!face.rows.length) mid("--", bx + bw / 2, by + 24, RAMP[5]);
+      const tail = bar.reps != null ? ` X${bar.reps}` : "";
+      mid(ledFit(bar.name, Math.floor((bw - 8) / 4) - tail.length) + tail, m, by + 44, RAMP[6]);
     } else if (view === 3) {
       const num = face.pct == null ? "--" : String(face.pct);
       text(num, bx + 6, by + 14, face.pct == null ? RAMP[5] : RAMP[8], 4);
@@ -739,7 +860,15 @@ export function createArena(canvas, strip) {
 
     // The camera only walks sideways: a time-based tween, one frame per animation frame.
     const tx = targetX();
-    if (reduced || !cam.ready || s.covered) {
+    /* A sideways drag between tabs holds the camera part-way to the next
+       place (scrub). NaN as the walk's goal makes the next free frame start
+       a walk from wherever the finger left it. */
+    const scrub = !reduced && cam.ready && !s.covered ? s.scrub : null;
+    if (scrub) {
+      cam.x = tx + (targetX(scrub.place) - tx) * scrub.t;
+      walk.to = NaN;
+      walk.dur = 0;
+    } else if (reduced || !cam.ready || s.covered) {
       cam.x = tx;
       walk.to = tx;
       walk.dur = 0;
@@ -779,6 +908,8 @@ export function createArena(canvas, strip) {
     const wideTo = wantWide(now);
     ease.power += (wantPower - ease.power) * k;
     ease.board += (wantBoard - ease.board) * k;
+    // The board grows and shrinks with the drag too (Home <-> Analytics share a spot).
+    if (scrub) ease.board = wantBoard + ((scrub.place === "analytics" ? 1 : 0) - wantBoard) * scrub.t;
     ease.wide += (wideTo - ease.wide) * Math.min(1, k * 2.4);
     cam.ready = true;
     const easing =
@@ -803,7 +934,7 @@ export function createArena(canvas, strip) {
         lift !== wantLift ||
         s.holding ||
         now < s.towerAt[1]);
-    if (walk.dur || easing || flashing || moving) raf = window.requestAnimationFrame(frame);
+    if (walk.dur || (easing && !scrub) || flashing || moving) raf = window.requestAnimationFrame(frame);
     else lastT = 0;
     syncBlink(now, reduced);
     syncDots();
@@ -940,6 +1071,11 @@ export function createArena(canvas, strip) {
       Object.assign(s, patch);
       syncClock();
       syncDots();
+      kick();
+    },
+    /** A sideways drag between tabs: hold the camera `t` (0..1) of the way to `place`. `null` lets go. */
+    scrub(place, t = 0) {
+      s.scrub = place ? { place, t: Math.max(0, Math.min(1, t)) } : null;
       kick();
     },
     flash(ms) {

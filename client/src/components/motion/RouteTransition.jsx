@@ -1,11 +1,14 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { useLocation, useNavigationType, useOutlet } from "react-router-dom";
+import { useLocation, useNavigate, useNavigationType, useOutlet } from "react-router-dom";
 import "../../styles/shell-motion.css";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
 import { routeDirection } from "./navOrder.js";
 import { flipSourcePending, takeRouteFade } from "./useFlip.js";
 import { arenaArrivalScroll } from "../../lib/arenaFold.js";
+import { takeTabSwipeNav } from "../../lib/tabSwipe.js";
+import { LoadingState } from "../LoadingState.jsx";
+import { useTabSwipe } from "./useTabSwipe.js";
 
 /**
  * MX5 shared-axis route transition. Mounted as a pathless layout route in
@@ -47,11 +50,36 @@ function enterKeyframes(dir) {
   ];
 }
 
+/* The next tab's outline, riding in beside the page during a sideways drag
+   (useTabSwipe). The same skeletons the tab shows while it loads, under its
+   own title, so the real page lands on the shape that was dragged in. */
+const GHOST_SKELETON = {
+  home: { variant: "card" },
+  analytics: { variant: "analytics" },
+  history: { variant: "history", rows: 5 },
+  library: { variant: "library", rows: 4 },
+  profile: { variant: "settings" },
+};
+
+function TabGhost({ ghost, ghostRef }) {
+  const skeleton = GHOST_SKELETON[ghost.key] || { variant: "list" };
+  return (
+    <div ref={ghostRef} className="mx-tab-ghost" style={{ top: ghost.top }} aria-hidden="true">
+      <div className="container main stack">
+        {ghost.key === "home" ? null : <h1 className="page-title">{ghost.label}</h1>}
+        <LoadingState tone="skeleton" delayed={false} caption={false} {...skeleton} />
+      </div>
+    </div>
+  );
+}
+
 export function RouteTransition() {
   const outlet = useOutlet();
   const { pathname } = useLocation();
   const navType = useNavigationType();
+  const navigate = useNavigate();
   const wrapperRef = useRef(null);
+  const { ghost, ghostRef } = useTabSwipe({ wrapperRef, pathname, navigate });
   const prevPathRef = useRef(pathname);
   /* The Arena stage mode of the route we are leaving. ArenaStage's layout
      effect runs first and already holds the NEW route's mode, so read the
@@ -79,7 +107,8 @@ export function RouteTransition() {
        Under Arena, also fade when leaving the live-logger strip: a view
        transition snapshot across the stage height change aborts with a
        page error ("Viewport size changed"). */
-    const fadeFlag = takeRouteFade();
+    const swiped = takeTabSwipeNav();
+    const fadeFlag = takeRouteFade() || swiped === "fade";
     const toHistoryShrink = pathname === "/sessions" && flipSourcePending();
     const arenaLeavingStrip =
       typeof document !== "undefined" &&
@@ -122,6 +151,14 @@ export function RouteTransition() {
        the grow/shrink reads as the same motion as the fade. */
     const reduced = prefersReducedMotion();
     const flipFade = dir === "fade" && !reduced;
+
+    /* A swipe carried the page in under the finger: commit and place the
+       scroll, with no entrance on top. */
+    if (swiped === "carried") {
+      if (supportsViewTransitions) setCommitted(pathname);
+      scrollTop();
+      return undefined;
+    }
 
     if (!supportsViewTransitions || flipFade) {
       if (flipFade && supportsViewTransitions) {
@@ -187,8 +224,11 @@ export function RouteTransition() {
   });
 
   return (
-    <div ref={wrapperRef} className="mx-route">
-      {content}
-    </div>
+    <>
+      <div ref={wrapperRef} className="mx-route">
+        {content}
+      </div>
+      {ghost ? <TabGhost ghost={ghost} ghostRef={ghostRef} /> : null}
+    </>
   );
 }

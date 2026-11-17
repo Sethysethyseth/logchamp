@@ -31,14 +31,30 @@
 >   false` in `AppearancePage.jsx` (a saved custom palette still lists).
 >   What's New `2026-11-arena` copy follows (Look, pull down). The older
 >   release note that mentions describing a look is unchanged.
-> - **Analytics:** the Scoreboard no longer redraws the page's chart.
->   Muscles = sets a week (counts up) + top muscle; Strength = E1RM + UP /
->   DOWN + the lift. Exercises / Execution unchanged. Page charts hold
->   their entrance until the card scrolls into view (`data-hold` /
->   `data-seen`, `analytics-motion.css`).
-> - Lanes: unit 587, build, check-hex clean; rig 412 (swipe both ways,
->   spring-back, flick, fold still scrolls, reduced motion, coach rail,
->   History). Pre-existing lint error `arenaEngine.js` paintFace `bh`.
+> - **Drag sideways between tabs** (Seth's second note: this is what he
+>   meant by seamless). On a tab's first page a horizontal drag carries
+>   the page 1:1, the next tab's outline (title + its loading skeleton)
+>   rides in beside it, and the room's camera travels with the finger
+>   (`arena.scrub`). Past 35% of the width or a flick changes tab with no
+>   second entrance; else it slides home. `motion/useTabSwipe.js`,
+>   `lib/tabSwipe.js`, `RouteTransition.jsx` (TabGhost), `shell-motion.css`.
+>   Works in Classic too. Left alone: sideways scrollers (coach chips),
+>   fields, dialogs, the two screen edges, deeper pages, a closer look.
+>   Known: Analytics -> History walks the camera LEFT while the finger goes
+>   left (the room's layout, same as a tap).
+> - **Analytics board = a picture, not a copy** (second pass). Muscles: a
+>   pixel body, front and back, each muscle lit by its share of the top
+>   muscle's sets, plus TOP and DUE (longest `daysSinceLast`, 5+ days).
+>   Strength: the bar loaded plate by plate to the highest current E1RM.
+>   Exercises: the bar loaded to the heaviest top set, or to the exercise
+>   open on the page (`?exercise=`). Execution unchanged. `arenaBoards.js`
+>   (`platesFor`, BODY_PART), `arenaEngine.js` (BODY_FRONT / BODY_BACK).
+>   Page charts still hold their entrance until scrolled into view.
+> - Lanes: unit 587, build, check-hex clean; rig 412 Arena + Classic +
+>   reduced motion (tab swipe through all five, folded and full view,
+>   flick, ends, deeper page; vertical swipe regression). Lint: only the
+>   errors that were already there (`arenaEngine.js` paintFace `bh`,
+>   `Cascade.jsx`, `RouteTransition.jsx` ref-in-render).
 
 > **Nov 15, second cloud session (frontier seat): PRE-MAIN GATE = PASS
 > WITH FIXES, ALL FIXES LANDED. MERGED TO MAIN Nov 16 (`3a03bc5`).** Branch `ccr-ac9fe067-pc08f1`, pushed; `main` = `b82ad8c` is its
