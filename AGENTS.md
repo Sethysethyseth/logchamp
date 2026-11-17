@@ -182,14 +182,19 @@ Only the items below stop and ask first. Everything not listed runs automaticall
 ASK BEFORE RUNNING (the short gate):
 
 1. MERGE INTO `main` - gated behind a trigger phrase. Do not start the
-   merge/push sequence until the user says "push to main" verbatim. Once
-   triggered, run one command at a time and wait for explicit manual approval
-   before each next one - never batch or auto-run the sequence. After the
-   push lands, report exactly what was merged (commits, SHAs, confirmed
-   `origin/main` HEAD) before considering the task done.
+   merge/push sequence until Seth says "push to main" verbatim or runs
+   `/push-to-main`. Since Nov 17, 2026 (Seth) that ONE approval covers the
+   whole sequence, including the prod-deploying push (item 2): Claude Code
+   runs the `push-to-main` skill end to end without per-command approval,
+   halting only on its hard stops (not a fast-forward, schema change, new
+   dependency / prod config, no gate PASS, red lanes). It never covers a
+   migration (item 3). After the push lands, report exactly what was
+   merged (commits, SHAs, confirmed `origin/main` HEAD) before considering
+   the task done. Cursor never runs it.
 2. PRODUCTION touches - prod Neon (`ep-solitary-sea-an56mioq`), prod Render
    (`workout-db-l3gc`), any prod data operation, or any `git push` that deploys
-   to production. Staging pushes are fine; prod-bound pushes ask first.
+   to production. Staging pushes are fine; prod-bound pushes ask first
+   (a main merge under item 1's trigger counts as asked).
 3. MIGRATIONS - split by environment since August 5, 2026. Code push != DB
    migrate in either case, and the ordering invariant below is absolute.
    - **STAGING migrations: trigger-phrase tier** (same shape as item 1). Do

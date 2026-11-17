@@ -9,7 +9,7 @@ Frontier seat ONLY - that means OPUS (Fable departed July 18, 2026).
 Sonnet does not run this -
 if a wave is complete and no frontier seat is in the chair, STOP and say
 so. This skill produces a VERDICT, not a merge: the merge itself stays
-the copy-paste RUNBOOK ritual behind Seth's verbatim "push to main".
+the `push-to-main` skill behind Seth's verbatim "push to main".
 
 Nothing ships to main without a pass here. The gate has moved (v3: from
 per-unit to once-per-wave) - it has never become optional. It caught a
@@ -27,8 +27,8 @@ The wave-end sequence is fixed:
 3. Seth's sign-off (or his explicit "skip smoke, review it") is the ONLY
    entry condition for this skill.
 4. This skill runs -> verdict + any fix blocks.
-5. Merge to main: RUNBOOK ritual, gated on the trigger phrase, Seth runs
-   it one command at a time.
+5. Merge to main: the `push-to-main` skill, gated on the trigger phrase
+   (one approval, then automatic).
 
 Why smoke goes first: smoke findings are review INPUT. A defect Seth
 finds on the deploy reshapes what the gate reads for, and a review run
@@ -113,7 +113,7 @@ section 1 after the fixes land - not a partial re-read.
 ## 5. What this skill never does
 
 - Never merges, never pushes to main, never touches prod or migrations.
-  The merge sequence is RUNBOOK + the verbatim "push to main" trigger,
-  one command at a time with manual approval before each.
+  The merge sequence is the `push-to-main` skill behind the verbatim
+  "push to main" trigger.
 - Never fans out the ruling.
 - Never runs before Seth's smoke sign-off (section 0).

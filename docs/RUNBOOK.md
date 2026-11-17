@@ -54,7 +54,8 @@ git log origin/<branch> -1 --oneline
 #     provider, a new runtime dep with a Node floor) → section 10 FIRST.
 #     For `ai-connector-wave` it is mandatory: it carries two pre-flight
 #     vetoes that can stop the merge outright.
-# 6. Merge (manual, ff-only preferred):
+# 6. Merge: Seth says "push to main" / runs /push-to-main and Claude Code
+#    runs the push-to-main skill end to end (Nov 17, 2026). By hand, ff-only:
 ```
 ```powershell
 git checkout main
@@ -209,7 +210,7 @@ git worktree remove C:\dev\worktrees\<unit-id>
 - `server/.env` → staging or localhost only. Never prod.
 - Prod connection strings live ONLY in `C:\dev\secrets\prod-db.env` (outside the repo and OneDrive) - never in the repo, `server/.env`, or a transcript. Prod SQL = the Neon SQL editor (Seth), or Claude Code under "migrate prod" reading that file at run time (AGENTS.md gate 3, changed Oct 9, 2026).
 - Never disable `dbHostGuard` to make a test pass. New DB-connecting scripts call `assertSafeForReset(process.env.DATABASE_URL)` at top of `main()`.
-- All main merges and all prod DB ops: behind Seth's trigger phrase, every command approved by him; never Cursor.
+- All main merges: behind Seth's trigger ("push to main" / `/push-to-main`), one approval for the whole `push-to-main` skill run. All prod DB ops: behind "migrate prod", every command approved by him. Never Cursor.
 
 ---
 

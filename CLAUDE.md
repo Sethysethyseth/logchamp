@@ -149,7 +149,9 @@ history - only the frontier seat (Opus) reads it, when planning or gating.
   authoring), `dispatch-unit` (autonomous hand-to-Cursor, channels +
   fallback ladder), and `pre-main-review` (the gate: wave-end order,
   gate-fuel fan-out, verdict). Cursor never loads skills - anything Cursor needs
-  stays in AGENTS.md. Deliberately NOT skills: merge-to-main and schema-deploy
-  stay as copy-paste RUNBOOK rituals - their friction is a feature.
+  stays in AGENTS.md. Merge-to-main IS a skill since Nov 17, 2026 (Seth):
+  `push-to-main` - one trigger, then automatic, halting on hard stops.
+  Deliberately NOT a skill: schema-deploy stays a copy-paste RUNBOOK
+  ritual - its friction is a feature.
   `scripts/check-hex.mjs` is the tokens-only tripwire `land-unit` runs
   on UI units.
