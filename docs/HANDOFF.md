@@ -1,5 +1,20 @@
 # HANDOFF — current state
 
+> **Nov 17, cloud session (Seth, direct ask; built in-seat on
+> `motion-wave`, NOT on main, NOT seen on a phone):** crown loader ->
+> login on a cold prod. Cause: `/auth/me` with no session answers 401
+> without a DB query, so the loader dropped to login and the sign-in
+> button paid the Neon wake. Fix: new public `GET /health/db` (`SELECT 1`,
+> `server/src/routes/index.js`); the client fires it at boot beside
+> `/auth/me` and, when headed for login, holds the crown loader until it
+> answers (capped 20s, `AuthContext.jsx`). And a crown held or in the air
+> holds the loader (and the arena) until it lands (`useCrownInPlay`,
+> `crownIntroStore.js`; `ProtectedRoute` + `Layout`). Signed-in opens are
+> not delayed. Lanes: unit 587, build, lint on touched files, check-hex;
+> rig: slow DB keeps the loader to ~6s then login; crown held through the
+> answer stays, login ~1.7s after release. Server change = Render deploy
+> needed with the client; no schema, no migration.
+
 > **Nov 16, third cloud session (Seth, direct ask after the merge; built
 > in-seat, NOT on main - branch + `motion-wave` only, NOT seen on a phone):**
 > - **Swipe in and out of the full view** (Seth's video: the full view

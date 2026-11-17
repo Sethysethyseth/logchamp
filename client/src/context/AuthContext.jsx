@@ -13,6 +13,9 @@ import { ApiError } from "../api/http.js";
 
 const AuthContext = createContext(null);
 
+/** Longest the boot loader waits on the database warm-up before showing login. */
+const BOOT_WARM_CAP_MS = 20000;
+
 function setStoredAuthToken(token) {
   try {
     if (typeof window === "undefined") return;
@@ -49,18 +52,20 @@ export function AuthProvider({ children }) {
   /** True while tearing down the server session so no /auth/me result re-applies a user. */
   const loggingOutRef = useRef(false);
 
-  const refreshSession = useCallback(async () => {
+  const refreshSession = useCallback(async (opts) => {
     if (loggingOutRef.current) {
       setAuthLoading(false);
       return null;
     }
     const epoch = ++authEpochRef.current;
+    let signedIn = false;
     try {
       const data = await authApi.me();
       if (loggingOutRef.current || authEpochRef.current !== epoch) {
         return data?.user ?? null;
       }
       setCurrentUser(data.user);
+      signedIn = Boolean(data?.user);
       return data.user;
     } catch (err) {
       if (loggingOutRef.current || authEpochRef.current !== epoch) {
@@ -77,6 +82,11 @@ export function AuthProvider({ children }) {
       setCurrentUser(null);
       return null;
     } finally {
+      // Boot, headed for /login: the session check can answer before the
+      // database wakes (no session = no query), which moved the cold wait
+      // onto the sign-in button. Hold the crown loader until the warm-up
+      // ping lands too, capped, so the wait is spent where the crown is.
+      if (!signedIn && opts?.holdFor) await opts.holdFor;
       // A superseded call must not end the boot wait: on load, pageshow starts
       // a second /auth/me, and clearing authLoading here while currentUser is
       // still null bounced signed-in users through /login. Whoever bumped the
@@ -88,7 +98,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    void refreshSession();
+    const warmed = Promise.race([
+      authApi.warm(),
+      new Promise((resolve) => setTimeout(resolve, BOOT_WARM_CAP_MS)),
+    ]);
+    void refreshSession({ holdFor: warmed });
   }, [refreshSession]);
 
   useEffect(() => {

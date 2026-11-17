@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { prefersReducedMotion } from "../../lib/useReducedMotion.js";
+import { setCrownInPlay } from "./crownIntroStore.js";
 
 const GRAVITY = 2600; // px / s^2
 const RESPAWN_MS = 420;
@@ -62,6 +63,7 @@ export function useCrownThrow(active) {
       crown.style.transformOrigin = "";
       crown.style.visibility = "";
       delete coin.dataset.thrown;
+      setCrownInPlay(false);
     };
 
     /* Pivot -> centre, in screen axes, for the current angle. */
@@ -169,6 +171,7 @@ export function useCrownThrow(active) {
         last: now,
       };
       coin.dataset.thrown = "";
+      setCrownInPlay(true);
       try {
         coin.setPointerCapture(e.pointerId);
       } catch {

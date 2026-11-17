@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from "react";
+
 /* The crown intro's doorbell. Pages ring it (`playCrownIntro`), the host
  * component mounted in App answers. Kept out of React context on purpose:
  * the callers are two auth forms and the host, nothing else needs to know.
@@ -77,4 +79,28 @@ export function takeLoaderCrown() {
   const c = loaderCrown;
   if (!c || prefersReducedMotion() || performance.now() - c.at > HANDOFF_WINDOW_MS) return null;
   return c;
+}
+
+/* ---- Crown in play ----
+ * While someone has the loader's crown in hand or in the air, the boot wait
+ * does not end under them: the page waits for the crown to land (it falls
+ * off the bottom and the toy resets), then moves on. Set by useCrownThrow.
+ */
+let crownInPlay = false;
+const playListeners = new Set();
+
+export function setCrownInPlay(on) {
+  if (crownInPlay === on) return;
+  crownInPlay = on;
+  playListeners.forEach((fn) => fn());
+}
+
+function subscribeCrownInPlay(fn) {
+  playListeners.add(fn);
+  return () => playListeners.delete(fn);
+}
+
+/** True while the loader's crown is held or thrown. */
+export function useCrownInPlay() {
+  return useSyncExternalStore(subscribeCrownInPlay, () => crownInPlay, () => false);
 }

@@ -1,4 +1,5 @@
 const express = require("express");
+const prisma = require("../lib/prisma");
 const authRoutes = require("./authRoutes");
 const exerciseRoutes = require("./exerciseRoutes");
 const templateRoutes = require("./templateRoutes");
@@ -41,6 +42,20 @@ router.get("/", (req, res) => {
 
 router.get("/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+// Warm-up ping (Nov 17): the boot loader calls this while the crown spins, so
+// a cold prod wakes its database there instead of on the sign-in button.
+// /auth/me with no session answers 401 without a query, which left Neon
+// asleep until login. Public, one trivial query, no data out.
+router.get("/health/db", async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.set("Cache-Control", "no-store");
+    res.json({ status: "ok" });
+  } catch {
+    res.status(503).json({ status: "unavailable" });
+  }
 });
 
 // RFC 9728 Protected Resource Metadata - public; both path forms (clients differ).

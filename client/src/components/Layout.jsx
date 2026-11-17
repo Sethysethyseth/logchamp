@@ -9,6 +9,7 @@ import { BottomNav } from "./layout/BottomNav.jsx";
 import { Navbar } from "./layout/Navbar.jsx";
 import { PersistentWorkoutBar } from "./workout/PersistentWorkoutBar.jsx";
 import { WhatsNewGate } from "./whatsnew/WhatsNewGate.jsx";
+import { useCrownInPlay } from "./motion/crownIntroStore.js";
 
 export function Layout() {
   /* Arena view (Appearance; the default look): the stage sits above the top
@@ -20,7 +21,10 @@ export function Layout() {
      opens once there is someone to show it to (Seth, Nov 15: an arena
      reading "0 WORKOUTS" over the loading crown looked odd). */
   const { authLoading } = useAuth();
-  const arena = useArenaView() && !authLoading;
+  /* A crown still in the air holds the loader (ProtectedRoute) - and the
+     room with it, or opening the stage would remount the loader mid-throw. */
+  const crownInPlay = useCrownInPlay();
+  const arena = useArenaView() && !authLoading && !crownInPlay;
   const tour = useArenaTour();
   useLayoutEffect(() => {
     document.documentElement.toggleAttribute("data-arena", arena);

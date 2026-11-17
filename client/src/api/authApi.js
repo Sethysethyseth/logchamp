@@ -23,6 +23,15 @@ export function me() {
   return http("/auth/me");
 }
 
+/** Wakes the API and its database (cold prod). Never throws. */
+export async function warm() {
+  try {
+    await http("/health/db", { credentials: "omit" });
+  } catch {
+    /* a failed warm-up only means the next request pays the wake */
+  }
+}
+
 export function changePassword({ currentPassword, newPassword }) {
   return http("/auth/password", {
     method: "PATCH",
