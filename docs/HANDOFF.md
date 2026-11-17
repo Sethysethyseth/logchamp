@@ -1,7 +1,8 @@
 # HANDOFF — current state
 
-> **Nov 17, cloud session (Seth, direct ask; built in-seat on
-> `motion-wave`, NOT on main, NOT seen on a phone):** crown loader ->
+> **Nov 17, cloud session (Seth, direct ask; built in-seat; gate PASS
+> in-seat; MERGED TO MAIN `dad6102` (ff), Render prod live on it; NOT yet
+> seen on a phone):** crown loader ->
 > login on a cold prod. Cause: `/auth/me` with no session answers 401
 > without a DB query, so the loader dropped to login and the sign-in
 > button paid the Neon wake. Fix: new public `GET /health/db` (`SELECT 1`,
