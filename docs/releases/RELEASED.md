@@ -7,6 +7,17 @@ shipped work to the words users read.
 
 ---
 
+## Consumed Nov 20, 2026 by bl-wn -> RELEASES `2026-12-block-lens`
+
+### -> `2026-12-block-lens`
+
+#### Block Lens wave (BL) - claude/wonderful-gauss-xxyvet
+
+- [bl1] The arena now walks in the same order as your tabs - Home, Analytics, History, Library, Profile - and Analytics has its own scoreboard in the room. The coach's chalkboard corner is gone; the coach now talks on the Home scoreboard. | Where: swipe between tabs with Arena on | Files: client/src/components/arena/arenaEngine.js, client/src/components/arena/ArenaStage.jsx
+- [bl2] Home is now a set of cards - start your workout, what is up next, this week at a glance, and a new Beat last time card that shows your last top set on your next lifts and the one-more-rep target. Top set and Top gain moved off Home (they are still on Analytics). | Where: Home | Files: client/src/pages/DashboardPage.jsx, client/src/components/home/HomeBeatSection.jsx, client/src/components/home/HomeWeekSection.jsx
+- [bl4] Analytics can now show just one block: pick it from the chips at the top to see your progress through the block, sets done against planned each week, and each lift's top set week by week (left and right sides for one-sided lifts) against the planned load. Your block page links straight to it. | Where: Analytics, block chip - or Block page, Analytics | Files: client/src/components/analytics/block/BlockScopeView.jsx, client/src/components/analytics/block/BlockLiftChart.jsx, client/src/pages/AnalyticsPage.jsx
+- [bl5] You can now arrange Home and Analytics your way: in Appearance, the new Customize tab lets you hide or show each card, press and hold (or drag the grip) to move cards, and preview the screen before you leave. Appearance itself is tidier: pick Arena or Classic, then theme and accent color. Saved on this device. | Where: Profile, then Appearance, then Customize | Files: client/src/components/prefs/customize/CustomizePanel.jsx, client/src/components/prefs/customize/LookPanel.jsx, client/src/pages/profile/AppearancePage.jsx
+
 ## Consumed Nov 15, 2026 by ar7-wn -> RELEASES `2026-11-arena`
 
 Not in the ledger but covered by the release's details (the frontier seat's Nov 14-15 phone-smoke rounds, `ar-critique-ledger.md` rows 14-25): quick chip row + Timer chip, fold carries across tabs, THE HOME CROWD / THE PLAYBOOK, rest timer on the strip, Finish at the end of the page, Raw log naming, Start workout; and ar7-wn itself (Arena is the default, Classic in Appearance).
