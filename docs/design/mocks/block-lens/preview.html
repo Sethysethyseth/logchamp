@@ -1,0 +1,272 @@
+<title>Block Lens Preview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a long column of phone frames, each paired with a short note. The phones are the content; the page around them stays quiet. Single dark look, matching the Arena. */
+:root{
+  color-scheme: dark;
+  --bg:#060913; --panel:#0d1322; --panel-2:#131b2e; --line:#22304a;
+  --ink:#eef2f8; --ink-2:#b4c0d4; --muted:#7f8ca3;
+  --accent:#8b9bff; --accent-ink:#c3cbff; --accent-soft:color-mix(in srgb,#8b9bff 16%,#0d1322);
+  --good:#4ade80; --bad:#f87171;
+  --display:"Chakra Petch","Barlow Condensed",system-ui,sans-serif;
+  --label:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px;display:flex;flex-direction:column;gap:60px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.1;text-wrap:balance}
+h1{font-size:clamp(32px,7vw,50px)}
+h2{font-size:26px}
+h3{font-size:17px}
+p{margin:0;max-width:64ch;color:var(--ink-2)}
+b,strong{color:var(--ink)}
+code{font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--accent-ink);background:var(--panel-2);padding:1px 5px;border-radius:4px;word-break:break-word}
+.eyebrow{font:600 13px/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+.lbl{font:600 13px/1 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.sec-head{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:22px}
+.pill{display:inline-flex;align-items:center;font:600 13px/1 var(--label);letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2)}
+.pill.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,var(--line))}
+.pill.no{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
+.meta{display:flex;gap:8px;flex-wrap:wrap}
+
+.phone{position:relative;width:100%;max-width:300px;border-radius:26px;padding:8px;background:#000;border:1px solid var(--line);box-shadow:0 18px 50px -20px color-mix(in srgb,var(--accent) 35%,transparent)}
+.phone img{display:block;width:100%;height:auto;border-radius:18px;max-width:100%}
+.cap{font:600 13px/1.2 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);text-align:center}
+
+/* player */
+.player{display:grid;grid-template-columns:300px minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:720px){.player{grid-template-columns:1fr;justify-items:center}}
+.player > *{min-width:0}
+.stage{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.stage:active{cursor:grabbing}
+.stage img{pointer-events:none}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:600 14px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;padding:10px 14px;background:transparent;color:var(--ink-2);border:0;cursor:pointer;min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-ink)}
+.btn{font:600 14px/1 var(--label);letter-spacing:.08em;text-transform:uppercase;padding:10px 14px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;cursor:pointer;min-height:40px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.tabs button{font:600 13px/1 var(--label);letter-spacing:.05em;text-transform:uppercase;padding:8px 2px;border-radius:6px;color:var(--muted);border:1px solid var(--line);background:transparent;cursor:pointer}
+.tabs button.on{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-soft)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.verdicts{display:grid;gap:6px}
+.verdicts div{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:14px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line)}
+
+/* galleries */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+.gal figure{margin:0;display:flex;flex-direction:column;gap:8px}
+.gal .phone{padding:5px;border-radius:18px}
+.gal .phone img{border-radius:13px}
+.pair{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+@media (max-width:760px){.pair{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.pair{grid-template-columns:1fr}}
+.pair figure{margin:0;display:flex;flex-direction:column;gap:10px;align-items:center}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.note p{font-size:14px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+th{font:600 12px/1.2 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-top:0;background:var(--panel-2)}
+</style>
+
+<div class="wrap">
+<header class="stack">
+  <span class="eyebrow">Block Lens wave · visual preview</span>
+  <h1>See it in the app</h1>
+  <p>Every frame here is a screenshot of the real LogChamp app running in this session against a seeded test account, so the numbers are test data, not yours. The arena is the actual engine with the new room layout prototyped in. The new Home card and block analytics are mock-ups placed into the live pages with the app's own styles. Cursor gets these images and the arena prototype as its reference.</p>
+  <div class="meta"><span class="pill">Real engine</span><span class="pill">Pixel 7 · Arena · champ</span><span class="pill">Test account data</span></div>
+</header>
+
+<!-- ============ SWIPE PLAYER ============ -->
+<section class="stack" id="swipe">
+  <div class="sec-head">
+    <span class="eyebrow">1 · Swipe through the room</span>
+    <h2>Drag the phone sideways</h2>
+  </div>
+  <div class="player">
+    <div class="stack" style="align-items:center;gap:10px">
+      <div class="phone stage" id="stage" role="img" aria-label="Swipe sequence through the five tabs">
+        <img id="frame" src="frames/new/00.jpg" alt="" width="412" height="915">
+      </div>
+      <span class="cap" id="where">Home</span>
+    </div>
+    <div class="stack">
+      <div class="seg" role="group" aria-label="Which room">
+        <button type="button" id="m-new" aria-pressed="true">New room</button>
+        <button type="button" id="m-old" aria-pressed="false">Today</button>
+      </div>
+      <p>Drag left on the phone to go to the next tab, as you would in the app. Each frame was taken mid-swipe, with the page riding under the finger. Switch to Today to feel the old walk: the room stays still into Analytics, goes backward into History, then crosses the whole room to Library.</p>
+      <div class="tabs" id="tabs"></div>
+      <label class="lbl" for="scrub">Scrub</label>
+      <input type="range" id="scrub" min="0" max="16" step="0.01" value="0">
+      <div><button type="button" class="btn" id="play">Play through</button></div>
+      <div class="verdicts" id="verdicts"></div>
+    </div>
+  </div>
+
+  <h3>Where each tab stands</h3>
+  <div class="gal" id="places"></div>
+  <div class="notes">
+    <div class="note"><h3>The Scoreboard is Analytics' own</h3><p>It stands on the floor where the coach's corner was. Arriving, the view the page is on charges in (here the muscle map). From a distance it shows the weekly sets.</p></div>
+    <div class="note"><h3>Home keeps its board</h3><p>The board over the platform no longer opens up for Analytics. It shows Home's faces, and the coach's answers when the coach page is open.</p></div>
+    <div class="note"><h3>The stands face the platform</h3><p>The home crowd now rises from the right of the room toward its back wall, so walking from the Scoreboard you meet the front row first.</p></div>
+  </div>
+</section>
+
+<!-- ============ HOME ============ -->
+<section class="stack" id="home">
+  <div class="sec-head">
+    <span class="eyebrow">2 · Home</span>
+    <h2>"This week": what to do now</h2>
+  </div>
+  <p>Top set and Top gain leave Home (Analytics keeps them). In their place: PRs this week, the muscles you're due to train, and the last top set for each lift in your next workout with one small step up. The rest of Home is untouched.</p>
+  <div class="pair">
+    <figure><div class="phone"><img src="mock/today-h2.jpg" alt="Today's Home: Last 7 days card with Workouts, Sets, Top set and Top gain" loading="lazy"></div><span class="cap">Today</span></figure>
+    <figure><div class="phone"><img src="mock/home-1.jpg" alt="New Home: This week card with workouts, PRs and Due muscles" loading="lazy"></div><span class="cap">New · top of the card</span></figure>
+    <figure><div class="phone"><img src="mock/home-2.jpg" alt="New Home: Beat last time list for the next workout" loading="lazy"></div><span class="cap">New · Beat last time</span></figure>
+  </div>
+  <div class="notes">
+    <div class="note"><h3>Due</h3><p>Muscles ranked by days since you last trained them, from the engine's existing <code>daysSinceLast</code>. The test account trained everything recently, so its bars are all full. Yours would read Triceps 23 d, Biceps 20 d, Middle back 14 d.</p></div>
+    <div class="note"><h3>Beat last time</h3><p>For the next workout: the block's Up Next day, or else the template you run most. The last top set per lift, and the next step is one more rep.</p></div>
+  </div>
+</section>
+
+<!-- ============ BLOCKS ============ -->
+<section class="stack" id="blocks">
+  <div class="sec-head">
+    <span class="eyebrow">3 · Block analytics</span>
+    <h2>Analytics, scoped to one block</h2>
+  </div>
+  <p>A scope switch replaces the range chips: All training, or the block's name. In block scope everything counts only that block's workouts and reads in block weeks. The test account has no block, so these numbers are examples.</p>
+  <div class="pair">
+    <figure><div class="phone"><img src="mock/today-a1.jpg" alt="Today's Analytics page top" loading="lazy"></div><span class="cap">Today · All training</span></figure>
+    <figure><div class="phone"><img src="mock/block-1.jpg" alt="Block scope: progress ring, Since week 1 tiles, sets logged of planned" loading="lazy"></div><span class="cap">Block scope · top</span></figure>
+    <figure><div class="phone"><img src="mock/block-2.jpg" alt="Block scope: sets logged per week and per-side top set chart with planned line" loading="lazy"></div><span class="cap">Block scope · charts</span></figure>
+  </div>
+  <div class="notes">
+    <div class="note"><h3>Progress and plan</h3><p>The ring shows the block week; "Sets logged, of planned" fills one bar per week, with the current week hatched until it's done.</p></div>
+    <div class="note"><h3>Per side, with the plan</h3><p>Top set by block week, left and right as their own lines, the planned load dashed underneath, and a crosshair tooltip. Same chart motion as Analytics.</p></div>
+    <div class="note"><h3>Kept apart</h3><p>"Off-block workouts" counts what's left out, so you can see that the view is filtered. The All training view is unchanged.</p></div>
+  </div>
+</section>
+
+<!-- ============ FOR CURSOR ============ -->
+<section class="stack" id="ref">
+  <div class="sec-head">
+    <span class="eyebrow">4 · Reference for the task blocks</span>
+    <h2>What Cursor builds from</h2>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Block</th><th>Reference</th><th>Status of the reference</th></tr></thead>
+    <tbody>
+      <tr><td><b>BL1</b> Room in tab order</td><td>The arena prototype diff, plus the swipe frames above</td><td><span class="pill ok">Runs in the app</span> needs cleanup and tests</td></tr>
+      <tr><td><b>BL2</b> Home "This week"</td><td>Home mock-ups above</td><td><span class="pill">Mock-up</span> layout and copy to match</td></tr>
+      <tr><td><b>BL3</b> Block summary API</td><td>The plan page's contract</td><td><span class="pill">Spec only</span></td></tr>
+      <tr><td><b>BL4</b> Block scope on Analytics</td><td>Block mock-ups above</td><td><span class="pill">Mock-up</span> wired to BL3</td></tr>
+    </tbody>
+  </table></div>
+  <p>These images and the arena prototype go into the repo at <code>docs/design/mocks/block-lens/</code> so every task block can point at them.</p>
+</section>
+</div>
+
+<script>
+(() => {
+  const N = 17;
+  const TAB_AT = [0, 4, 8, 12, 16];
+  const NAMES = ["Home", "Analytics", "History", "Library", "Profile"];
+  const ROOM = {
+    new: ["The Platform", "The Scoreboard", "The Home Crowd", "The Playbook", "Locker Room"],
+  };
+  let mode = "new";
+  let pos = 0;
+  const img = document.getElementById("frame");
+  const where = document.getElementById("where");
+  const scrub = document.getElementById("scrub");
+  const tabs = document.getElementById("tabs");
+  const src = (m, i) => `frames/${m}/${String(i).padStart(2, "0")}.jpg`;
+
+  // warm both sequences so scrubbing doesn't flicker
+  for (const m of ["new", "old"]) for (let i = 0; i < N; i += 1) { const p = new Image(); p.src = src(m, i); }
+
+  tabs.innerHTML = NAMES.map((n, k) => `<button type="button" data-k="${k}">${n}</button>`).join("");
+  tabs.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) set(TAB_AT[+b.dataset.k]); });
+
+  function set(p) {
+    pos = Math.max(0, Math.min(N - 1, p));
+    const i = Math.round(pos);
+    img.src = src(mode, i);
+    scrub.value = String(pos);
+    const tab = Math.round(i / 4);
+    const between = i % 4 !== 0;
+    where.textContent = between ? `${NAMES[Math.floor(i / 4)]} → ${NAMES[Math.floor(i / 4) + 1]}` : NAMES[tab];
+    [...tabs.children].forEach((b, k) => b.classList.toggle("on", !between && k === tab));
+  }
+  scrub.addEventListener("input", () => set(+scrub.value));
+
+  // drag on the phone: left = forward, about one tab per phone width
+  const stage = document.getElementById("stage");
+  let drag = null;
+  stage.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, p: pos, w: stage.clientWidth }; stage.setPointerCapture(e.pointerId); stopPlay(); });
+  stage.addEventListener("pointermove", (e) => { if (drag) set(drag.p + ((drag.x - e.clientX) / drag.w) * 4); });
+  /* Let go and it settles on a tab, like the app: past about a third of a tab, it goes. */
+  const up = () => {
+    if (!drag) return;
+    const from = Math.round(drag.p / 4);
+    const d = pos - drag.p;
+    drag = null;
+    set((Math.abs(d) < 1.4 ? from : Math.max(0, Math.min(4, from + Math.sign(d)))) * 4);
+  };
+  stage.addEventListener("pointerup", up);
+  stage.addEventListener("pointercancel", up);
+  stage.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") set(Math.round(pos) + 1); if (e.key === "ArrowLeft") set(Math.round(pos) - 1); });
+  stage.tabIndex = 0;
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById("m-new").setAttribute("aria-pressed", String(m === "new"));
+    document.getElementById("m-old").setAttribute("aria-pressed", String(m === "old"));
+    set(pos);
+    renderPlaces();
+  }
+  document.getElementById("m-new").addEventListener("click", () => setMode("new"));
+  document.getElementById("m-old").addEventListener("click", () => setMode("old"));
+
+  let timer = 0;
+  function stopPlay() { if (timer) { clearInterval(timer); timer = 0; document.getElementById("play").textContent = "Play through"; } }
+  document.getElementById("play").addEventListener("click", () => {
+    if (timer) return stopPlay();
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (pos >= N - 1) set(0);
+    document.getElementById("play").textContent = "Stop";
+    let hold = 0;
+    timer = setInterval(() => {
+      const i = Math.round(pos);
+      if (i % 4 === 0 && hold < (reduce ? 1 : 6)) { hold += 1; return; }
+      hold = 0;
+      if (i >= N - 1) return stopPlay();
+      set(reduce ? i + 4 - (i % 4) : i + 1);
+    }, reduce ? 900 : 130);
+  });
+
+  // verdicts
+  const V = {
+    old: [["no", "Room stays still"], ["no", "Moves against the swipe"], ["no", "Crosses the whole room"], ["ok", "With the swipe"]],
+    new: [["ok", "With the swipe"], ["ok", "With the swipe"], ["ok", "With the swipe"], ["ok", "With the swipe"]],
+  };
+  document.getElementById("verdicts").innerHTML = NAMES.slice(0, 4).map((n, k) =>
+    `<div><span>${n} → ${NAMES[k + 1]}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><span class="pill ${V.old[k][0]}">Today: ${V.old[k][1]}</span><span class="pill ${V.new[k][0]}">New</span></span></div>`).join("");
+
+  const FILES = ["0-home", "1-analytics", "2-history", "3-library", "4-profile"];
+  function renderPlaces() {
+    document.getElementById("places").innerHTML = FILES.map((f, k) =>
+      `<figure><div class="phone"><img src="mock/${mode}-${f}.jpg" alt="${NAMES[k]} tab, ${mode === "new" ? "new room" : "today's room"}" loading="lazy"></div><span class="cap">${NAMES[k]}${mode === "new" ? " · " + ROOM.new[k] : ""}</span></figure>`).join("");
+  }
+  setMode("new");
+  set(0);
+})();
+</script>
