@@ -10,7 +10,6 @@ import { ErrorMessage } from "../components/ErrorMessage.jsx";
 import { LoadingState } from "../components/LoadingState.jsx";
 import { HowCalculatedButton } from "../components/analytics/HowCalculatedButton.jsx";
 import { ChartTableToggle } from "../components/analytics/ChartTableToggle.jsx";
-import { AnalyticsViewTabs } from "../components/analytics/AnalyticsViewTabs.jsx";
 import { StatTiles } from "../components/analytics/StatTiles.jsx";
 import { MuscleVolumeChart } from "../components/analytics/MuscleVolumeChart.jsx";
 import { MuscleVolumeHeatmap } from "../components/analytics/MuscleVolumeHeatmap.jsx";
@@ -44,6 +43,13 @@ import { publishArenaFacts } from "../lib/arenaFacts.js";
 import { formatHonestyNote } from "../lib/honestyNoteCopy.js";
 import { formatEstimate, formatWeight } from "../lib/weightDisplay.js";
 import { buildExecutionVerdict, formatPlanActual, formatPlannedSummary, formatActualSummary } from "../lib/executionVerdict.js";
+import { useLayout } from "../lib/layoutPref.js";
+import {
+  ANALYTICS_VIEW_KEYS,
+  ANALYTICS_VIEW_LABELS,
+  resolveOpenAnalyticsView,
+  visibleAnalyticsViews,
+} from "../lib/screenLayout.js";
 
 const RANGE_PRESETS = [
   { weeks: 2, label: "2 weeks" },
@@ -63,6 +69,37 @@ function parseAnalyticsView(searchParams) {
   const raw = searchParams.get("view");
   if (raw === "strength" || raw === "execution" || raw === "exercises") return raw;
   return "muscles";
+}
+
+/** View tabs filtered by the Customize layout (hidden views drop out). */
+function LayoutViewTabs({ value, onChange, views }) {
+  const hostRef = useRef(null);
+  const options = views.length ? views : ANALYTICS_VIEW_KEYS;
+  return (
+    <div
+      ref={hostRef}
+      className="analytics-view-tabs mx-slide-host"
+      role="group"
+      aria-label="Analytics view"
+    >
+      <SlidingIndicator containerRef={hostRef} activeKey={value} />
+      {options.map((key) => (
+        <button
+          key={key}
+          type="button"
+          className={`analytics-view-tab${value === key ? " is-active" : ""}`}
+          aria-pressed={value === key}
+          onClick={() => onChange(key)}
+        >
+          {ANALYTICS_VIEW_LABELS[key] || key}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function orderedOnIds(rows) {
+  return (Array.isArray(rows) ? rows : []).filter((r) => r.on).map((r) => r.id);
 }
 
 /* Same 1-2 sentence voice as METRIC_INTRO_COPY. */
@@ -288,7 +325,7 @@ function ChartCardHead({ title, cardName, sub, view, onViewChange, toggleOptions
   );
 }
 
-function PerMuscleSection({ perMuscle, granularity, effortCoverage }) {
+export function PerMuscleSection({ perMuscle, granularity, effortCoverage }) {
   const [view, setView] = useState("chart");
   const anyLocked = perMuscle.some((m) => m.stimulatingSets === null);
   return (
@@ -368,7 +405,7 @@ function PerMuscleSection({ perMuscle, granularity, effortCoverage }) {
   );
 }
 
-function PerExerciseSection({ perExercise }) {
+export function PerExerciseSection({ perExercise }) {
   const [view, setView] = useState("chart");
   const [showSingles, setShowSingles] = useState(false);
   const { mainRows, singleRows, collapseSingles } = useMemo(
@@ -453,7 +490,7 @@ function PerExerciseSection({ perExercise }) {
   );
 }
 
-function BalanceSection({ balance }) {
+export function BalanceSection({ balance }) {
   return (
     <section className="card stack">
       <div className="analytics-card-head stack">
@@ -556,7 +593,7 @@ function AdherenceMetric({ label, value, compact = false, delay = 0 }) {
   );
 }
 
-function ExecutionSection({ execution }) {
+export function ExecutionSection({ execution }) {
   const [view, setView] = useState("chart");
   return (
     <section className="card analytics-table-card">
@@ -670,7 +707,7 @@ function ExecutionSection({ execution }) {
   );
 }
 
-function DataQualitySection({ meta }) {
+export function DataQualitySection({ meta }) {
   return (
     <section className="card stack">
       <h2 className="analytics-section-title">Data quality</h2>
@@ -715,6 +752,10 @@ export function AnalyticsPage() {
       ? Number(blockParam)
       : null;
   const inBlockScope = blockId != null;
+  const storedLayout = useLayout();
+  /* Block scope ignores Customize layout (bl4 / bl5 contract). */
+  const analyticsLayout = storedLayout.analytics;
+  const liveViews = inBlockScope ? ANALYTICS_VIEW_KEYS : visibleAnalyticsViews(analyticsLayout);
 
   const [weeks, setWeeks] = useState(() => loadAnalyticsWeeks());
   const [summary, setSummary] = useState(() => peekAnalytics(loadAnalyticsWeeks()));
@@ -738,7 +779,10 @@ export function AnalyticsPage() {
   const [visitQuiet] = useState(() => hasPlayedEntrance());
   const quiet = visitQuiet && epoch === 0;
   setAnalyticsQuiet(quiet);
-  const view = parseAnalyticsView(searchParams);
+  const rawView = parseAnalyticsView(searchParams);
+  const view = inBlockScope
+    ? rawView
+    : resolveOpenAnalyticsView(analyticsLayout, rawView);
   /* Shared-axis direction for the view switch: the incoming view slides in
      from the side of the tab the user moved toward. Remembered across the
      render so the Cascade below can read where we came from. */
@@ -747,6 +791,19 @@ export function AnalyticsPage() {
   useEffect(() => {
     prevViewRef.current = view;
   }, [view]);
+
+  /* When Customize hides the open view, land on the first remaining tab. */
+  useEffect(() => {
+    if (inBlockScope || view === rawView) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("view", view);
+        return next;
+      },
+      { replace: true }
+    );
+  }, [inBlockScope, view, rawView, setSearchParams]);
 
   function selectWeeks(nextWeeks) {
     setWeeks(nextWeeks);
@@ -1021,7 +1078,9 @@ export function AnalyticsPage() {
       {!inBlockScope && !error && summary ? (
         isEmpty && view !== "exercises" ? (
           <Cascade key={summaryWeeks} className={`stack analytics-content mx-fade-in${loading ? " is-refreshing" : ""}`}>
-            <AnalyticsViewTabs value={view} onChange={setView} />
+            {liveViews.length ? (
+              <LayoutViewTabs value={view} onChange={setView} views={liveViews} />
+            ) : null}
             <Cascade key={view} axis={axis} className="card stack analytics-page-empty analytics-empty-surface">
               {!indexReady ? (
                 <p className="muted small" style={{ margin: 0 }}>
@@ -1082,15 +1141,25 @@ export function AnalyticsPage() {
           </Cascade>
         ) : (
           <Cascade key={summaryWeeks} className={`stack analytics-content mx-fade-in${loading ? " is-refreshing" : ""}`}>
-            <StatTiles summary={summary} />
-            <CoachPanel
-              mode="ask"
-              range={coachRange}
-              weeks={weeks}
-              focus={{ type: "view", view }}
-              suggestions={coachSuggestions}
-            />
-            <AnalyticsViewTabs value={view} onChange={setView} />
+            {orderedOnIds(analyticsLayout.top).map((id) => {
+              if (id === "tiles") return <StatTiles key="tiles" summary={summary} />;
+              if (id === "coach") {
+                return (
+                  <CoachPanel
+                    key="coach"
+                    mode="ask"
+                    range={coachRange}
+                    weeks={weeks}
+                    focus={{ type: "view", view }}
+                    suggestions={coachSuggestions}
+                  />
+                );
+              }
+              return null;
+            })}
+            {liveViews.length ? (
+              <LayoutViewTabs value={view} onChange={setView} views={liveViews} />
+            ) : null}
             {/* Re-keyed per view: the incoming view slides in along the tab
                 order (shared axis) and its cards cascade, then each chart
                 runs its own data draw. */}
@@ -1099,32 +1168,48 @@ export function AnalyticsPage() {
               axis={axis}
               className="stack analytics-view"
             >
-              {view === "muscles" ? (
-                <>
-                  <PerMuscleSection
-                    perMuscle={summary.perMuscle}
-                    granularity={summary.meta?.seriesGranularity}
-                    effortCoverage={summary.meta?.effortCoverage}
-                  />
-                  <BalanceSection balance={summary.balance} />
-                </>
+              {orderedOnIds(analyticsLayout.views[view]).map((id) => {
+                if (id === "volume") {
+                  return (
+                    <PerMuscleSection
+                      key="volume"
+                      perMuscle={summary.perMuscle}
+                      granularity={summary.meta?.seriesGranularity}
+                      effortCoverage={summary.meta?.effortCoverage}
+                    />
+                  );
+                }
+                if (id === "balance") {
+                  return <BalanceSection key="balance" balance={summary.balance} />;
+                }
+                if (id === "trends") {
+                  return <PerExerciseSection key="trends" perExercise={summary.perExercise} />;
+                }
+                if (id === "explorer") {
+                  return (
+                    <ExercisesView
+                      key="explorer"
+                      weeks={weeks}
+                      range={rangeForWeeks(weeks)}
+                      perExercise={summary?.perExercise ?? []}
+                      exerciseParam={searchParams.get("exercise")}
+                      onExerciseParamChange={setExerciseParam}
+                    />
+                  );
+                }
+                if (id === "execution") {
+                  return (
+                    <ExecutionSection key="execution" execution={summary.execution ?? []} />
+                  );
+                }
+                if (id === "quality") {
+                  return <DataQualitySection key="quality" meta={summary.meta} />;
+                }
+                return null;
+              })}
+              {orderedOnIds(analyticsLayout.views[view]).length === 0 ? (
+                <div className="cz-empty">Everything on this view is hidden.</div>
               ) : null}
-              {view === "strength" ? (
-                <PerExerciseSection perExercise={summary.perExercise} />
-              ) : null}
-              {view === "exercises" ? (
-                <ExercisesView
-                  weeks={weeks}
-                  range={rangeForWeeks(weeks)}
-                  perExercise={summary?.perExercise ?? []}
-                  exerciseParam={searchParams.get("exercise")}
-                  onExerciseParamChange={setExerciseParam}
-                />
-              ) : null}
-              {view === "execution" ? (
-                <ExecutionSection execution={summary.execution ?? []} />
-              ) : null}
-              {view !== "exercises" ? <DataQualitySection meta={summary.meta} /> : null}
             </Cascade>
           </Cascade>
         )

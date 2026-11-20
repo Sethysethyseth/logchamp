@@ -9,9 +9,9 @@ import {
   getCoachStatus,
 } from "../../api/coachApi.js";
 import { useTheme } from "../../context/ThemeContext.jsx";
-import { setArenaView, useArenaView } from "../../lib/arenaPref.js";
-import { CUSTOM_PALETTE_ID } from "../../lib/customPalette.js";
 import { AiWait } from "../../components/coach/AiWait.jsx";
+import { CustomizePanel, LookPanel } from "../../components/prefs/customize/index.js";
+import "../../styles/customize.css";
 
 /* "Make your own" (the AI palette studio) is hidden for now (Seth, Nov 16).
    The studio and a palette someone already saved are untouched: flip this
@@ -19,14 +19,6 @@ import { AiWait } from "../../components/coach/AiWait.jsx";
 const SHOW_STUDIO = false;
 
 const PALETTE_VERB = "Designing your palette...";
-
-const PALETTE_OPTIONS = [
-  { value: "champ", label: "Champ" },
-  { value: "iron", label: "Iron" },
-  { value: "forest", label: "Forest" },
-  { value: "crimson", label: "Crimson" },
-  { value: "chill", label: "Chill" },
-];
 
 /* Starting points for the studio; each is a mood, not a colour name, so the
    result is a whole environment rather than "blue". */
@@ -104,19 +96,9 @@ function PaletteStrip({ palette, label }) {
 }
 
 export function AppearancePage() {
-  const {
-    theme,
-    setTheme,
-    palette,
-    setPalette,
-    resolved,
-    customPalette,
-    setCustomPalette,
-    preview,
-    previewPalette,
-  } = useTheme();
-  const arenaView = useArenaView();
+  const { preview, previewPalette, customPalette, setCustomPalette } = useTheme();
 
+  const [apTab, setApTab] = useState("look");
   const inputId = useId();
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState(null);
@@ -126,6 +108,7 @@ export function AppearancePage() {
   const [lastDescription, setLastDescription] = useState("");
   const aliveRef = useRef(true);
   const abortCtlRef = useRef(null);
+
   useEffect(() => {
     if (!SHOW_STUDIO) return undefined;
     let cancelled = false;
@@ -213,9 +196,155 @@ export function AppearancePage() {
   const unavailable =
     status && !status.available ? STUDIO_UNAVAILABLE[status.reason || "no_key"] : null;
   const studioReady = Boolean(status && status.available);
-  const customSwatch = customPalette
-    ? (resolved === "dark" ? customPalette.dark : customPalette.light).interactive
-    : null;
+
+  const studioSlot = SHOW_STUDIO ? (
+    <section className="settings-section" aria-labelledby="settings-studio-heading">
+      <h2 id="settings-studio-heading" className="settings-section-heading">
+        Make your own
+      </h2>
+      <div className="settings-group palette-studio" data-busy={busy ? "true" : undefined}>
+        <div className="palette-studio__intro">
+          <p className="palette-studio__lede">
+            Describe a look and the whole app takes it on: surfaces, accent, and the scene
+            behind them. You see it live before you keep it.
+          </p>
+        </div>
+
+        {unavailable ? (
+          <div className="palette-studio__blocked">
+            <p className="palette-studio__blocked-title">{unavailable.title}</p>
+            <p className="muted small">{unavailable.body}</p>
+            <Link to={unavailable.link.to} className="btn btn-secondary btn--compact">
+              {unavailable.link.label}
+            </Link>
+          </div>
+        ) : null}
+
+        {statusFailed ? (
+          <p className="palette-studio__blocked muted small">
+            Couldn&apos;t check whether the studio is available. Reload to try again.
+          </p>
+        ) : null}
+
+        {status && !unavailable ? (
+          <form className="palette-studio__form" onSubmit={onSubmit}>
+            <label htmlFor={inputId} className="palette-studio__label">
+              Describe a look
+            </label>
+            <div className="palette-studio__row">
+              <input
+                id={inputId}
+                type="text"
+                className="palette-studio__input"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="a 90s basement gym"
+                maxLength={200}
+                autoComplete="off"
+                disabled={busy}
+              />
+              <button
+                type="submit"
+                className="btn btn-primary palette-studio__go"
+                disabled={busy || !description.trim()}
+                aria-busy={busy || undefined}
+              >
+                {busy ? (
+                  <>
+                    <span className="palette-studio__spinner" aria-hidden="true" />
+                    Mixing
+                  </>
+                ) : (
+                  "Generate"
+                )}
+              </button>
+            </div>
+            <div className="palette-studio__ideas" aria-label="Ideas">
+              {STUDIO_IDEAS.map((idea) => (
+                <button
+                  key={idea}
+                  type="button"
+                  className="palette-studio__idea"
+                  disabled={busy}
+                  onClick={() => {
+                    setDescription(idea);
+                    generate(idea);
+                  }}
+                >
+                  {idea}
+                </button>
+              ))}
+            </div>
+            {status.source === "mock" && import.meta.env.DEV ? (
+              <p className="muted small palette-studio__note">
+                This server is in mock mode: palettes come from a formula, not a model.
+              </p>
+            ) : null}
+            {busy ? <AiWait variant="status" verb={PALETTE_VERB} /> : null}
+          </form>
+        ) : null}
+
+        {!status && !statusFailed ? (
+          <p className="palette-studio__blocked muted small">Checking availability...</p>
+        ) : null}
+
+        {error ? (
+          <p className="palette-studio__error" role="alert">
+            {error}
+          </p>
+        ) : null}
+
+        {preview ? (
+          <div className="palette-studio__result" role="status">
+            <div className="palette-studio__result-head">
+              <div className="palette-studio__result-title">
+                <span className="palette-studio__result-kicker">Previewing</span>
+                <strong>{preview.name}</strong>
+                {lastDescription ? (
+                  <span className="muted small">from &ldquo;{lastDescription}&rdquo;</span>
+                ) : null}
+              </div>
+              <PaletteStrip palette={preview} label={`${preview.name} swatches`} />
+            </div>
+            <p className="muted small palette-studio__result-hint">
+              Look around the app while it&apos;s on. Keep it and it joins your accent colors on
+              this device; discard and everything goes back.
+            </p>
+            <div className="palette-studio__actions">
+              <button type="button" className="btn btn-primary" onClick={keepPreview}>
+                Keep this look
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                disabled={busy || !lastDescription}
+                aria-busy={busy || undefined}
+                onClick={() => generate(lastDescription)}
+              >
+                Try another
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={discardPreview}>
+                Discard
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {customPalette && !preview && studioReady ? (
+          <div className="palette-studio__saved">
+            <PaletteStrip palette={customPalette} label={`${customPalette.name} swatches`} />
+            <div className="palette-studio__saved-text">
+              <strong>{customPalette.name}</strong>
+              <span className="muted small">Saved on this device</span>
+            </div>
+            <button type="button" className="btn btn-ghost btn--compact" onClick={forgetCustom}>
+              Forget
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  ) : null;
 
   return (
     <div className="settings-page stack">
@@ -226,266 +355,31 @@ export function AppearancePage() {
         <h1 className="settings-page-title">Appearance</h1>
       </header>
 
-      <section className="settings-section" aria-labelledby="settings-appearance-heading">
-        <h2 id="settings-appearance-heading" className="settings-section-heading">
+      <div className="ap-tabs" role="tablist" data-tab={apTab}>
+        <span className="ap-tabs__ind" aria-hidden="true" />
+        <button
+          type="button"
+          role="tab"
+          aria-selected={apTab === "look"}
+          onClick={() => setApTab("look")}
+        >
           Look
-        </h2>
-        <div className="settings-group settings-group--tight">
-          <p className="settings-group-hint muted small">
-            Arena is the new look, with its own lighting. Classic is the look from before, in
-            light or dark. Everything works the same in both. This device only.
-          </p>
-          <div className="settings-theme-seg" role="radiogroup" aria-label="Look">
-            {[
-              [true, "Arena"],
-              [false, "Classic"],
-            ].map(([value, label]) => (
-              <button
-                key={label}
-                type="button"
-                role="radio"
-                aria-checked={arenaView === value}
-                className={`settings-theme-seg__btn${arenaView === value ? " settings-theme-seg__btn--active" : ""}`}
-                onClick={() => setArenaView(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {arenaView ? null : (
-            <div className="settings-palette-block">
-              <span className="settings-palette-block__label muted small">Classic theme</span>
-              <div className="settings-theme-seg" role="radiogroup" aria-label="Classic theme">
-                {[
-                  ["light", "Light"],
-                  ["dark", "Dark"],
-                  ["system", "System"],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    role="radio"
-                    aria-checked={theme === value}
-                    className={`settings-theme-seg__btn${theme === value ? " settings-theme-seg__btn--active" : ""}`}
-                    onClick={() => setTheme(value)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          <div className="settings-palette-block">
-            <span className="settings-palette-block__label muted small">Accent color</span>
-            <div className="settings-palette-grid" role="radiogroup" aria-label="Accent color">
-              {PALETTE_OPTIONS.map((option) => (
-                <label
-                  key={option.value}
-                  className={
-                    "settings-palette-option" +
-                    (palette === option.value && !preview ? " settings-palette-option--selected" : "")
-                  }
-                >
-                  <span
-                    className={`settings-palette-swatch settings-palette-swatch--${option.value}`}
-                    aria-hidden="true"
-                  />
-                  <span className="settings-palette-option__label">{option.label}</span>
-                  <input
-                    type="radio"
-                    name="palette"
-                    value={option.value}
-                    checked={palette === option.value && !preview}
-                    onChange={() => {
-                      previewPalette(null);
-                      setPalette(option.value);
-                    }}
-                  />
-                </label>
-              ))}
-              {customPalette ? (
-                <label
-                  className={
-                    "settings-palette-option settings-palette-option--custom" +
-                    (palette === CUSTOM_PALETTE_ID && !preview
-                      ? " settings-palette-option--selected"
-                      : "")
-                  }
-                >
-                  <span
-                    className="settings-palette-swatch"
-                    style={{ background: customSwatch }}
-                    aria-hidden="true"
-                  />
-                  <span className="settings-palette-option__label">
-                    {customPalette.name}
-                    <span className="settings-palette-option__tag">Yours</span>
-                  </span>
-                  <input
-                    type="radio"
-                    name="palette"
-                    value={CUSTOM_PALETTE_ID}
-                    checked={palette === CUSTOM_PALETTE_ID && !preview}
-                    onChange={() => {
-                      previewPalette(null);
-                      setPalette(CUSTOM_PALETTE_ID);
-                    }}
-                  />
-                </label>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={apTab === "customize"}
+          onClick={() => setApTab("customize")}
+        >
+          Customize
+        </button>
+      </div>
 
-      {SHOW_STUDIO ? (
-      <section className="settings-section" aria-labelledby="settings-studio-heading">
-        <h2 id="settings-studio-heading" className="settings-section-heading">
-          Make your own
-        </h2>
-        <div className="settings-group palette-studio" data-busy={busy ? "true" : undefined}>
-          <div className="palette-studio__intro">
-            <p className="palette-studio__lede">
-              Describe a look and the whole app takes it on: surfaces, accent, and the scene
-              behind them. You see it live before you keep it.
-            </p>
-          </div>
-
-          {unavailable ? (
-            <div className="palette-studio__blocked">
-              <p className="palette-studio__blocked-title">{unavailable.title}</p>
-              <p className="muted small">{unavailable.body}</p>
-              <Link to={unavailable.link.to} className="btn btn-secondary btn--compact">
-                {unavailable.link.label}
-              </Link>
-            </div>
-          ) : null}
-
-          {statusFailed ? (
-            <p className="palette-studio__blocked muted small">
-              Couldn't check whether the studio is available. Reload to try again.
-            </p>
-          ) : null}
-
-          {status && !unavailable ? (
-            <form className="palette-studio__form" onSubmit={onSubmit}>
-              <label htmlFor={inputId} className="palette-studio__label">
-                Describe a look
-              </label>
-              <div className="palette-studio__row">
-                <input
-                  id={inputId}
-                  type="text"
-                  className="palette-studio__input"
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                  placeholder="a 90s basement gym"
-                  maxLength={200}
-                  autoComplete="off"
-                  disabled={busy}
-                />
-                <button
-                  type="submit"
-                  className="btn btn-primary palette-studio__go"
-                  disabled={busy || !description.trim()}
-                  aria-busy={busy || undefined}
-                >
-                  {busy ? (
-                    <>
-                      <span className="palette-studio__spinner" aria-hidden="true" />
-                      Mixing
-                    </>
-                  ) : (
-                    "Generate"
-                  )}
-                </button>
-              </div>
-              <div className="palette-studio__ideas" aria-label="Ideas">
-                {STUDIO_IDEAS.map((idea) => (
-                  <button
-                    key={idea}
-                    type="button"
-                    className="palette-studio__idea"
-                    disabled={busy}
-                    onClick={() => {
-                      setDescription(idea);
-                      generate(idea);
-                    }}
-                  >
-                    {idea}
-                  </button>
-                ))}
-              </div>
-              {status.source === "mock" && import.meta.env.DEV ? (
-                <p className="muted small palette-studio__note">
-                  This server is in mock mode: palettes come from a formula, not a model.
-                </p>
-              ) : null}
-              {busy ? <AiWait variant="status" verb={PALETTE_VERB} /> : null}
-            </form>
-          ) : null}
-
-          {!status && !statusFailed ? (
-            <p className="palette-studio__blocked muted small">Checking availability...</p>
-          ) : null}
-
-          {error ? (
-            <p className="palette-studio__error" role="alert">
-              {error}
-            </p>
-          ) : null}
-
-          {preview ? (
-            <div className="palette-studio__result" role="status">
-              <div className="palette-studio__result-head">
-                <div className="palette-studio__result-title">
-                  <span className="palette-studio__result-kicker">Previewing</span>
-                  <strong>{preview.name}</strong>
-                  {lastDescription ? (
-                    <span className="muted small">from &ldquo;{lastDescription}&rdquo;</span>
-                  ) : null}
-                </div>
-                <PaletteStrip palette={preview} label={`${preview.name} swatches`} />
-              </div>
-              <p className="muted small palette-studio__result-hint">
-                Look around the app while it's on. Keep it and it joins your accent colors on
-                this device; discard and everything goes back.
-              </p>
-              <div className="palette-studio__actions">
-                <button type="button" className="btn btn-primary" onClick={keepPreview}>
-                  Keep this look
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  disabled={busy || !lastDescription}
-                  aria-busy={busy || undefined}
-                  onClick={() => generate(lastDescription)}
-                >
-                  Try another
-                </button>
-                <button type="button" className="btn btn-ghost" onClick={discardPreview}>
-                  Discard
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-          {customPalette && !preview && studioReady ? (
-            <div className="palette-studio__saved">
-              <PaletteStrip palette={customPalette} label={`${customPalette.name} swatches`} />
-              <div className="palette-studio__saved-text">
-                <strong>{customPalette.name}</strong>
-                <span className="muted small">Saved on this device</span>
-              </div>
-              <button type="button" className="btn btn-ghost btn--compact" onClick={forgetCustom}>
-                Forget
-              </button>
-            </div>
-          ) : null}
-        </div>
-      </section>
-      ) : null}
+      {apTab === "look" ? (
+        <LookPanel onOpenCustomize={() => setApTab("customize")} studioSlot={studioSlot} />
+      ) : (
+        <CustomizePanel />
+      )}
     </div>
   );
 }

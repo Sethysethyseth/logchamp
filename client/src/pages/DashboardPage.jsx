@@ -26,6 +26,7 @@ import { countWorkoutVolume } from "../components/blocks/run/runExerciseHelpers.
 import { blockDayPrimaryTitle, sessionDisplayTitle } from "../lib/sessionDisplay.js";
 import { loadWeightUnit } from "../lib/weightUnitPref.js";
 import { HOME_SECTIONS, resolveLayout } from "../lib/screenLayout.js";
+import { useLayout } from "../lib/layoutPref.js";
 import { CrownEgg } from "../components/motion/CrownEgg.jsx";
 import "../styles/coach-page.css";
 import "../styles/workout-bar.css";
@@ -90,7 +91,11 @@ export function DashboardPage() {
   // mount) refetches and stops counting the discarded workout.
   const [weeklyReportKey, setWeeklyReportKey] = useState(0);
   const weeklyReport = useWeeklyReport(weeklyReportKey);
-  const layout = useMemo(() => resolveLayout(HOME_SECTIONS, null), []);
+  const storedLayout = useLayout();
+  const layout = useMemo(
+    () => resolveLayout(HOME_SECTIONS, storedLayout.home),
+    [storedLayout.home]
+  );
   const [activeBlock, setActiveBlock] = useState(null);
   const [activeBlockReady, setActiveBlockReady] = useState(false);
   const [homeHasRunHint, setHomeHasRunHint] = useState(() => readHomeHasRunHint());
