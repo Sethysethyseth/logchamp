@@ -2,9 +2,9 @@
 
 > **Nov 20, relay session (Block Lens wave IN FLIGHT; branch
 > `claude/wonderful-gauss-xxyvet`):**
-> - **Next action (Seth):** pick how bl4 + bl5 go out while the Cursor
->   Opus/Sonnet quota is spent (resets Dec 18): (a) auto rung, (b) set a
->   Cursor spend limit so Sonnet runs, or (c) pause the wave until the 18th.
+> - **Next action (Seth):** nothing blocked on you until the wave hands
+>   over for smoke (6/6). (You chose the auto rung for bl4 and bl5: the Cursor
+>   Opus/Sonnet quota is spent until Dec 18.)
 > - bl1, bl2 and bl3 were dispatched in parallel (cloud lanes
 >   `/home/user/worktrees/cursor-lane`, `-2`, `-3`, opus). Rig ports were
 >   serialized by a dispatch note (check, wait, kill your own servers).
@@ -44,6 +44,16 @@
 >   (pure `buildBlockSummary`). Reviewer re-ran the cross-user check in the
 >   rig: another account gets the same 404 as a missing id. Server-only,
 >   so no smoke items of its own; bl4 draws it.
+> - **bl4 LANDED** (auto rung, plus reviewer fixes): Analytics block scope.
+>   Fixes: three-line tooltip, neutral name tag, chip truncation, lint, font
+>   token. Arena BLOCK board face skipped (optional). Gate notes: react-refresh
+>   lint x2; chips show under All training whenever runs exist.
+> - **Smoke items carried (bl4):** Analytics shows All training + block chips
+>   (active first, then 3 ended); a block chip shows ring / Week N of M, two
+>   since-W1 e1rm tiles, On plan %, Off-block count, sets bars with the current
+>   week hatched, one chart per lift (per-side = Left/Right + dashed planned,
+>   tap for a 3-line tip), Chart/Table, Execution; All training restores
+>   today's page; block page header has an Analytics link that opens the scope.
 > - **Smoke items carried (bl1):** five-tab swipe walks Home > Analytics >
 >   History > Library > Profile with the room following the finger; Analytics
 >   has its own standing board (SETS bars, view board fades in); no coach
