@@ -2,7 +2,7 @@
 
 > **Nov 20, cloud session (frontier seat, Seth direct; branch
 > `claude/wonderful-gauss-xxyvet`; NO code landed, design only):** the
-> **Block Lens wave** is planned, not authored or dispatched. Reference pack
+> **Block Lens wave** is planned and AUTHORED, not dispatched. Reference pack
 > `docs/design/mocks/block-lens/` (README there): plan, an in-app preview,
 > and a RUNNING prototype diff of the arena in tab order.
 > - **Seth's rulings so far:** the coach's chalkboard corner leaves the arena
@@ -11,17 +11,25 @@
 >   = tab order (Home, Analytics, History, Library, Profile). Home "This
 >   week" card: **Beat last time ON by default, Due OFF by default**; Top set
 >   and Top gain leave Home (they stay on Analytics).
-> - **Open:** block analytics placement (scope chip on Analytics vs its own
->   page - mock shows the chip); dispatch channel (Cursor lanes live on
->   Seth's PC, unreachable from a cloud session).
-> - **Appearance rework + Customize tab: PROTOTYPED, not built.** Working
->   prototype `docs/design/mocks/block-lens/customize.html` (hide / show /
->   drag-reorder / preview Home and Analytics sections; Start a workout
->   can't be hidden; Data quality one switch; device-local). Its contract
->   table is the unit spec. Built with the new `docs/design/prototype-kit/`
+> - **Wave AUTHORED, nothing dispatched (next seat dispatches):** six
+>   blocks QUEUED in `docs/tasks/QUEUE.md` (top of Active) with the order:
+>   bl1 arena in tab order + bl2 Home sections + bl3 block summary API in
+>   PARALLEL (disjoint files; rig steps one at a time), then bl4 Analytics
+>   block scope, then bl5 Appearance + Customize, then bl-wn LAST.
+>   All MODEL opus except bl-wn (auto). Seat's calls Seth did not object
+>   to: block analytics = scope chips on Analytics (`?block=<id>`), layout
+>   saved per device (`workoutdb-layout`, no migration).
+> - **Dispatch from a cloud session works** (ARENA did it): `cursor-agent`
+>   is installed here; per `dispatch-unit` section 2d the environment needs
+>   the Cursor hosts allowed and `CURSOR_API_KEY`. Recon lanes were not
+>   run (cloud seat did the recon in-seat).
+> - **Prototypes (design of record):** `docs/design/mocks/block-lens/`
+>   `customize.html` (bl5), `preview.html` + mocks (bl2 / bl4), the arena
+>   prototype diff (bl1). Built with the new `docs/design/prototype-kit/`
 >   (real app CSS + markup from the smoke rig) - reuse it for prototypes.
-> - Units planned: BL1 arena in tab order, BL2 Home card, BL3 block summary
->   engine + route (no schema change), BL4 block scope on Analytics.
+> - Seth on motion (Nov 20): smooth and polished, never over the top -
+>   bl5 carries the prototype's drag (hold to lift, 1:1 follow, neighbours
+>   glide, spring settle) as spec.
 
 > **Nov 17, cloud session (Seth, direct ask; built in-seat; gate PASS
 > in-seat; MERGED TO MAIN `dad6102` (ff), Render prod live on it; NOT yet

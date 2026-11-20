@@ -6,6 +6,26 @@ Statuses: DRAFT / QUEUED / DISPATCHED / AWAITING-REVIEW / LANDED <sha> / BOUNCED
 
 ## Active
 
+**Block Lens wave (BL), opened November 20, 2026 (Opus seat, cloud session).**
+Branch `claude/wonderful-gauss-xxyvet`. Design of record:
+`docs/design/mocks/block-lens/` (README; `customize.html` is the running
+prototype for bl5, `arena-in-tab-order.prototype.diff` the running
+prototype for bl1). Authored in-seat: no Cursor recon lanes (cloud
+session, recon done directly). N = 6.
+ORDER: bl1 + bl2 + bl3 in parallel (FILES TO TOUCH disjoint - bl2 owns
+`index.css` and `sessionRoutes`, bl3 owns the analytics routes / access /
+`analyticsApi.js`, bl1 only the arena; neither touches
+`server/src/analytics/index.js`). bl1 and bl2 both need the smoke rig
+(ports 3000/5173): run their RIG steps one at a time. Then bl4 (after bl2 +
+bl3). Then bl5 (after bl2 + bl4). Then bl-wn LAST. Wave end = HARD STOP for
+Seth's smoke, then the gate (bl3 cross-user isolation is the security read).
+QUEUED | bl1-arena-room-in-tab-order.md | the room in tab order (Home, Analytics, History, Library, Profile), coach corner out, Analytics' own standing board, /coach stands at Home | MODEL opus. Start from the prototype diff; clean up its +104 literals. Parallel with bl2, bl3. 1/6.
+QUEUED | bl2-home-this-week-sections.md | Home as sections (start locked, upnext, week, beat ON, due OFF, highlights, recent) + `screenLayout.js` registry/resolver + `GET /sessions/next-targets` for Beat last time; Top set / Top gain leave Home | MODEL opus. Parallel with bl1, bl3. 2/6.
+QUEUED | bl3-block-summary-engine-routes.md | pure `buildBlockSummary` (block weeks, sets of planned, per-side tops, planned load, e1rm since W1, on-plan, off-block count) + `GET /analytics/block-runs`, `GET /analytics/block-run/:id` (404 for other users) | MODEL opus. Parallel with bl1, bl2. Gate reads the isolation. 3/6.
+QUEUED | bl4-analytics-block-scope.md | Analytics scope chips (All training / block), block cards per mock: ring, since-W1 tiles, sets of planned, per-lift L/R + planned charts, execution; `?block=` link from the block page | MODEL opus. AFTER bl2 + bl3. 4/6.
+QUEUED | bl5-appearance-customize.md | Appearance = Look + Customize: hide / show / hold-to-drag reorder / preview Home and Analytics sections, device-local `workoutdb-layout`, motion per the prototype | MODEL opus. AFTER bl2 + bl4. 5/6.
+QUEUED | bl-wn-whats-new-release.md | What's New for the wave + app guide | MODEL auto. LAST. 6/6.
+
 **Motion wave (MX), opened October 9, 2026 (Opus seat; Fable 5.1 via Cursor is the designer).**
 Branch `motion-wave` (cut from `quality-of-life-updates` at `a681217`).
 Design of record: `docs/design/mocks/motion/MOTION-DIRECTION.md` (Seth's
