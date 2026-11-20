@@ -21,6 +21,23 @@
 >     coach refs. Visual audit was from the lane's app-vs-mock contact sheets,
 >     because the rig ports were held by a sibling lane at review time.
 >   - Pre-existing lint (not this unit): `paintFace` has an unused `bh`.
+> - **bl2 LANDED** (Opus 5.5 medium, clean). Home is built from sections via
+>   `screenLayout.js`, and Beat last time comes from `GET /sessions/next-targets`.
+>   - Deviations accepted: separate cards per section (the Customize
+>     prototype over the mock); the PRs stat is the raw PR-row count (22 on
+>     the smoke account); CountUp on the counts.
+>   - Gate notes: WeeklyReport now exports helpers, so react-refresh lint
+>     goes 1 -> 8 (dev hot-reload only). `nextTargets.js` carries its own
+>     `identityKey`, because `lastPerformance.js` doesn't export one.
+> - **CURSOR QUOTA (Nov 20):** Opus and Sonnet named models both hit their
+>   monthly limits (reset Dec 18). bl3 died mid-run on Opus and was resumed
+>   on the auto rung (same session). bl4 and bl5 can only go out on auto
+>   until then - Seth's call.
+> - **Smoke items carried (bl2):** Home shows Start / Up next, This week
+>   (strip, Workouts, PRs), Beat last time (block day "up next" or "your top
+>   lifts", last -> +1 rep), Highlights, Recent; no Top set / Top gain on
+>   Home; Due is absent by default; new account shows only Start + Recent;
+>   check the PRs number reads sensibly (it counts PR records, 22 on smoke).
 > - **Smoke items carried (bl1):** five-tab swipe walks Home > Analytics >
 >   History > Library > Profile with the room following the finger; Analytics
 >   has its own standing board (SETS bars, view board fades in); no coach
