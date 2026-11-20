@@ -1,5 +1,26 @@
 # HANDOFF — current state
 
+> **Nov 20, cloud session (frontier seat, Seth direct; branch
+> `claude/wonderful-gauss-xxyvet`; NO code landed, design only):** the
+> **Block Lens wave** is planned, not authored or dispatched. Reference pack
+> `docs/design/mocks/block-lens/` (README there): plan, an in-app preview,
+> and a RUNNING prototype diff of the arena in tab order.
+> - **Seth's rulings so far:** the coach's chalkboard corner leaves the arena
+>   (the AI coach stays; `/coach` stands at Home and talks on the
+>   scoreboard); Analytics gets its own place and standing board; room order
+>   = tab order (Home, Analytics, History, Library, Profile). Home "This
+>   week" card: **Beat last time ON by default, Due OFF by default**; Top set
+>   and Top gain leave Home (they stay on Analytics).
+> - **Open:** block analytics placement (scope chip on Analytics vs its own
+>   page - mock shows the chip); dispatch channel (Cursor lanes live on
+>   Seth's PC, unreachable from a cloud session).
+> - **Next, same branch:** Appearance rework + a Customize tab (add / remove /
+>   reorder Home and Analytics modules, with a preview). Prototyped as an
+>   artifact first; its module list becomes the contract for the BL blocks,
+>   so Due / Beat last time ship as Home modules rather than fixed rows.
+> - Units planned: BL1 arena in tab order, BL2 Home card, BL3 block summary
+>   engine + route (no schema change), BL4 block scope on Analytics.
+
 > **Nov 17, cloud session (Seth, direct ask; built in-seat; gate PASS
 > in-seat; MERGED TO MAIN `dad6102` (ff), Render prod live on it; NOT yet
 > seen on a phone):** crown loader ->

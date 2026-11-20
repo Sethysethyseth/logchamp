@@ -7,7 +7,10 @@ Captured Nov 20, 2026 from the real app in the cloud smoke rig (Pixel 7,
 Arena, champ, seeded smoke account - test data, not Seth's).
 
 - `plan.html` - the wave plan (problem, decisions, units). Seth's rulings:
-  the coach's corner leaves the arena; Analytics gets its own place.
+  the coach's corner leaves the arena; Analytics gets its own place;
+  Home: Beat last time ON by default, Due OFF by default (Nov 20). Home
+  and Analytics sections become modules the user can add, remove and
+  reorder from Profile > Appearance > Customize (prototype next).
 - `preview.html` - the visual preview: draggable swipe sequence (today vs
   new room), each tab's place, the Home and block-analytics mock-ups.
   Open it from this folder; it loads `frames/` and `mock/` relatively.
