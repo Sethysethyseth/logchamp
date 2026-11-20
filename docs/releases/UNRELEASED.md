@@ -14,3 +14,7 @@ it):
 Write what a lifter would notice. Internal-only work gets no entry.
 
 ---
+
+## Block Lens wave (BL)
+
+- [bl1] The arena now walks in the same order as your tabs - Home, Analytics, History, Library, Profile - and Analytics has its own scoreboard in the room. The coach's chalkboard corner is gone; the coach now talks on the Home scoreboard. | Where: swipe between tabs with Arena on | Files: client/src/components/arena/arenaEngine.js, client/src/components/arena/ArenaStage.jsx

@@ -1,5 +1,33 @@
 # HANDOFF — current state
 
+> **Nov 20, relay session (Block Lens wave IN FLIGHT; branch
+> `claude/wonderful-gauss-xxyvet`):**
+> - **Next action (Seth):** nothing blocked on you until the wave hands
+>   over for smoke (6/6) - then smoke staging against the consolidated list.
+> - bl1, bl2 and bl3 were dispatched in parallel (cloud lanes
+>   `/home/user/worktrees/cursor-lane`, `-2`, `-3`, opus). Rig ports were
+>   serialized by a dispatch note (check, wait, kill your own servers).
+> - **Model override (Seth):** bl4 and bl5 go out on `claude-sonnet-5-5-medium`,
+>   not opus, because Opus lanes were eating the Cursor budget.
+> - **bl1 LANDED** (Opus 5.5 medium, clean first run). The room is now in tab
+>   order and the coach corner is gone; per-place origin constants replace the
+>   prototype's +104 literals.
+>   - Deviations accepted: (1) the `focusIn` wrapper in the engine
+>     overrides `arenaSheet.clampFocus`'s old 20..480 x bound, because
+>     `arenaSheet.js` was outside FILES TO TOUCH. **Gate follow-up:** move the
+>     bound into `clampFocus`, or keep the wrapper. (2) The `/coach` rail reads
+>     THE PLATFORM. (3) The prototype diff was applied with `patch`, not git.
+>   - Reviewer: lanes fresh-green, scope ok, order check ok, no dangling
+>     coach refs. Visual audit was from the lane's app-vs-mock contact sheets,
+>     because the rig ports were held by a sibling lane at review time.
+>   - Pre-existing lint (not this unit): `paintFace` has an unused `bh`.
+> - **Smoke items carried (bl1):** five-tab swipe walks Home > Analytics >
+>   History > Library > Profile with the room following the finger; Analytics
+>   has its own standing board (SETS bars, view board fades in); no coach
+>   corner anywhere; `/coach` stands at Home with thinking dots on the hung
+>   board while streaming; a live workout on `/coach` keeps the coach face
+>   (only REST takes the board); hold to look closer works at both room ends.
+
 > **Nov 20, cloud session (frontier seat, Seth direct; branch
 > `claude/wonderful-gauss-xxyvet`; NO code landed, design only):** the
 > **Block Lens wave** is planned and AUTHORED, not dispatched. Reference pack
@@ -47,128 +75,6 @@
 > answer stays, login ~1.7s after release. Server change = Render deploy
 > needed with the client; no schema, no migration.
 
-> **Nov 16, third cloud session (Seth, direct ask after the merge; built
-> in-seat, NOT on main - branch + `motion-wave` only, NOT seen on a phone):**
-> - **Swipe in and out of the full view** (Seth's video: the full view
->   swallowed every swipe, only a tap got out). Pull down at the top of an
->   open page and the room follows the finger to the full view; push up in
->   the full view and the page comes back under the finger. Short drags
->   spring back, a flick decides, tap still toggles. `ArenaStage.jsx`
->   `bindSwipe` + `--arena-drag-h` in `arena.css`. Rail / strip pages have
->   no open size: an upward flick leaves the full view. Side effect:
->   `overscroll-behavior-y: contain` on open + full-view pages (no browser
->   pull-to-refresh there).
-> - **Appearance:** "Look" = Arena | Classic; Light / Dark / System show
->   under Classic only. "Make your own" is hidden behind `SHOW_STUDIO =
->   false` in `AppearancePage.jsx` (a saved custom palette still lists).
->   What's New `2026-11-arena` copy follows (Look, pull down). The older
->   release note that mentions describing a look is unchanged.
-> - **Drag sideways between tabs** (Seth's second note: this is what he
->   meant by seamless). On a tab's first page a horizontal drag carries
->   the page 1:1, the next tab's outline (title + its loading skeleton)
->   rides in beside it, and the room's camera travels with the finger
->   (`arena.scrub`). Past 35% of the width or a flick changes tab with no
->   second entrance; else it slides home. `motion/useTabSwipe.js`,
->   `lib/tabSwipe.js`, `RouteTransition.jsx` (TabGhost), `shell-motion.css`.
->   Works in Classic too. Left alone: sideways scrollers (coach chips),
->   fields, dialogs, the two screen edges, deeper pages, a closer look.
->   Known: Analytics -> History walks the camera LEFT while the finger goes
->   left (the room's layout, same as a tap).
-> - **Analytics board = a picture, not a copy** (second pass). Muscles: a
->   pixel body, front and back, each muscle lit by its share of the top
->   muscle's sets, plus TOP and DUE (longest `daysSinceLast`, 5+ days).
->   Strength: the bar loaded plate by plate to the highest current E1RM.
->   Exercises: the bar loaded to the heaviest top set, or to the exercise
->   open on the page (`?exercise=`). Execution unchanged. `arenaBoards.js`
->   (`platesFor`, BODY_PART), `arenaEngine.js` (BODY_FRONT / BODY_BACK).
->   Page charts still hold their entrance until scrolled into view.
-> - Lanes: unit 587, build, check-hex clean; rig 412 Arena + Classic +
->   reduced motion (tab swipe through all five, folded and full view,
->   flick, ends, deeper page; vertical swipe regression). Lint: only the
->   errors that were already there (`arenaEngine.js` paintFace `bh`,
->   `Cascade.jsx`, `RouteTransition.jsx` ref-in-render).
-
-> **Nov 15, second cloud session (frontier seat): PRE-MAIN GATE = PASS
-> WITH FIXES, ALL FIXES LANDED. MERGED TO MAIN Nov 16 (`3a03bc5`).** Branch `ccr-ac9fe067-pc08f1`, pushed; `main` = `b82ad8c` is its
-> merge base, so the merge is a fast-forward. 195+ files, client + 5
-> coach server files. NO schema change, NO migration, NO new env or
-> dependency - a code-only merge.
-> - **New this session (Seth: "have arena as default", What's New curated
->   by the seat):** `ar7-wn` landed `ed36b7b` (Cursor, auto rung) - Arena
->   is the default look on every device (`workoutdb-arena`: "0" = Classic,
->   anything else = Arena), Appearance reads "Arena view" with Arena /
->   Classic, release `2026-11-arena` ("A new look: the Arena" / "The feel
->   is the same. It just looks better."), an in-modal link to Appearance,
->   app guide. Ledger moved to RELEASED.
-> - **Gate findings fixed in-seat:** `ead7e54` the What's New pop-up, the
->   username prompt and Add to your library were SEE-THROUGH under Arena
->   (arena-skin's unfilled `.card` rule); `1a55dc9` `data-arena` set in a
->   layout effect (no unskinned first frame); the saved-workout card
->   still slid under reduced motion (this commit); app guide named old
->   button labels.
-> - **Read directly at the gate:** the six in-seat commits `302a308`..
->   `686ab7b` (no defect), the coach server surface (`streamRegistry`,
->   `/coach/stop`: user-scoped, silent 204, bounded maps), fresh lanes
->   (unit 587, build, check-hex). Rig proof at 412 + 360: a device with no
->   stored choice opens in Arena; Classic still whole (full workout, fixed
->   Finish dock, rest bar); Arena full workout (strip rest timer, Finish in
->   the flow, Home at scroll 0); light mode x 3 palettes; zero console
->   errors; scrollWidth == innerWidth everywhere.
-> - **Gate fuel (Cursor report lanes, auto rung, lanes 2 + 3, ~6-7 min
->   each, porcelain clean):** `docs/tasks/ar-gate-r1-FINDINGS.md`
->   (Arena-as-default readiness) and `ar-gate-r2-FINDINGS.md` (defect hunt
->   over the Nov 10 direct builds).
-> - **Accepted, not blocking (follow-ups, none authored):** the folded strip is not keyboard-reachable (scrolling up
->   reopens the room); a new account's Library board has a blank second
->   line; crown intro has no watchdog if frames never run; a swipe
->   interrupted mid-drag can leave an inert canvas until the next
->   navigation; login / signup pages are Classic-looking (outside Layout).
-> - **Seth has NOT seen on a phone:** Arena-as-default on a fresh device,
->   the What's New pop-up (prod-only; staging shows the page at
->   `/profile/whats-new?preview=1`), plus the three items carried from the
->   last note (crown throw, Finish gap fix, fold carry through a rail-only
->   page). Open ledger rows 11-13 unchanged.
-> - **After the merge:** prod Vercel + Render deploy from `main`
->   (code-only); every prod user sees the What's New pop-up once and the
->   Arena. Then: repoint staging Render to `main`, rewrite this file (it
->   is far over its cap; everything from "Smoke for the next round" down
->   pre-dates the ARENA wave).
-> - **Seth's Nov 15 phone look at the branch, ruled and built in-seat
->   (after the verdict; rig-proved 412 + 360, unit 587, build, hex):**
->   - the loader no longer sits under an arena reading "0 WORKOUTS":
->     no stage until the session has loaded (`Layout.jsx`, `authLoading`)
->   - **Arena is its own look, always dark; Light / Dark / System are
->     Classic.** ONE control in Appearance > Theme: Arena | Light | Dark |
->     System (the separate Arena section is gone). `ThemeContext`
->     resolves dark while Arena is on and keeps the stored theme for
->     Classic. This closes AR6 (no light-mode arena to design). What's New
->     bullet 3, its first detail and the app guide say so.
->   - the wordmark's M is redrawn as a stepped pixel M
->     (`assets/brand/wordmark_white.png`; P moved 30px left)
->   - the loader crown is a rigid body: it pivots on the point you grab
->     (hold the bottom and the top drops over), swings when shaken, leaves
->     with its spin (`motion/useCrownThrow.js`)
->   - gate follow-ups closed: crown intro steps aside if no frame ever
->     runs, an interrupted swipe no longer leaves its canvas, a new
->     account's Library board reads PLAYBOOK instead of a blank line
->   - NOT seen on a phone: all five. Rig note: the first synthetic touch
->     after a page load never reaches the crown (every later one does) -
->     check the first grab on a real phone.
-> - **MERGED TO MAIN Nov 16 (Opus seat, "push to main", each command
->   approved):** `git push origin 3a03bc5:main`, fast-forward
->   `b82ad8c..3a03bc5` (132 commits: motion wave + ARENA wave + gate
->   fixes + ar7-wn). Confirmed `origin/main` = `3a03bc5`. Code-only: no
->   migration, no env change. PROD VERIFIED from the cloud session
->   (hosts + a Render API key added to the `logchamp` environment Nov
->   16): Render `workout-db` live on `3a03bc5` (manual deploy, 00:14Z),
->   Vercel prod bundle `index-PvAImFrL.js` carries `2026-11-arena`,
->   `/coach/stop` 401 on prod. Zero `server/prisma` changes: no Neon or
->   migration step. Staging Render `workout-db-staging` still tracks
->   `motion-wave` (live `5855beb`).
->   Release `2026-11-arena` re-dated 2026-11-16.
-> - **Next action (Seth):** smoke prod on the phone (login, the What's
->   New pop-up once, Appearance > Theme, one workout), then repoint
->   staging Render from `motion-wave` to `main`.
 > **FOR THE OPUS SEAT (Nov 13): Fable is NOT a standing dependency.**
 > Fable 5.2 is on Cursor today, but it can leave, get quota-capped, or
 > be unavailable for a wave. Do not plan a wave around it. When it is
