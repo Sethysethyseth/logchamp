@@ -1,5 +1,17 @@
 # HANDOFF — current state
 
+> **Nov 20, cloud session (Seth, direct ask; Opus in-seat; gate PASS
+> in-seat; MERGED TO MAIN `6a032a5` (ff); NOT yet seen on a phone):**
+> crown still skipped to login on prod (Android installed app). Cause:
+> the Nov 17 warm-up hold rode only on the boot `/auth/me` call; a second
+> refresh mid-boot (`pageshow` / `visibilitychange` - an installed PWA
+> turns visible after its splash) superseded it and settled `authLoading`
+> with no hold. Fix: the hold lives in `bootHoldRef` that any refresh
+> honors while the warm-up is pending (`AuthContext.jsx`, client only).
+> Rig (prod build, mock API, visibility event at 1s): before, login at
+> 4.7s with warm-up pending; after, login once it landed (6.7s).
+> Lanes: unit 587, client build.
+
 > **Nov 17, cloud session (Seth, direct ask; built in-seat; gate PASS
 > in-seat; MERGED TO MAIN `dad6102` (ff), Render prod live on it; NOT yet
 > seen on a phone):** crown loader ->
