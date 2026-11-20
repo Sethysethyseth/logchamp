@@ -1,10 +1,27 @@
 # HANDOFF — current state
 
-> **Nov 20, relay session (Block Lens wave IN FLIGHT; branch
-> `claude/wonderful-gauss-xxyvet`):**
-> - **Next action (Seth):** nothing blocked on you until the wave hands
->   over for smoke (6/6). (You chose the auto rung for bl4 and bl5: the Cursor
->   Opus/Sonnet quota is spent until Dec 18.)
+> **Nov 20, relay session: BLOCK LENS WAVE 6/6 COMPLETE - HARD STOP FOR
+> SETH'S SMOKE (branch `claude/wonderful-gauss-xxyvet`, NOT on main, no
+> migration in the wave):**
+> - **Next action (Seth):** say whether `motion-wave` may fast-forward to this
+>   branch (staging Render deploys `motion-wave`; it already merged here, so it
+>   is a pure ff), then smoke staging against the consolidated list in the
+>   session's final message (also the "Smoke items carried" lines below) and
+>   sign off. Then a frontier seat runs `pre-main-review`.
+> - **Landed:** bl1 c0ef684, bl2 28823c7, bl3 2df313d, bl4 b055ba1, bl5
+>   a901740, bl-wn 0d11d2a. Cursor quota: Opus + Sonnet spent until Dec 18;
+>   bl3 finished, bl4 / bl5 / bl-wn ran on the auto rung (Seth's call).
+> - **Wave-end light smoke (Sonnet subagent, cloud rig):** 10/10 pass, no
+>   defects. Open product question for Seth: the Arena scoreboard on Home still
+>   cycles TOP SET / TOP GAIN faces (`arenaBoards.js` weekFaces) - bl2 kept the
+>   arena's Home faces unchanged by contract; Seth's "Top set / Top gain leave
+>   Home" ruling may or may not include the board. Shots `/tmp/bl-wave-smoke/`
+>   (container only).
+> - **Gate fuel (pre-main-review):** bl3 cross-user isolation (reviewer re-ran
+>   it live); bl1 focusIn wrapper vs clampFocus; bl5 Preview lacks the Arena
+>   header (reported deviation); react-refresh / refs lint added in WeeklyReport,
+>   block cards, SortableList; bl-wn guide trim (reviewer restored Strong/Hevy
+>   export steps).
 > - bl1, bl2 and bl3 were dispatched in parallel (cloud lanes
 >   `/home/user/worktrees/cursor-lane`, `-2`, `-3`, opus). Rig ports were
 >   serialized by a dispatch note (check, wait, kill your own servers).
@@ -103,6 +120,18 @@
 > - Seth on motion (Nov 20): smooth and polished, never over the top -
 >   bl5 carries the prototype's drag (hold to lift, 1:1 follow, neighbours
 >   glide, spring settle) as spec.
+
+> **Nov 20, cloud session (Seth, direct ask; Opus in-seat; gate PASS
+> in-seat; MERGED TO MAIN `6a032a5` (ff); NOT yet seen on a phone):**
+> crown still skipped to login on prod (Android installed app). Cause:
+> the Nov 17 warm-up hold rode only on the boot `/auth/me` call; a second
+> refresh mid-boot (`pageshow` / `visibilitychange` - an installed PWA
+> turns visible after its splash) superseded it and settled `authLoading`
+> with no hold. Fix: the hold lives in `bootHoldRef` that any refresh
+> honors while the warm-up is pending (`AuthContext.jsx`, client only).
+> Rig (prod build, mock API, visibility event at 1s): before, login at
+> 4.7s with warm-up pending; after, login once it landed (6.7s).
+> Lanes: unit 587, client build.
 
 > **Nov 17, cloud session (Seth, direct ask; built in-seat; gate PASS
 > in-seat; MERGED TO MAIN `dad6102` (ff), Render prod live on it; NOT yet
