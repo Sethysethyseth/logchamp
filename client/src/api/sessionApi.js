@@ -47,6 +47,10 @@ export function getLastPerformance(sessionId) {
   return http(`/sessions/${sessionId}/last-performance`);
 }
 
+export function getNextTargets() {
+  return http("/sessions/next-targets");
+}
+
 export function updateSession(id, { notes, performedAt, name }) {
   const body = {};
   if (notes !== undefined) body.notes = notes;

@@ -7,7 +7,8 @@ const { loadCatalog } = require("../analytics");
 const { stampExerciseIdentityWithIndex } = require("../lib/exerciseIdentity");
 const { canDiscardSession } = require("../lib/sessionDiscard");
 const { blockWeekInclude } = require("../blocks/blockTemplateStore");
-const { buildSessionFromBlockWorkout } = require("../blocks/blockRunLogic");
+const { buildSessionFromBlockWorkout, computeRunProgress } = require("../blocks/blockRunLogic");
+const { buildNextTargets, rankTopLifts } = require("../analytics/nextTargets");
 
 const FULL_SESSION_RELATIONS = {
   workoutTemplate: {
@@ -1094,6 +1095,134 @@ async function getLastPerformance(req, res, next) {
   }
 }
 
+const NEXT_TARGETS_TOP_WINDOW_DAYS = 28;
+
+async function getNextTargets(req, res, next) {
+  try {
+    const userId = req.authUserId;
+
+    if (!userId) {
+      return res.status(401).json({
+        error: "Authentication required",
+      });
+    }
+
+    const now = Date.now();
+
+    const [activeRun, prior, userExerciseRows] = await Promise.all([
+      prisma.blockRun.findFirst({
+        where: {
+          userId,
+          endedAt: null,
+        },
+        orderBy: { startedAt: "desc" },
+        include: {
+          blockTemplate: {
+            include: { weeks: blockWeekInclude },
+          },
+          sessions: {
+            select: {
+              id: true,
+              blockWeekOrder: true,
+              blockWorkoutOrder: true,
+              completedAt: true,
+            },
+          },
+        },
+      }),
+      prisma.workoutSession.findMany({
+        where: {
+          userId,
+          completedAt: { not: null },
+          performedAt: {
+            gte: new Date(now - LAST_PERFORMANCE_LOOKBACK_DAYS * MS_PER_DAY),
+          },
+        },
+        orderBy: { performedAt: "desc" },
+        take: LAST_PERFORMANCE_SESSION_CAP,
+        select: {
+          performedAt: true,
+          sessionExercises: {
+            orderBy: { order: "asc" },
+            select: {
+              order: true,
+              exerciseId: true,
+              userExerciseId: true,
+              exerciseName: true,
+              sets: {
+                orderBy: { order: "asc" },
+                select: {
+                  order: true,
+                  side: true,
+                  weight: true,
+                  reps: true,
+                  durationSec: true,
+                  rir: true,
+                  rpe: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.userExercise.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          name: true,
+          normalizedName: true,
+          muscles: true,
+        },
+      }),
+    ]);
+
+    const userIndex = buildUserExerciseIndex(userExerciseRows);
+    const priorSessions = prior.map((row) => ({
+      performedAt: row.performedAt,
+      exercises: row.sessionExercises,
+    }));
+
+    let source = { kind: "top", name: null };
+    let targets = null;
+
+    if (activeRun && activeRun.blockTemplate) {
+      const progress = computeRunProgress(activeRun.blockTemplate, activeRun.sessions);
+      const nextDay = progress.nextDay;
+      const week =
+        nextDay && (activeRun.blockTemplate.weeks || []).find((w) => w.order === nextDay.weekOrder);
+      const workout =
+        week && (week.workouts || []).find((w) => w.order === nextDay.workoutOrder);
+      if (workout) {
+        source = {
+          kind: "block",
+          name: workout.name != null && String(workout.name).trim() ? String(workout.name).trim() : null,
+        };
+        targets = [...(workout.exercises || [])]
+          .sort((a, b) => a.order - b.order)
+          .map((ex) => ({
+            exerciseName: ex.exerciseName,
+            exerciseId: ex.exerciseId,
+            userExerciseId: ex.userExerciseId,
+          }));
+      }
+    }
+
+    if (!targets) {
+      const windowStart = now - NEXT_TARGETS_TOP_WINDOW_DAYS * MS_PER_DAY;
+      targets = rankTopLifts({
+        sessions: priorSessions.filter((s) => new Date(s.performedAt).getTime() >= windowStart),
+        userIndex,
+      });
+    }
+
+    const rows = buildNextTargets({ targets, priorSessions, userIndex });
+
+    return res.status(200).json({ source, rows });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function createSetForSession(req, res, next) {
   try {
     const userId = req.authUserId;
@@ -2105,6 +2234,7 @@ module.exports = {
   getMySessions,
   getSessionById,
   getLastPerformance,
+  getNextTargets,
   createSetForSession,
   updateSet,
   updateSession,

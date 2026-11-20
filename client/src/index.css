@@ -7243,6 +7243,97 @@ html[data-palette="forest"] .analytics-page {
   flex-shrink: 0;
 }
 
+/* --- Home sections (screenLayout HOME_SECTIONS): each is its own card on
+   the weekly-report frame so Customize can hide and reorder them. --- */
+
+.home-section__aside {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.weekly-report__stats.home-section__stat-pair,
+.home-section__skel-pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-beat__list,
+.home-due__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-beat__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  font-size: 15px;
+}
+
+.home-beat__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-beat__sets {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.home-beat__last {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.home-beat__next {
+  margin-left: 6px;
+  font-weight: 600;
+  color: var(--color-interactive-ink);
+}
+
+.home-due__row {
+  display: grid;
+  grid-template-columns: minmax(0, 104px) minmax(0, 1fr) 44px;
+  gap: 10px;
+  align-items: center;
+  font-size: 15px;
+}
+
+.home-due__muscle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.home-due__track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-surface-2);
+  overflow: hidden;
+}
+
+.home-due__bar {
+  display: block;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: var(--color-interactive);
+}
+
+.home-due__days {
+  text-align: right;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
 /* -- Shared chart chrome -- */
 
 .chart-legend {

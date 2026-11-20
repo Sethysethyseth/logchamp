@@ -9,6 +9,7 @@ const {
   getMySessions,
   getSessionById,
   getLastPerformance,
+  getNextTargets,
   createSetForSession,
   updateSet,
   updateSession,
@@ -26,6 +27,7 @@ router.post("/start/:templateId", authRequired, startSession);
 router.post("/start-from-block", authRequired, startSessionFromBlock);
 router.post("/", authRequired, createAdHocSession);
 router.get("/mine", authRequired, getMySessions);
+router.get("/next-targets", authRequired, getNextTargets);
 router.patch("/:id/exercises/:exerciseId", authRequired, updateSessionExercise);
 router.post("/:id/exercises", authRequired, addSessionExercise);
 router.get("/:id/last-performance", authRequired, getLastPerformance);

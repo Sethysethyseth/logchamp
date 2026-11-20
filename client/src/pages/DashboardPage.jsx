@@ -1,16 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as sessionApi from "../api/sessionApi.js";
 import * as templateApi from "../api/templateApi.js";
 import * as blockRunApi from "../api/blockRunApi.js";
 import { ErrorMessage } from "../components/ErrorMessage.jsx";
-import { LoadingState } from "../components/LoadingState.jsx";
-import { WeeklyReport, weeklyReportWindows } from "../components/analytics/WeeklyReport.jsx";
-import { ActiveWorkoutHero } from "../components/workout/ActiveWorkoutHero.jsx";
-import { StartWorkoutHero } from "../components/workout/StartWorkoutHero.jsx";
+import { useWeeklyReport, weeklyReportWindows } from "../components/analytics/WeeklyReport.jsx";
 import { StartWorkoutPicker } from "../components/workout/StartWorkoutPicker.jsx";
 import { WeekStrip } from "../components/workout/WeekStrip.jsx";
-import { UpNextCard } from "../components/blocks/run/UpNextCard.jsx";
+import {
+  HomeBeatSection,
+  HomeDueSection,
+  HomeHighlightsSection,
+  HomeRecentSection,
+  HomeStartSection,
+  HomeUpNextSection,
+  HomeWeekSection,
+} from "../components/home/index.js";
 import { isRunFinished } from "../components/blocks/run/dayStatusTiles.js";
 import { CoachMarkIcon } from "../components/coach/CoachMarkIcon.jsx";
 import { GlyphIcon } from "../components/GlyphIcon.jsx";
@@ -18,13 +23,9 @@ import { useActiveSession } from "../context/ActiveSessionContext.jsx";
 import { readCurrentProgram } from "../lib/currentProgramStorage.js";
 import { ACTIVE_WORKOUT_ERROR, startAdHocWorkoutAndNavigate } from "../lib/startAdHocWorkoutFlow.js";
 import { countWorkoutVolume } from "../components/blocks/run/runExerciseHelpers.js";
-import {
-  blockDayPrimaryTitle,
-  sessionDisplayBlockName,
-  sessionDisplayTitle,
-} from "../lib/sessionDisplay.js";
-import { formatTonnage, sessionDurationLabel, sessionTonnage } from "../lib/sessionFacts.js";
+import { blockDayPrimaryTitle, sessionDisplayTitle } from "../lib/sessionDisplay.js";
 import { loadWeightUnit } from "../lib/weightUnitPref.js";
+import { HOME_SECTIONS, resolveLayout } from "../lib/screenLayout.js";
 import { CrownEgg } from "../components/motion/CrownEgg.jsx";
 import "../styles/coach-page.css";
 import "../styles/workout-bar.css";
@@ -58,18 +59,6 @@ function countLoggedSetsFromListSession(session) {
   }).length;
 }
 
-function formatLoggedWhen(value) {
-  if (!value) return "—";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 function formatRelativeDay(value) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "";
@@ -97,9 +86,11 @@ export function DashboardPage() {
   /** The just-finished workout ({ name, sets, minutes }) while the hero acknowledges it. */
   const [workoutSavedFlash, setWorkoutSavedFlash] = useState(null);
   const [workoutDiscardedFlash, setWorkoutDiscardedFlash] = useState(false);
-  // Bumped after an in-place discard so WeeklyReport (fetches once on
+  // Bumped after an in-place discard so the week data (fetched once on
   // mount) refetches and stops counting the discarded workout.
   const [weeklyReportKey, setWeeklyReportKey] = useState(0);
+  const weeklyReport = useWeeklyReport(weeklyReportKey);
+  const layout = useMemo(() => resolveLayout(HOME_SECTIONS, null), []);
   const [activeBlock, setActiveBlock] = useState(null);
   const [activeBlockReady, setActiveBlockReady] = useState(false);
   const [homeHasRunHint, setHomeHasRunHint] = useState(() => readHomeHasRunHint());
@@ -331,6 +322,108 @@ export function DashboardPage() {
     };
   }, [activeSession, activeBlock, liveBlockDay]);
 
+  const upNextMode = showBlockCard
+    ? "card"
+    : showBlockCardPlaceholder
+      ? "placeholder"
+      : hasActive && activeBlockReady && activeBlock
+        ? "muted"
+        : null;
+
+  function renderSection(id) {
+    switch (id) {
+      case "start":
+        return (
+          <HomeStartSection
+            activeSession={activeSession}
+            active={{
+              nowMs: heroNow,
+              onResume: () => navigate(`/sessions/${activeSession.id}`),
+              setsProgress: liveSetsProgress,
+              onDiscarded: () => {
+                setWorkoutDiscardedFlash(true);
+                setWeeklyReportKey((k) => k + 1);
+                refresh?.();
+              },
+            }}
+            start={{
+              onStartEmpty: () => void onStartEmptyWorkout(),
+              onBrowseTemplates: () => setPickerOpen(true),
+              startingEmpty: quickStarting,
+              saved: workoutSavedFlash,
+              lastSessionLabel: completedRecent[0]
+                ? `${sessionDisplayTitle(completedRecent[0])}, ${formatRelativeDay(completedRecent[0].completedAt)}`
+                : null,
+            }}
+          />
+        );
+      case "upnext":
+        return upNextMode ? (
+          <HomeUpNextSection
+            mode={upNextMode}
+            activeBlock={activeBlock}
+            starting={upNextStarting}
+            onStart={(next) => void onUpNextStart(next)}
+            liveDay={liveBlockDay}
+          />
+        ) : null;
+      case "week":
+        /* One week strip on Home (Seth, Oct 5): the block card's week strip
+           wins; the day strip shows only when no block card does. Same
+           from/to window as the week summary (rolling 7 days). */
+        return (
+          <HomeWeekSection
+            report={weeklyReport}
+            weekStrip={
+              showDayStrip ? (
+                <WeekStrip
+                  sessions={sessions}
+                  from={reportWindows.current.from}
+                  to={reportWindows.current.to}
+                />
+              ) : null
+            }
+          />
+        );
+      case "beat":
+        return <HomeBeatSection reloadKey={weeklyReportKey} />;
+      case "due":
+        return <HomeDueSection reloadKey={weeklyReportKey} />;
+      case "highlights":
+        return <HomeHighlightsSection report={weeklyReport} />;
+      case "recent":
+        return <HomeRecentSection sessions={completedRecent} loading={sessionsLoading} unit={unit} />;
+      default:
+        return null;
+    }
+  }
+
+  /** Sections in layout order. Start sits in the log row; Up next joins it
+      (side by side on desktop) when it directly follows Start as the bold
+      card or its placeholder. Off sections never mount, so Due never fetches. */
+  function renderSections() {
+    const on = layout.filter((s) => s.on).map((s) => s.id);
+    const out = [];
+    for (let i = 0; i < on.length; i += 1) {
+      const id = on[i];
+      if (id === "start") {
+        const pairUpNext =
+          on[i + 1] === "upnext" && (upNextMode === "card" || upNextMode === "placeholder");
+        out.push(
+          <div key="start" className="workout-tab__log-row">
+            {renderSection("start")}
+            {pairUpNext ? renderSection("upnext") : null}
+          </div>
+        );
+        if (pairUpNext) i += 1;
+        continue;
+      }
+      const node = renderSection(id);
+      if (node) out.push(<Fragment key={id}>{node}</Fragment>);
+    }
+    return out;
+  }
+
   return (
     <div className="stack workout-tab">
       <header className="home-masthead">
@@ -381,143 +474,7 @@ export function DashboardPage() {
         </div>
       )}
 
-      <div className="workout-tab__log-row">
-        {hasActive ? (
-          <ActiveWorkoutHero
-            session={activeSession}
-            nowMs={heroNow}
-            onResume={() => navigate(`/sessions/${activeSession.id}`)}
-            setsProgress={liveSetsProgress}
-            onDiscarded={() => {
-              setWorkoutDiscardedFlash(true);
-              setWeeklyReportKey((k) => k + 1);
-              refresh?.();
-            }}
-          />
-        ) : (
-          <StartWorkoutHero
-            onStartEmpty={() => void onStartEmptyWorkout()}
-            onBrowseTemplates={() => setPickerOpen(true)}
-            startingEmpty={quickStarting}
-            saved={workoutSavedFlash}
-            lastSessionLabel={
-              completedRecent[0]
-                ? `${sessionDisplayTitle(completedRecent[0])}, ${formatRelativeDay(completedRecent[0].completedAt)}`
-                : null
-            }
-          />
-        )}
-
-        {/* Active run + no live: bold "Next in your block" card under the log hero.
-            While pending, a same-height placeholder (hinted via sessionStorage). */}
-        {showBlockCard ? (
-          <UpNextCard
-            block={activeBlock.block}
-            progress={activeBlock.progress}
-            runId={activeBlock.run.id}
-            starting={upNextStarting}
-            onStart={(next) => void onUpNextStart(next)}
-          />
-        ) : showBlockCardPlaceholder ? (
-          <section
-            className="card bk-up-next bk-up-next--placeholder skeleton__block"
-            aria-hidden="true"
-          />
-        ) : null}
-      </div>
-
-      {/* Live workout + active block: muted "Up next after this" only. */}
-      {hasActive && activeBlockReady && activeBlock ? (
-        <UpNextCard
-          block={activeBlock.block}
-          progress={activeBlock.progress}
-          runId={activeBlock.run.id}
-          mutedOnly
-          liveDay={liveBlockDay}
-        />
-      ) : null}
-
-      {/* One week strip on Home (Seth, Oct 5): the block card's week strip
-          wins; the day strip shows only when no block card does. Same
-          from/to window as WeeklyReport's summary (rolling 7 days). */}
-      <WeeklyReport
-        key={weeklyReportKey}
-        weekStrip={
-          showDayStrip ? (
-            <WeekStrip
-              sessions={sessions}
-              from={reportWindows.current.from}
-              to={reportWindows.current.to}
-            />
-          ) : null
-        }
-      />
-
-      <section className="workout-tab-recent" aria-labelledby="workout-recent-heading">
-        <div className="row workout-tab-recent__head">
-          <h2 id="workout-recent-heading" className="workout-tab-recent__title">
-            Recent workouts
-          </h2>
-          <Link className="workout-tab-recent__view-all" to="/sessions">
-            View all → History
-          </Link>
-        </div>
-        {sessionsLoading && completedRecent.length === 0 ? (
-          <LoadingState
-            tone="skeleton"
-            variant="list"
-            rows={3}
-            caption={false}
-            label="Loading recent workouts…"
-          />
-        ) : completedRecent.length === 0 ? (
-          <p className="muted small workout-tab-recent__empty" style={{ margin: 0 }}>
-            Completed workouts show up here.
-          </p>
-        ) : (
-          <div className="card recent-list">
-            {completedRecent.map((s) => {
-              const when = formatLoggedWhen(s.completedAt);
-              const title = sessionDisplayTitle(s);
-              const blockName = sessionDisplayBlockName(s);
-              const exercises = s._count?.sessionExercises ?? null;
-              const sets = s._count?.sets ?? null;
-              const duration = sessionDurationLabel(s);
-              const tonnage = formatTonnage(sessionTonnage(s), unit);
-              return (
-                <Link key={s.id} to={`/sessions/${s.id}`} className="recent-row">
-                  <span className="recent-row__main">
-                    <span className="recent-row__title">{title}</span>
-                    {blockName ? (
-                      <span className="recent-row__block muted small">{blockName}</span>
-                    ) : null}
-                    <span className="recent-row__when muted small">
-                      {when}
-                      {exercises != null ? (
-                        <>
-                          <span aria-hidden="true"> · </span>
-                          {exercises} {exercises === 1 ? "exercise" : "exercises"}
-                        </>
-                      ) : null}
-                      {sets != null ? (
-                        <>
-                          <span aria-hidden="true"> · </span>
-                          {sets} {sets === 1 ? "set" : "sets"}
-                        </>
-                      ) : null}
-                    </span>
-                  </span>
-                  <span className="recent-row__facts">
-                    {tonnage ? <span className="recent-row__fact">{tonnage}</span> : null}
-                    {duration ? <span className="recent-row__fact recent-row__fact--muted">{duration}</span> : null}
-                  </span>
-                  <span className="recent-row__chevron" aria-hidden="true" />
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </section>
+      {renderSections()}
 
       <StartWorkoutPicker
         open={pickerOpen && !hasActive}

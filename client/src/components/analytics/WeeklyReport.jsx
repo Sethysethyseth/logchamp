@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import * as analyticsApi from "../../api/analyticsApi.js";
 import { localDayRange } from "../../lib/dateRange.js";
-import { pickTopGain } from "../../lib/topGain.js";
-import { formatEffort } from "../../lib/effortDisplay.js";
 import { formatRepsValue } from "../../lib/repsDisplay.js";
 import { formatEstimate, formatWeight } from "../../lib/weightDisplay.js";
 import { buildExecutionVerdict } from "../../lib/executionVerdict.js";
 import { publishArenaFacts } from "../../lib/arenaFacts.js";
+import { MX_DATA_LEAD_MS } from "../../lib/useCountUp.js";
+import { CountUp } from "../motion/CountUp.jsx";
+
+/* Home's rolling-week data layer. The Home sections that read it ("This
+   week", "Highlights") live in components/home/; one fetch feeds both. */
 
 /** Current + prior 7 local-day windows as ISO datetimes (end-of-local-day). */
 export function weeklyReportWindows(now = new Date()) {
@@ -26,7 +28,7 @@ function hasSummaryData(summary) {
 
 const WEEKLY_MODE_KEY = "workoutdb-weekly-mode";
 
-function readWeeklyMode() {
+export function readWeeklyMode() {
   try {
     return sessionStorage.getItem(WEEKLY_MODE_KEY) === "full" ? "full" : "compact";
   } catch {
@@ -34,7 +36,7 @@ function readWeeklyMode() {
   }
 }
 
-function writeWeeklyMode(mode) {
+export function writeWeeklyMode(mode) {
   try {
     sessionStorage.setItem(WEEKLY_MODE_KEY, mode);
   } catch {
@@ -42,33 +44,61 @@ function writeWeeklyMode(mode) {
   }
 }
 
-function sumEffectiveSets(summary) {
-  return (summary?.perMuscle ?? []).reduce((sum, m) => sum + m.effectiveSets, 0);
+/**
+ * Current + prior 7-day summaries. Bump `reloadKey` to refetch (e.g. after
+ * an in-place discard). Publishes the arena's `week` fact on every load.
+ *
+ * @returns {{ status: "loading" | "failed" | "ready", current: object|null, prior: object|null }}
+ */
+export function useWeeklyReport(reloadKey = 0) {
+  const windows = useMemo(() => weeklyReportWindows(), []);
+  const [state, setState] = useState({ key: null, status: "loading", current: null, prior: null });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const [current, prior] = await Promise.all([
+          analyticsApi.getSummary(windows.current),
+          analyticsApi.getSummary(windows.prior),
+        ]);
+        if (cancelled) return;
+        setState({ key: reloadKey, status: "ready", current, prior });
+        publishArenaFacts({ week: { summary: current } });
+      } catch (err) {
+        console.error("WeeklyReport: failed to load summaries", err);
+        if (!cancelled) setState({ key: reloadKey, status: "failed", current: null, prior: null });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [windows, reloadKey]);
+
+  /* A result for an older reloadKey reads as loading until the refetch lands. */
+  if (state.key !== reloadKey) return { status: "loading", current: null, prior: null };
+  return state;
 }
 
-function pickTopSet(perExercise) {
-  let top = null;
-  for (const ex of perExercise ?? []) {
-    const ts = ex.topSet;
-    if (!ts || ts.weight == null) continue;
-    if (
-      !top ||
-      ts.weight > top.weight ||
-      (ts.weight === top.weight && (ts.reps ?? 0) > (top.reps ?? 0))
-    ) {
-      top = { weight: ts.weight, reps: ts.reps, name: ex.name };
-    }
-  }
-  return top;
+/** Derived facts both Home week sections branch on. */
+export function weeklyFacts(current, prior) {
+  const currentWorkouts = current?.workoutCount ?? 0;
+  const priorWorkouts = prior?.workoutCount ?? 0;
+  const currentHasData = currentWorkouts > 0 || hasSummaryData(current);
+  const priorHasData = priorWorkouts > 0 || hasSummaryData(prior);
+  return {
+    currentWorkouts,
+    priorWorkouts,
+    currentHasData,
+    priorHasData,
+    priorEmpty: !priorHasData,
+    prCount: Array.isArray(current?.prs) ? current.prs.length : 0,
+  };
 }
 
-function formatSetCount(n) {
-  const rounded = Number(Number(n).toFixed(1));
-  const s = rounded.toFixed(1);
-  return s.endsWith(".0") ? s.slice(0, -2) : s;
-}
-
-function formatCountDelta(current, prior, priorEmpty) {
+export function formatCountDelta(current, prior, priorEmpty) {
   if (priorEmpty) return "first 7 days tracked";
   const delta = current - prior;
   if (delta > 0) return `+${delta} vs the 7 days before`;
@@ -76,18 +106,13 @@ function formatCountDelta(current, prior, priorEmpty) {
   return "same as the 7 days before";
 }
 
-function formatSetsDelta(current, prior, priorEmpty) {
-  if (priorEmpty) return "first 7 days tracked";
-  const delta = current - prior;
-  const rounded = Number(delta.toFixed(1));
-  if (rounded > 0) return `+${formatSetCount(rounded)} vs the 7 days before`;
-  if (rounded < 0) return `${formatSetCount(rounded)} vs the 7 days before`;
-  return "same as the 7 days before";
-}
-
-function deltaTone(delta, priorEmpty) {
+export function deltaTone(delta, priorEmpty) {
   if (priorEmpty || delta <= 0) return null;
   return "up";
+}
+
+function sumEffectiveSets(summary) {
+  return (summary?.perMuscle ?? []).reduce((sum, m) => sum + m.effectiveSets, 0);
 }
 
 function computeMuscleMovers(currentPerMuscle, priorPerMuscle) {
@@ -192,12 +217,13 @@ function computeNudgeLine(currentSummary, priorSummary) {
   return null;
 }
 
-function ReportStat({ label, value, delta, deltaTone: tone }) {
+/** One stat column; the leading number rolls in via CountUp. */
+export function ReportStat({ label, value, delta, deltaTone: tone }) {
   return (
     <div className="weekly-report__stat">
       <span className="weekly-report__stat-label muted small">{label}</span>
       <span className={`weekly-report__stat-value${tone ? " weekly-report__stat-value--up" : ""}`}>
-        {value}
+        <CountUp text={value} delay={MX_DATA_LEAD_MS} />
       </span>
       {delta ? (
         <span
@@ -234,19 +260,26 @@ function PRRows({ prs }) {
   );
 }
 
-function DigestSection({ currentSummary, priorSummary, priorEmpty }) {
+/** The digest's lines (PRs, Movers, Execution, Note), or null when none apply. */
+export function weeklyDigest(currentSummary, priorSummary, priorEmpty) {
   const movers = priorEmpty
     ? []
     : computeMuscleMovers(currentSummary?.perMuscle, priorSummary?.perMuscle);
   const moversLine = formatMoversLine(movers);
   const prs = currentSummary?.prs ?? [];
-  const hasPRs = prs.length > 0;
   const executionVerdict = computeOverallExecutionVerdict(currentSummary?.execution);
   const nudgeLine = computeNudgeLine(currentSummary, priorSummary);
 
-  if (!moversLine && !hasPRs && !executionVerdict && !nudgeLine) {
+  if (!moversLine && prs.length === 0 && !executionVerdict && !nudgeLine) {
     return null;
   }
+  return { prs, moversLine, executionVerdict, nudgeLine };
+}
+
+/** Renders `weeklyDigest(...)`'s result. */
+export function WeeklyDigest({ digest }) {
+  if (!digest) return null;
+  const { prs, moversLine, executionVerdict, nudgeLine } = digest;
 
   return (
     <div className="weekly-report__digest">
@@ -270,181 +303,5 @@ function DigestSection({ currentSummary, priorSummary, priorEmpty }) {
         </p>
       ) : null}
     </div>
-  );
-}
-
-export function WeeklyReport({ weekStrip = null }) {
-  const windows = useMemo(() => weeklyReportWindows(), []);
-  const [currentSummary, setCurrentSummary] = useState(null);
-  const [priorSummary, setPriorSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [fetchFailed, setFetchFailed] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setFetchFailed(false);
-      try {
-        const [current, prior] = await Promise.all([
-          analyticsApi.getSummary(windows.current),
-          analyticsApi.getSummary(windows.prior),
-        ]);
-        if (!cancelled) {
-          setCurrentSummary(current);
-          setPriorSummary(prior);
-          publishArenaFacts({ week: { summary: current } });
-        }
-      } catch (err) {
-        console.error("WeeklyReport: failed to load summaries", err);
-        if (!cancelled) {
-          setCurrentSummary(null);
-          setPriorSummary(null);
-          setFetchFailed(true);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [windows]);
-
-  if (loading) {
-    const withStrip = Boolean(weekStrip);
-    const compact = readWeeklyMode() === "compact";
-    return (
-      <section
-        className={
-          "card weekly-report weekly-report--skel" +
-          (withStrip ? " weekly-report--skel-with-strip" : " weekly-report--skel-no-strip") +
-          (compact ? " weekly-report--skel-compact" : "")
-        }
-        aria-busy="true"
-        aria-label="Loading last 7 days"
-      >
-        <div className="skeleton weekly-report__skel">
-          <div className="skeleton__title" />
-          {withStrip ? <div className="weekly-report__skel-strip" aria-hidden="true" /> : null}
-          {compact ? (
-            <div className="skeleton__block skeleton__block--short" />
-          ) : (
-            <>
-              <div className="skeleton__tiles">
-                <div className="skeleton__tile" />
-                <div className="skeleton__tile" />
-                <div className="skeleton__tile" />
-                <div className="skeleton__tile" />
-              </div>
-              <div className="skeleton__block skeleton__block--short" />
-            </>
-          )}
-        </div>
-      </section>
-    );
-  }
-
-  if (fetchFailed) return null;
-
-  const currentWorkouts = currentSummary?.workoutCount ?? 0;
-  const priorWorkouts = priorSummary?.workoutCount ?? 0;
-  const currentHasData = currentWorkouts > 0 || hasSummaryData(currentSummary);
-  const priorHasData = priorWorkouts > 0 || hasSummaryData(priorSummary);
-
-  if (!currentHasData && !priorHasData) return null;
-
-  const priorEmpty = !priorHasData;
-
-  if (!currentHasData && priorHasData) {
-    writeWeeklyMode("compact");
-    return (
-      <section className="card weekly-report" aria-labelledby="weekly-report-heading">
-        <div className="weekly-report__head row">
-          <h2 id="weekly-report-heading" className="weekly-report__title">
-            Last 7 days
-          </h2>
-          <Link className="weekly-report__link" to="/analytics">
-            See analytics →
-          </Link>
-        </div>
-        {weekStrip ? <div className="weekly-report__strip">{weekStrip}</div> : null}
-        <p className="weekly-report__nudge muted small">
-          No workouts yet in the last 7 days. The 7 days before, you logged {priorWorkouts}{" "}
-          {priorWorkouts === 1 ? "workout" : "workouts"}.
-        </p>
-      </section>
-    );
-  }
-
-  const currentSets = sumEffectiveSets(currentSummary);
-  const priorSets = sumEffectiveSets(priorSummary);
-  const topSet = pickTopSet(currentSummary?.perExercise);
-  const topGain = pickTopGain(currentSummary?.perExercise ?? []);
-
-  writeWeeklyMode("full");
-
-  const workoutDelta = formatCountDelta(currentWorkouts, priorWorkouts, priorEmpty);
-  const setsDelta = formatSetsDelta(currentSets, priorSets, priorEmpty);
-  const setsDeltaValue = priorEmpty ? null : Number((currentSets - priorSets).toFixed(1));
-
-  return (
-    <section className="card weekly-report" aria-labelledby="weekly-report-heading">
-      <div className="weekly-report__head row">
-        <h2 id="weekly-report-heading" className="weekly-report__title">
-          Last 7 days
-        </h2>
-        <Link className="weekly-report__link" to="/analytics">
-          See analytics →
-        </Link>
-      </div>
-      {weekStrip ? <div className="weekly-report__strip">{weekStrip}</div> : null}
-      <div className="weekly-report__stats">
-        <ReportStat
-          label="Workouts"
-          value={String(currentWorkouts)}
-          delta={workoutDelta}
-          deltaTone={deltaTone(currentWorkouts - priorWorkouts, priorEmpty)}
-        />
-        <ReportStat
-          label="Sets"
-          value={formatSetCount(currentSets)}
-          delta={setsDelta}
-          deltaTone={deltaTone(setsDeltaValue ?? 0, priorEmpty)}
-        />
-        <ReportStat
-          label="Top set"
-          value={
-            topSet
-              ? topSet.reps != null
-                ? `${formatWeight(topSet.weight)} × ${formatRepsValue(topSet.reps)}`
-                : formatWeight(topSet.weight)
-              : "-"
-          }
-          delta={topSet ? topSet.name : "not enough data"}
-          deltaTone={null}
-        />
-        <ReportStat
-          label="Top gain"
-          value={topGain ? `+${formatEstimate(topGain.delta)}` : "-"}
-          delta={
-            topGain
-              ? topGain.matched
-                ? `${topGain.name} @ ${formatEffort({ rir: topGain.matched.rir, effortUnit: topGain.matched.effortUnit })}`
-                : `${topGain.name} · estimated 1RM`
-              : "not enough data"
-          }
-          deltaTone={topGain ? "up" : null}
-        />
-      </div>
-      <DigestSection
-        currentSummary={currentSummary}
-        priorSummary={priorSummary}
-        priorEmpty={priorEmpty}
-      />
-    </section>
   );
 }
