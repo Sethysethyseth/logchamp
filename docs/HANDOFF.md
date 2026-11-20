@@ -2,8 +2,9 @@
 
 > **Nov 20, relay session (Block Lens wave IN FLIGHT; branch
 > `claude/wonderful-gauss-xxyvet`):**
-> - **Next action (Seth):** nothing blocked on you until the wave hands
->   over for smoke (6/6) - then smoke staging against the consolidated list.
+> - **Next action (Seth):** pick how bl4 + bl5 go out while the Cursor
+>   Opus/Sonnet quota is spent (resets Dec 18): (a) auto rung, (b) set a
+>   Cursor spend limit so Sonnet runs, or (c) pause the wave until the 18th.
 > - bl1, bl2 and bl3 were dispatched in parallel (cloud lanes
 >   `/home/user/worktrees/cursor-lane`, `-2`, `-3`, opus). Rig ports were
 >   serialized by a dispatch note (check, wait, kill your own servers).
@@ -38,6 +39,11 @@
 >   lifts", last -> +1 rep), Highlights, Recent; no Top set / Top gain on
 >   Home; Due is absent by default; new account shows only Start + Recent;
 >   check the PRs number reads sensibly (it counts PR records, 22 on smoke).
+> - **bl3 LANDED** (started on Opus, finished on the auto rung in the same
+>   session). Adds `GET /analytics/block-runs` + `/analytics/block-run/:id`
+>   (pure `buildBlockSummary`). Reviewer re-ran the cross-user check in the
+>   rig: another account gets the same 404 as a missing id. Server-only,
+>   so no smoke items of its own; bl4 draws it.
 > - **Smoke items carried (bl1):** five-tab swipe walks Home > Analytics >
 >   History > Library > Profile with the room following the finger; Analytics
 >   has its own standing board (SETS bars, view board fades in); no coach
