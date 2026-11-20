@@ -4,122 +4,98 @@
 
 Home is where a workout starts. On a phone the bottom bar says Home. On a wide screen the top bar says Workout.
 
-The wordmark sits at the top with the date under it. A round button on the right, labeled Ask the coach, opens the coach.
+The wordmark sits at the top with the date under it. Ask the coach (round button) opens the coach.
 
-Start a workout is the main button. Start empty workout begins a blank workout right away. The setup bar sits at the top of a live workout. Tap RIR or RPE to pick the effort scale, and tap Exercise notes or Repeat last to turn them on or off. Edit opens the rest of Logging setup. The same choices live under Profile, then Training.
+Home is cards you can rearrange under Profile, then Appearance, then Customize. Start a workout stays on. Start empty workout begins a blank workout. The setup bar on a live workout switches RIR or RPE, Exercise notes, and Repeat last. Edit opens the rest of Logging setup, also under Profile, then Training.
 
-If a block is running, Home shows that block and the next day. Recent workouts lists what you finished. A live workout stays on screen until you finish or discard it. Swipe the In progress bar or the coach bar sideways to clear it off the screen. Your workout stays on Home and the coach's answer still arrives.
+If a block is running, Next in your block shows the next day. This week is the last seven days: Workouts, PRs, and a link to Analytics. Beat last time shows last time's top set and the one-more-rep target on your next lifts. Highlights covers the last seven days. Recent workouts lists what you finished. Due is off until you turn it on in Customize. Top set and Top gain are on Analytics, not Home.
+
+A live workout stays until you finish or discard it. Swipe the In progress bar or the coach bar sideways to clear it; the workout stays on Home and the coach's answer still arrives.
 
 # Arena
 
-LogChamp opens in the Arena: a pixel gym at the top of every screen. Each tab is a place in it. Home is the platform. Analytics is the scoreboard. History is the home crowd. Library is the playbook. The coach is coach's corner. Profile is the locker room. Boards show your own numbers.
+LogChamp opens in the Arena: a pixel gym at the top of every screen. Tabs are places in tab order: Home (platform), Analytics (standing scoreboard), History (home crowd), Library (playbook), Profile (locker room). Boards show your numbers. The coach talks on the Home scoreboard; Ask the coach still opens from Home.
 
-As you scroll, the room folds to a strip or a thin rail. Tap the arena for the full view. Hold or pinch to look closer.
-
-During a live workout the scoreboard strip is the clock and the rest timer. The page starts with one row for the name, Setup, and discard. Finish workout sits at the end of the page. Prefer the earlier look? Profile, then Appearance, then Light, Dark or System under Theme.
+Scroll folds the room to a strip or thin rail. Tap the arena for the full view. Hold or pinch to look closer. During a live workout the strip is the clock and rest timer. Prefer Classic? Profile, then Appearance, then Look, then Classic. Theme (Light, Dark, or System) sits under Classic.
 
 # Logging a workout
 
-A workout is a list of exercises and sets. Open one from Home, from History, or from a block day.
+A workout is exercises and sets. Open one from Home, History, or a block day.
 
-Tap + Add exercise to add a movement. For each set, enter the weight and the reps. Effort is either RIR (reps in reserve) or RPE, whichever you chose under Training. Exercise notes and Set notes appear only when those switches are on.
+Tap + Add exercise. Enter weight and reps. Effort is RIR or RPE from Training. Exercise notes and Set notes appear when those switches are on.
 
-Repeat last time's numbers, also under Training, shows the last session's weight and reps in empty fields, in grey. Tap the set number to use them. Typing your own numbers replaces that hint. Nothing is saved until you log it. Last time's RPE or RIR shows in grey as a reminder, but you always enter today's yourself. On a block day the plan comes first, and last time only fills a weight the plan left blank.
+Repeat last time's numbers (under Training) shows last session's weight and reps in grey. Tap the set number to use them. Nothing is saved until you log it. You always enter today's RPE or RIR yourself. On a block day the plan comes first; last time only fills a blank weight.
 
-Log at least one set, then tap Finish workout. If a logged set has no effort, LogChamp warns you those sets will not count toward effort stats, and Finish anyway still saves the workout. You can go back and add the missing RIR or RPE instead.
+Log at least one set, then Finish workout. Missing effort gets a warning that those sets will not count toward effort stats; Finish anyway still saves. A rest timer starts above Finish workout (default two minutes; Duration under Training; a block's rest wins). -15s, +15s, or Skip. It keeps counting if you leave. Some phones buzz when rest ends.
 
-A rest timer starts as soon as you log a set, just above Finish workout. The default is two minutes. Change Duration under Training. A block's own rest time wins for that exercise. -15s and +15s adjust the countdown. Skip clears it. It keeps counting if you leave and come back. Phones that support it give a short buzz when rest is over.
-
-Discard workout throws the workout away. The x is at the top of a live workout, on the In progress card on Home, and on the In progress bar. LogChamp asks you to confirm inside the app first. Finished workouts show up in History and in Recent workouts on Home.
+Discard workout: the x on a live workout, the In progress card, or the In progress bar, after a confirm. Finished workouts show in History and Recent workouts on Home.
 
 # Blocks (build, run, pause/resume)
 
-A block is a multi-week plan: weeks, days, exercises, and the sets you meant to do.
+A block is a multi-week plan: weeks, days, exercises, and planned sets.
 
-Build one from Library. Tap New block, name it, add weeks and days, then add exercises. On each exercise you can set sets, reps, load, and rest. Block settings include a name, notes, and an effort scale. Drafts stay private until you save the block to your library. Edit on a library card, or Edit on the running block, opens the builder again.
+Build from Library: New block, add weeks, days, and exercises with sets, reps, load, and rest. Edit on a library card or the running block reopens the builder.
 
-Run it from Library. On the block card tap Start. Home then shows the current day. Open the day and log it like any workout. The header shows the block name and which week you are on (Week N of M).
+Run from Library: Start on the card. Home shows the current day. Log it like any workout. The header shows Week N of M. Analytics on the block page opens that run on Analytics.
 
-Starting a different block pauses the one that is running. LogChamp tells you it will pause, and you can pick it up later. Keep current leaves the running block alone when that button is shown.
+Starting a different block pauses the one that is running. A paused block shows Paused; Resume continues, Start over begins at day one. End block is under Block options (three dots).
 
-A paused block in Library shows Paused. Tap Resume. If you had left off mid-block, Resume continues there and Start over begins at the first day. Cancel leaves things as they are.
-
-End block ends the run. On the running block, open Block options (the three dots), tap End block, then confirm End block. Keep running leaves it going.
-
-In the builder, press and hold a day or a week and drag it into a new order. Press and hold an exercise to drag it within the day. While an exercise is moving, the day shrinks to one line per exercise.
-
-Per side on the exercise card is for one-sided lifts, and logs left and right. For any other lift, open Reps / Time and turn on Per side (left and right).
-
-Add exercise lists Recent lifts before you type. If the lift is not in the catalog, choose Add to your library, name it, pick at least one Main muscle, then Add exercise.
+In the builder, press and hold a day, week, or exercise to drag it. Per side logs left and right. Add exercise lists Recent lifts first; Add to your library for a new lift.
 
 # Templates
 
-A template is a saved single workout, not a multi-week block. Library's Workouts tab lists them. Create workout is parked. Use a block, or start from Home with Start workout or a saved workout. Start a workout can open Raw log (a blank workout) and your Saved workouts. Make public / Make private are on a saved workout's card.
+A template is a saved single workout. Library's Workouts tab lists them. Create workout is parked. Start a workout can open Raw log and Saved workouts. Make public / Make private are on a saved workout's card.
 
 # Library (Blocks, Workouts, Exercises)
 
-Open Library from the bottom or top bar. Yours is your stuff; Community browses public workouts and blocks. Under Yours: Blocks, Workouts, and Exercises.
+Open Library from the bottom or top bar. Yours vs Community. Under Yours: Blocks, Workouts, Exercises.
 
-Blocks are multi-week plans. New block and Import sit at the top. A card offers Start or Resume, Edit, and Delete. Delete block removes the plan; logged workouts stay in History. Workouts are saved single sessions; Create workout is parked.
+Blocks: New block and Import at the top. Cards offer Start or Resume, Edit, Delete. Delete block removes the plan; logged workouts stay in History.
 
-Exercises lists movements you added. Tap Edit to rename or change muscles, then Save changes. Delete exercise removes it from your library; past sets stay logged. To add one: in the builder or while logging, Add to your library, name it, pick a Main muscle, then Add exercise.
+Exercises: movements you added. Edit to rename or change muscles, then Save changes. Add one from the builder or while logging via Add to your library.
 
 # History
 
-History is every finished workout, newest first. Open History from the bottom bar (or the top bar on a wide screen), then tap a workout to open it. You can look back at what you logged. An old completed workout does not ask you to fill in effort after the fact.
-
-Coach conversations are on History, under Coach. Open one to continue it. Delete removes one. Delete all conversations clears the list.
+History is every finished workout, newest first. Coach conversations are under Coach. Open one to continue. Delete removes one; Delete all conversations clears the list.
 
 # Analytics and Exercises
 
-Analytics reads the workouts you have already logged. Open Analytics, then pick a window: 2 weeks, 4 weeks, 8 weeks, or 12 weeks.
+Analytics reads logged workouts. Pick a window: 2, 4, 8, or 12 weeks.
 
-Four views:
+At the top, All training is the full window. Block chips open one run: Week N of M, Since week 1 gains, On plan, Off-block workouts, Sets logged of planned, and Top set by block week. One-sided lifts show Left and Right. Chart and Table switch that card. A running block's Analytics link opens the same scope.
 
-- Muscles: weekly volume by muscle, and whether push and pull look balanced.
-- Strength: top-set and matched-effort trends for each lift.
-- Exercises: the per-exercise roster, one place to read a single lift.
-- Execution: planned versus logged, for sets that came from a template or a block. Counts show as whole numbers, such as 3 x 8.
+Four views under All training:
 
-Bars, Trend, and Table switch how a view is drawn. Effective sets count a set toward each muscle it trains. Stimulating sets do that only when you logged RIR or RPE. If a lot of sets have no effort, say so when you read the numbers: the effort-weighted views are a weak read until you log it.
+- Muscles: weekly volume by muscle, and push/pull balance.
+- Strength: top-set and matched-effort trends.
+- Exercises: one place to read a single lift.
+- Execution: planned versus logged. Counts show as whole numbers, such as 3 x 8.
 
-The coach can sit on this page and explain the window you are looking at. That needs AI access on. How-to questions do not.
+Bars, Trend, and Table switch how a view is drawn. Effective sets count a set toward each muscle it trains. Stimulating sets need logged RIR or RPE. The coach can explain the window when AI access is on.
 
 # Importing a block or history
 
-Open Library, then Import. Four sources: Paste, File, Old app, and Any AI.
+Library, then Import: Paste, File, Old app, Any AI.
 
-Paste: copy a spreadsheet table with its header row, then Preview. Useful headers: Week, Day, Exercise, Sets, Reps, Load. File: choose a spreadsheet, csv, tsv, text, or json; pick a sheet if needed, then Preview.
-
-Old app: Strong or Hevy export. Strong: Settings, then Export Strong Data. Hevy: Profile, then Settings, then Export and Import Data, then Export Workouts. Set Weeks to build, and for Strong set Unit you logged in. This rebuilds recent training as an editable block; it does not copy every past workout into History. More than seven different workouts keeps the seven most-logged and names the rest.
-
-Any AI: paste a plan in prose. Have AI fix this file can retry a bad preview when the coach is available. Save into Library, Blocks. A paste that is too large says so.
+Paste a spreadsheet with headers (Week, Day, Exercise, Sets, Reps, Load), then Preview. File: spreadsheet, csv, tsv, text, or json. Old app: Strong or Hevy export rebuilds recent training as an editable block (not a full History copy). To export from Strong: Settings, then Export Strong Data. From Hevy: Profile, then Settings, then Export and Import Data, then Export Workouts. Set Weeks to build, and for Strong set Unit you logged in. More than seven different workouts keeps the seven most-logged and names the rest. Any AI: paste a plan in prose. Have AI fix this file can retry a bad preview. A paste that is too large says so.
 
 # Profile (Training, Appearance, AI access, Security, What's new)
 
-Open Profile. The top shows a few counts. Settings is the list under that.
+Open Profile. Settings is the list under your counts.
 
-Training: Weight unit (lbs or kg), Effort scale (RIR or RPE), Exercise notes, Set notes, Repeat last time's numbers, and Rest timer. Weights you already logged are not converted when you switch units. Blocks and templates keep the effort scale they were built with. Rest timer starts after you log a set. A block's own rest time wins. The setup bar sits at the top of a live workout. The same choices live under Profile, then Training.
+Training: Weight unit, Effort scale, Exercise notes, Set notes, Repeat last time's numbers, Rest timer. Logged weights are not converted when you switch units. The setup bar on a live workout matches these choices.
 
-Appearance: Theme (Arena, Light, Dark, or System) and Accent color (Champ, Iron, Forest, Crimson, Chill, or a custom palette). Arena is the default look and has its own lighting; Light, Dark and System are the Classic look from before. Per device. Describe a look in your own words when AI access is on. On Crimson, good results show in green.
+Appearance has Look and Customize. Look: Arena or Classic. Theme (Light, Dark, System) under Classic only. Accent color (Champ, Iron, Forest, Crimson, Chill, or custom). Per device. Customize Home and Analytics: hide or show cards (Hidden; Start a workout stays on), press and hold or drag the grip to reorder, Preview, Back to editing, Reset. Saved on this device.
 
-AI access: the switch labeled AI access is on or AI access is off. On lets the coach read your computed training summary and lets an outside assistant connect. Off still lets the coach answer how-to questions from this guide, with no training numbers attached. Use your own Anthropic key saves that key for you, so you enter it once. The page shows the last four characters. Remove key takes it away. Connect an outside AI assistant is the section for Claude, ChatGPT, Grok, or another assistant, using the connector address shown there.
+AI access on lets the coach use your training summary and lets an outside assistant connect. Off still answers how-to from this guide. Use your own Anthropic key saves it once (last four characters shown; Remove key). Connect an outside AI assistant is for Claude, ChatGPT, Grok, or similar.
 
-Security: Current password, New password, Confirm new password, then Update password.
-
-What's new: release notes, newest first. Each update leads with a short summary. See the details opens the longer guide. On Profile, a card under your stats shows the latest update. See what's new opens the full list. On the live app, a note can also appear when you open LogChamp. Got it dismisses it. See all updates opens the same list.
-
-Send feedback is also in Settings, if you want to write to the person who builds LogChamp.
+Security: change password. What's new: release notes. See the details opens the longer guide. Send feedback is in Settings.
 
 # The coach
 
-The coach explains your training and how to use LogChamp. Open it from Home (Ask the coach, beside the wordmark) or from Profile, then Settings, then Coach. The page title is Coach. It also opens inside Analytics, on a finished workout, and from a block in the builder.
+Open from Home (Ask the coach) or Profile, then Settings, then Coach. Also from Analytics, a finished workout, or the block builder. In the Arena, answers show on the Home scoreboard.
 
-Ask about your training, or how to do something in LogChamp. With AI access on, questions can use your numbers for the recent window. With AI access off, ask how to do something in the app. Those answers come from this guide only, and the coach does not see your training. Turn on AI access under Profile, then AI access, to ask about your own numbers.
-
-New conversation starts a fresh thread. Earlier ones stay under History, then Coach, and the coach keeps working if you leave. The first answer shows progress while it thinks. On the hosted coach there is a weekly limit of seven questions; the panel says how many are left.
-
-The coach will not invent a screen or a button. If this guide does not cover it, the coach should say it is not sure.
+With AI access on, ask about your numbers. With it off, ask how to use LogChamp from this guide only. New conversation starts a fresh thread; earlier ones live under History, then Coach. Weekly limit of seven on the hosted coach. The coach will not invent a screen; if this guide does not cover it, it should say it is not sure.
 
 # Not in LogChamp yet
 

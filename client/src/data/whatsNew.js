@@ -32,6 +32,72 @@
  */
 export const RELEASES = [
   {
+    id: "2026-12-block-lens",
+    date: "2026-11-20",
+    title: "Block progress, Beat last time, your layout",
+    tagline: "Follow a block on Analytics, and arrange Home your way.",
+    action: { label: "Arrange Home and Analytics", to: "/profile/appearance" },
+    sections: [
+      {
+        heading: "Blocks on Analytics",
+        items: [
+          "Pick a block chip on Analytics to see Week N of M, On plan, and each lift's top set against the plan.",
+        ],
+      },
+      {
+        heading: "Home",
+        items: [
+          "This week shows Workouts and PRs. Beat last time names the next lift and the one-more-rep target.",
+          "Top set and Top gain live on Analytics now, not Home.",
+        ],
+      },
+      {
+        heading: "Your layout",
+        items: [
+          "Under Appearance, Customize lets you hide, show, and drag Home and Analytics cards. Look picks Arena or Classic.",
+          "The Arena walks Home, Analytics, History, Library, Profile. The coach talks on the Home scoreboard.",
+        ],
+      },
+    ],
+    details: [
+      {
+        heading: "One block on Analytics",
+        body: [
+          "At the top of Analytics, All training is the full window. Tap a block chip to open that run: Week N of M, Since week 1 gains, On plan, Off-block workouts, Sets logged of planned, and Top set by block week for each lift. One-sided lifts show Left and Right. Chart and Table switch the view. From a running block, Analytics opens the same scope.",
+        ],
+        where: "Analytics, a block chip - or the block page, Analytics",
+      },
+      {
+        heading: "This week and Beat last time",
+        body: [
+          "This week is your last seven days: a strip, Workouts, and PRs, with a link to Analytics. Beat last time shows up to three lifts - last time's top set and the one-more-rep target. On a block day it follows what is up next; otherwise it uses your top lifts.",
+        ],
+        where: "Home",
+      },
+      {
+        heading: "Customize Home and Analytics",
+        body: [
+          "Profile, Appearance has Look and Customize. On Customize, switch Home or Analytics. Minus hides a card (Hidden); plus shows it. Start a workout stays on. Press and hold a card, or drag the grip, to move it. Preview shows the screen; Back to editing returns. Reset restores the defaults. Saved on this device.",
+        ],
+        where: "Profile, then Appearance, then Customize",
+      },
+      {
+        heading: "Look: Arena or Classic",
+        body: [
+          "Under Look, pick Arena or Classic. Theme (Light, Dark, or System) sits under Classic only. Accent color is still there. Customize Home and Analytics is the row into the Customize tab.",
+        ],
+        where: "Profile, then Appearance, then Look",
+      },
+      {
+        heading: "The Arena in tab order",
+        body: [
+          "With Arena on, the room walks the same order as the tabs: Home, Analytics, History, Library, Profile. Analytics has its own standing scoreboard. The coach no longer has a separate corner; Ask the coach still opens from Home, and answers show on the Home scoreboard.",
+        ],
+        where: "Any tab with Arena on, or Home, Ask the coach",
+      },
+    ],
+  },
+  {
     id: "2026-11-arena",
     date: "2026-11-16",
     title: "A new look: the Arena",
