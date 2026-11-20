@@ -51,8 +51,13 @@ export function AuthProvider({ children }) {
   const authEpochRef = useRef(0);
   /** True while tearing down the server session so no /auth/me result re-applies a user. */
   const loggingOutRef = useRef(false);
+  /** The boot's DB warm-up (capped). Any refresh that would end the boot wait
+   *  headed for /login waits on it - not just the boot call, because on load
+   *  `pageshow` starts a second /auth/me that supersedes the boot one and so
+   *  is the call that actually settles authLoading. */
+  const bootHoldRef = useRef(null);
 
-  const refreshSession = useCallback(async (opts) => {
+  const refreshSession = useCallback(async () => {
     if (loggingOutRef.current) {
       setAuthLoading(false);
       return null;
@@ -86,7 +91,7 @@ export function AuthProvider({ children }) {
       // database wakes (no session = no query), which moved the cold wait
       // onto the sign-in button. Hold the crown loader until the warm-up
       // ping lands too, capped, so the wait is spent where the crown is.
-      if (!signedIn && opts?.holdFor) await opts.holdFor;
+      if (!signedIn && bootHoldRef.current) await bootHoldRef.current;
       // A superseded call must not end the boot wait: on load, pageshow starts
       // a second /auth/me, and clearing authLoading here while currentUser is
       // still null bounced signed-in users through /login. Whoever bumped the
@@ -102,7 +107,11 @@ export function AuthProvider({ children }) {
       authApi.warm(),
       new Promise((resolve) => setTimeout(resolve, BOOT_WARM_CAP_MS)),
     ]);
-    void refreshSession({ holdFor: warmed });
+    bootHoldRef.current = warmed;
+    void warmed.then(() => {
+      if (bootHoldRef.current === warmed) bootHoldRef.current = null;
+    });
+    void refreshSession();
   }, [refreshSession]);
 
   useEffect(() => {
