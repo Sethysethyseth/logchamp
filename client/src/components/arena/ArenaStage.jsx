@@ -47,7 +47,8 @@ const SETTLE_MS = 460;
 function placeFor(pathname, activeId) {
   if (pathname === "/") return ["home", "home"];
   if (pathname.startsWith("/analytics")) return ["analytics", "analytics"];
-  if (pathname.startsWith("/coach")) return ["coach", "coach"];
+  /* The coach has no corner in the room: it stands at Home and talks on the scoreboard. */
+  if (pathname.startsWith("/coach")) return ["home", "coach"];
   if (pathname.startsWith("/profile")) return ["profile", "profile"];
   if (pathname.startsWith("/sessions/")) {
     const live = activeId != null && pathname === `/sessions/${activeId}`;
@@ -844,10 +845,10 @@ export function ArenaStage() {
   }, []);
 
   const livePeek = activeId != null ? { sets: liveSets } : null;
-  let peek = peekLine(place, facts, livePeek, weeks, here);
+  let peek = peekLine(facet === "coach" ? "coach" : place, facts, livePeek, weeks, here);
   if (cheer) peek = "LOG CHAMP";
-  else if (place === "coach" && streaming) peek = "The coach is thinking";
-  else if (place === "coach" && answer) peek = chalkSentence(answer, 60);
+  else if (facet === "coach" && streaming) peek = "The coach is thinking";
+  else if (facet === "coach" && answer) peek = chalkSentence(answer, 60);
   else if (place === "analytics" && faces) peek = `${VIEW_LABELS[view]} · last ${weeks} weeks`;
 
   return (

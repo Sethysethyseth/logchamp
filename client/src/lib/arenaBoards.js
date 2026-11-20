@@ -359,12 +359,11 @@ export function banners(workouts) {
   ];
 }
 
-/** Balcony lettering per place (arena-draft-3.html PLACES[].sign). */
+/** Balcony lettering per place, in tab order (arena-draft-3.html PLACES[].sign). The coach has no place: it stands at Home. */
 export const PLACE_BALCONY = {
-  history: "THE HOME CROWD",
   home: "THE PLATFORM",
   analytics: "THE SCOREBOARD",
-  coach: "COACH'S CORNER",
+  history: "THE HOME CROWD",
   library: "THE PLAYBOOK",
   profile: "LOCKER ROOM",
 };

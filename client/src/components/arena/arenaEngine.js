@@ -34,23 +34,40 @@ const RAIN_MS = 3200;
 const BLINK_MS = 3400;
 const BLINK_SHUT_MS = 150;
 const THUD_MS = 180;
+
+/** Where each place sits in the world: the x of its centre, in tab order. The camera never moves vertically. */
+export const ARENA_PLACES = {
+  home: { x: 150 },
+  analytics: { x: 254 },
+  history: { x: 358 },
+  library: { x: 462 },
+  profile: { x: 554 },
+};
+/** The room's ends (world x): one place per screen, in tab order. */
+const ROOM_L = -4;
+const ROOM_R = 608;
+/* Each place's furniture is drawn from its place's centre, so moving a place is one number. */
+const BOARD_X = ARENA_PLACES.analytics.x; // Analytics' standing board, centred
+const STAND_WALL = ARENA_PLACES.history.x + 46; // the History stands' back wall; the tiers rise toward it
+const RACK_X = ARENA_PLACES.library.x;
+const LOCKER_X = ARENA_PLACES.profile.x;
+
 /* Lamp cans under the truss: column, place. Two over the platform. */
 const CANS = [
-  [50, "history"],
   [112, "home"],
   [188, "home"],
-  [254, "coach"],
-  [350, "library"],
-  [450, "profile"],
+  [BOARD_X, "analytics"],
+  [ARENA_PLACES.history.x, "history"],
+  [RACK_X - 8, "library"],
+  [LOCKER_X, "profile"],
 ];
-/* Balcony lettering x (world). */
+/* Balcony lettering x (world), one per place. */
 const BALCONY_SX = {
-  history: 50,
-  home: 150,
-  analytics: 150,
-  coach: 254,
-  library: 350,
-  profile: 450,
+  home: ARENA_PLACES.home.x,
+  analytics: BOARD_X,
+  history: ARENA_PLACES.history.x,
+  library: RACK_X - 8,
+  profile: LOCKER_X,
 };
 /* The Log: front row of the far stands, in thirds of a pixel. */
 const LOG = ["..#..#..#..", "..#######..", ".ooooooooo.", "obbbbbbbbbo", "obbwbbbwbbo", "obbbbbbbbbo", "obbbmmmbbbo", "obsbbbbbsbo", "obbbbbbbbbo", ".ooooooooo.", "..d.....d.."];
@@ -68,10 +85,8 @@ const FONT = {
   U: "101101101101111", V: "101101101101010", W: "101101111111101", X: "101101010101101", Y: "101101010010010",
   Z: "111001010100111", ":": "000010000010000", "+": "000010111010000", ".": "000000000000010",
   "-": "000000111000000", "\u00b7": "000000010000000", "'": "010010000000000",
-  /* Curly apostrophe (same glyph as ASCII) - balcony "COACH'S CORNER". */
-  "\u2019": "010010000000000",
 };
-/* The chalkboard's thinking dots step this often while an answer streams. */
+/* The coach's thinking dots (hung board and strip) step this often while an answer streams. */
 const DOTS_MS = 280;
 /* The Analytics board's views, in the page's tab order. */
 const VIEW_TITLES = ["MUSCLES", "STRENGTH", "EXERCISES", "EXECUTION"];
@@ -171,24 +186,15 @@ const BODY_BACK = [
 /* Plate heights on the board's bar, biggest plate first (arenaBoards platesFor). */
 const PLATE_H = [23, 19, 15, 11, 9, 7, 5];
 
-/** Where each place sits in the world: the x of its centre. The camera never moves vertically. */
-export const ARENA_PLACES = {
-  history: { x: 46 },
-  home: { x: 150 },
-  analytics: { x: 150 },
-  coach: { x: 254 },
-  library: { x: 358 },
-  profile: { x: 450 },
-};
-
 const hash = (x, y) => {
   const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
   return n - Math.floor(n);
 };
 
-/* The home crowd (History): the near stands. One row per week, the front row
-   this week; every workout that week is one fan in that row, seated from the
-   platform side. Empty seats are just seats. */
+/* The home crowd (History): the stands past Analytics, rising toward their
+   back wall (STAND_WALL). One row per week, the front row this week; every
+   workout that week is one fan in that row, seated from the platform side.
+   Empty seats are just seats. */
 const STAND_TIER = 8;
 const STAND_SEAT = 5;
 const standReach = (tier) => Math.round(92 - tier * 5.2);
@@ -257,7 +263,7 @@ export function createArena(canvas, strip) {
     homeFaces: null, // [[line1, line2], ...] Home's week faces (arenaBoards.weekFaces); null = sets / workouts
     board: null, // the Analytics view's face (arenaBoards.analyticsFaces); null = the weekly sets chart
     block: null, // the program board (arenaBoards.blockBoard); null = PROGRAMS
-    chalk: null, // { thinking, lines } - the coach's chalkboard; null = ASK ME / ANYTHING
+    chalk: null, // { thinking, lines } - the coach's face on the hung board and strip; null = ASK ME / ANYTHING
     crowd: [], // workouts per week, oldest first, STAND_WEEKS long (ArenaStage roomFacts)
     spot: null, // { col, row } the open workout's fan (arenaBoards.seatSpot): col = week, row = seat; null = none
     placeLines: null, // kept for callers; boardFace owns History/Library/Profile lines now
@@ -318,8 +324,12 @@ export function createArena(canvas, strip) {
   function targetX(name = s.place) {
     const place = ARENA_PLACES[name] || ARENA_PLACES.home;
     // Never look past the ends of the room; a view wider than the room centres it.
-    return W >= 500 ? 250 - W / 2 : Math.max(-4, Math.min(504 - W, place.x - W / 2));
+    if (W >= ROOM_R - ROOM_L) return (ROOM_L + ROOM_R - W) / 2;
+    return Math.max(ROOM_L, Math.min(ROOM_R - W, place.x - W / 2));
   }
+
+  /* A closer look stays inside the room: arenaSheet's clampFocus keeps the height, the room's ends keep the x. */
+  const focusIn = (point) => ({ ...clampFocus(point), x: Math.max(ROOM_L + 24, Math.min(ROOM_R - 24, point.x)) });
 
   /** The world coordinate at the canvas's top-left, for the camera and the zoom as they stand. */
   const view = () => zoomView({ camX: cam.x, camY: cam.y, viewW: W, viewH: H, focus: zoom.focus, zoom: zoom.z });
@@ -347,10 +357,13 @@ export function createArena(canvas, strip) {
   /* The last n weekly bars, n = the Analytics range (at most the eight there are). */
   const shownBars = () => s.bars.slice(-Math.max(1, Math.min(s.bars.length, s.weeks || 8)));
 
+  /* The live workout's line is Home's; the coach stands at Home too, and keeps its own face. */
+  const logging = () => Boolean(s.live) && s.place === "home" && s.facet !== "coach";
+
   const wantWide = (now) => {
     const left = restLeft(now);
     if (left > 0) return 1;
-    if (s.live && s.place === "home") return 1;
+    if (logging()) return 1;
     return 0;
   };
 
@@ -362,15 +375,14 @@ export function createArena(canvas, strip) {
         ? { leftSec: Math.ceil(left / 1000), durationSec: s.rest.durationMs / 1000 }
         : null;
     const saved = now < s.savedUntil ? { name: s.savedName } : null;
-    const logging =
-      s.live && s.place === "home"
-        ? {
-            name: s.live.name,
-            elapsedSec: Math.floor((now - s.live.startedAtMs) / 1000),
-            setsDone: s.live.sets || 0,
-            block: s.live.block || null,
-          }
-        : null;
+    const live = logging()
+      ? {
+          name: s.live.name,
+          elapsedSec: Math.floor((now - s.live.startedAtMs) / 1000),
+          setsDone: s.live.sets || 0,
+          block: s.live.block || null,
+        }
+      : null;
     const lib = s.block
       ? { label: s.block.label, done: s.block.done, total: s.block.total }
       : s.placeLines?.library
@@ -380,8 +392,8 @@ export function createArena(canvas, strip) {
       rest,
       saved,
       cheer: cheering(now),
-      logging,
-      place: s.place,
+      logging: live,
+      place: s.facet === "coach" ? "coach" : s.place,
       week: weekFace(now),
       analytics: s.board?.lines || null,
       history: { count: s.seats },
@@ -411,7 +423,7 @@ export function createArena(canvas, strip) {
       px(x, TRUSS + 1 + (t < 5 ? t : 9 - t), RAMP[3]);
     }
     for (const [x, p] of CANS) {
-      const on = p === "home" ? at("home") || at("analytics") : at(p);
+      const on = at(p);
       px(x, TRUSS + 7, RAMP[3], 1, 2);
       px(x - 2, TRUSS + 9, RAMP[4], 5, 4);
       px(x - 1, TRUSS + 13, on ? RAMP[8] : RAMP[5], 3, 1);
@@ -426,11 +438,7 @@ export function createArena(canvas, strip) {
     px(x0, 56, RAMP[2], x1 - x0, 7);
     px(x0, 63, RAMP[0], x1 - x0, 1);
     for (let x = Math.ceil(x0 / 100) * 100; x < x1; x += 100) px(x, 56, RAMP[1], 1, 7);
-    for (const [k, sign] of Object.entries(PLACE_BALCONY)) {
-      if (k === (at("analytics") ? "home" : "analytics")) continue;
-      const sx = BALCONY_SX[k] ?? ARENA_PLACES[k]?.x ?? 150;
-      mid(sign, sx, 57, at(k) ? RAMP[8] : RAMP[4]);
-    }
+    for (const [k, sx] of Object.entries(BALCONY_SX)) mid(PLACE_BALCONY[k], sx, 57, at(k) ? RAMP[8] : RAMP[4]);
   }
 
   function paintFace(f, bx, by, bw, bh) {
@@ -481,7 +489,7 @@ export function createArena(canvas, strip) {
     for (const ex of [x0 - 1.4, x0 + 11 * u + 0.8]) px(ex, by - 2 * u, RAMP[7], 2 * u, 5 * u);
   }
 
-  /* The open Analytics board: the view the page is on. `gr` charges bars and columns in as it opens. */
+  /* Analytics' board with the camera on it: the view the page is on. `gr` charges bars and columns in as it opens. */
   function viewBoard(face, bx, by, bw, bh, gr) {
     const view = VIEW_TITLES.indexOf(face.title);
     // Muscles: the body takes the board's full height, so the title heads the column beside it.
@@ -552,15 +560,49 @@ export function createArena(canvas, strip) {
     }
   }
 
+  /* Analytics' board, standing on the floor in its own place: the weekly sets
+     from a distance, then the view the page is on charges in as the camera
+     arrives (ease.board). */
+  function analyticsBoard(hi, flashing, reduced) {
+    const bw = 84;
+    const bh = 52;
+    const bx = BOARD_X - bw / 2;
+    const by = 78;
+    px(bx + 10, by + bh, RAMP[4], 2, FLOOR - by - bh);
+    px(bx + bw - 12, by + bh, RAMP[4], 2, FLOOR - by - bh);
+    px(bx + 6, FLOOR - 2, RAMP[4], 10, 2);
+    px(bx + bw - 16, FLOOR - 2, RAMP[4], 10, 2);
+    px(bx, by, RAMP[flashing ? 8 : hi ? 5 : 4], bw, bh);
+    px(bx + 1, by + 1, RAMP[0], bw - 2, bh - 2);
+    crown(BOARD_X - 4, by - 7, hi ? RAMP[8] : RAMP[6]);
+    if (ease.board > 0.5 && s.board) {
+      viewBoard(s.board, bx, by, bw, bh, reduced ? 1 : Math.min(1, (ease.board - 0.5) / 0.45));
+      return;
+    }
+    const bars = shownBars();
+    const head = `${bars.length} WK`;
+    text("SETS", bx + 3, by + 3, RAMP[6]);
+    text(head, bx + bw - 2 - head.length * 4, by + 3, RAMP[5]);
+    const peak = Math.max(1, ...bars);
+    const slot = Math.floor(72 / bars.length);
+    const barW = Math.min(12, slot - 3);
+    const x0 = bx + Math.round((bw - (bars.length - 1) * slot - barW) / 2);
+    bars.forEach((v, i) => {
+      const h = Math.round((v / peak) * (bh - 16));
+      px(x0 + i * slot, by + bh - 4 - h, i === bars.length - 1 ? RAMP[8] : RAMP[hi ? 6 : 5], barW, h);
+    });
+    px(bx + 3, by + bh - 4, RAMP[4], bw - 6, 1);
+  }
+
   /* The rack's program board: the running block's weeks, done days bright, the next day mid, the rest dark. Steady. */
   function programBoard(block) {
-    mid(block.label, 362.5, 93, RAMP[6]);
+    mid(block.label, RACK_X + 4.5, 93, RAMP[6]);
     const weeks = Math.max(1, block.cells.length);
     const days = Math.max(1, ...block.cells.map((c) => c.length));
     const sx = Math.min(7, Math.floor(41 / weeks));
     const sy = Math.min(5, Math.max(1, Math.floor(15 / days)));
     const ch = Math.max(1, sy - (sy >= 4 ? 2 : 1));
-    const x0 = 341 + Math.round((43 - (weeks * sx - 2)) / 2);
+    const x0 = RACK_X - 17 + Math.round((43 - (weeks * sx - 2)) / 2);
     block.cells.forEach((week, w) =>
       week.forEach((cell, d) => px(x0 + w * sx, 100 + d * sy, RAMP[cell === 2 ? 8 : cell === 1 ? 6 : 3], Math.max(1, sx - 2), ch))
     );
@@ -576,9 +618,8 @@ export function createArena(canvas, strip) {
     const strip = mode === "strip";
     const VH = rail ? ARENA_RAIL_ROWS : strip ? SH : H;
     if (rail) {
-      const place = ARENA_PLACES[s.place] || ARENA_PLACES.home;
       zz = 1;
-      cx = place.x - W / 2;
+      cx = targetX();
       cy = 54;
     }     else if (strip) {
       /* Artifact draw(now, "strip"): zoom 1, view locked on the platform
@@ -596,10 +637,10 @@ export function createArena(canvas, strip) {
     const lights = [
       light(112, 88, 150, 148, 0.44, ease.power),
       light(188, 88, 150, 148, 0.44, ease.power),
-      light(60, 62, 40, 150, 0.6, at("history") ? 0.5 : 0.3),
-      light(254, 84, 254, 150, 0.62, at("coach") ? 0.85 : 0.4),
-      light(358, 84, 358, 150, 0.7, at("library") ? 0.8 : 0.35),
-      light(450, 84, 450, 150, 0.7, at("profile") ? 0.8 : 0.35),
+      light(BOARD_X, 70, BOARD_X, 150, 0.62, at("analytics") ? 0.85 : 0.4),
+      light(STAND_WALL - 60, 62, STAND_WALL - 40, 150, 0.6, at("history") ? 0.5 : 0.3),
+      light(RACK_X, 84, RACK_X, 150, 0.7, at("library") ? 0.8 : 0.35),
+      light(LOCKER_X, 84, LOCKER_X, 150, 0.7, at("profile") ? 0.8 : 0.35),
       ...CANS.map(([x, p]) =>
         p === "home"
           ? light(x, TRUSS + 14, 150, 148, 0.1, 0.25 * ease.power)
@@ -657,12 +698,12 @@ export function createArena(canvas, strip) {
     for (let tier = 0; tier < STAND_WEEKS; tier += 1) {
       const y = FLOOR - (tier + 1) * STAND_TIER;
       const reach = standReach(tier);
-      px(0, y, RAMP[1], reach, STAND_TIER);
-      px(0, y, RAMP[3], reach, 1);
+      px(STAND_WALL - reach, y, RAMP[1], reach, STAND_TIER);
+      px(STAND_WALL - reach, y, RAMP[3], reach, 1);
       const fans = s.crowd[STAND_WEEKS - 1 - tier] || 0;
       const up = s.spot && s.spot.col === STAND_WEEKS - 1 - tier ? s.spot.row : -1;
       let seat = 0;
-      for (let x = reach - STAND_SEAT; x > 0; x -= STAND_SEAT, seat += 1) {
+      for (let x = STAND_WALL - reach + 2; x < STAND_WALL - 3; x += STAND_SEAT, seat += 1) {
         if (seat >= fans) {
           px(x, y + 5, RAMP[2], 3, 2); // an empty seat
           continue;
@@ -698,13 +739,12 @@ export function createArena(canvas, strip) {
       for (let k = 0; k < 3; k += 1) px(tx - 2 + k * 2, 87, on || k === 1 ? RAMP[8] : RAMP[5], 1, 2);
     });
 
-    // scoreboard hung from the main truss; widens for the live line and REST
-    const b = strip ? 0 : ease.board;
-    const wd = ease.wide;
-    const bw = Math.round(38 + 26 * wd + (46 - 26 * wd) * b);
-    const bh = Math.round(17 + 35 * b);
+    // scoreboard hung from the main truss; widens for the live line and REST. It never opens:
+    // the strip is a cut of it, so both show the same face.
+    const bw = Math.round(38 + 26 * ease.wide);
+    const bh = 17;
     const bx = Math.round(150 - bw / 2);
-    const by = 82 - Math.round(4 * b);
+    const by = 82;
     px(120, TRUSS + 7, RAMP[3], 1, 66 - TRUSS - 7);
     px(180, TRUSS + 7, RAMP[3], 1, 66 - TRUSS - 7);
     px(120, 66, RAMP[3], 61, 1);
@@ -713,79 +753,44 @@ export function createArena(canvas, strip) {
     px(bx, by, RAMP[flashing ? 8 : 4], bw, bh);
     px(bx + 1, by + 1, RAMP[0], bw - 2, bh - 2);
     crown(146, by - 7, lit || flashing ? RAMP[8] : RAMP[7]);
-    if (b > 0.85 && s.board) {
-      viewBoard(s.board, bx, by, bw, bh, reduced ? 1 : Math.min(1, (b - 0.85) / 0.14));
-    } else if (b > 0.85) {
-      const bars = shownBars();
-      const head = `${bars.length} WK`;
-      text("SETS", bx + 3, by + 3, RAMP[6]);
-      text(head, bx + bw - 2 - head.length * 4, by + 3, RAMP[5]);
-      const peak = Math.max(1, ...bars);
-      const slot = Math.floor(72 / bars.length);
-      const barW = Math.min(12, slot - 3);
-      const x0 = bx + Math.round((bw - (bars.length - 1) * slot - barW) / 2);
-      bars.forEach((v, i) => {
-        const h = Math.round((v / peak) * (bh - 16));
-        px(x0 + i * slot, by + bh - 4 - h, i === bars.length - 1 ? RAMP[8] : RAMP[6], barW, h);
-      });
-      px(bx + 3, by + bh - 4, RAMP[4], bw - 6, 1);
-    } else if (b < 0.15) {
-      paintFace(boardFace(faceInput(now)), bx, by, bw, bh);
-      s.week.days.forEach((on, i) => px(137 + i * 4, by + bh + 2, on ? RAMP[8] : RAMP[3], 2, 2));
-    }
+    paintFace(boardFace(faceInput(now)), bx, by, bw, bh);
+    s.week.days.forEach((on, i) => px(137 + i * 4, by + bh + 2, on ? RAMP[8] : RAMP[3], 2, 2));
 
-    // coach's corner: chalkboard, stool, bottle
-    px(238, 124, RAMP[4], 1, 26);
-    px(270, 124, RAMP[4], 1, 26);
-    px(234, 96, RAMP[at("coach") ? 6 : 4], 41, 29);
-    px(235, 97, RAMP[1], 39, 27);
-    crown(250, 88, at("coach") ? RAMP[8] : RAMP[6]);
-    const chalkLines = thinking() ? [] : chalk();
-    if (thinking()) {
-      for (let i = 0; i < dotCount(now, reduced); i += 1) px(249 + i * 5, 109, RAMP[8], 2, 2);
-    } else {
-      const y0 = chalkLines.length === 1 ? 107 : 103;
-      chalkLines.forEach((ln, i) => mid(ln, 254.5, y0 + i * 8, i ? RAMP[7] : RAMP[8]));
-    }
-    if (zz > 2.2 && chalkLines.length < 3) text("LOG IT OR IT DIDNT HAPPEN", 238, 121.4, RAMP[5], 1 / 3);
-    px(282, 140, RAMP[5], 9, 2);
-    px(283, 142, RAMP[4], 1, 8);
-    px(289, 142, RAMP[4], 1, 8);
-    px(278, 145, RAMP[7], 2, 5);
+    if (!strip) analyticsBoard(at("analytics"), flashing, reduced);
 
     // the rack (Library): plate tree, dumbbells, program board
     const hiR = at("library");
-    px(324, 112, RAMP[4], 1, 38);
-    px(320, 148, RAMP[4], 9, 2);
+    px(RACK_X - 34, 112, RAMP[4], 1, 38);
+    px(RACK_X - 38, 148, RAMP[4], 9, 2);
     [[118, 11], [128, 9], [137, 7]].forEach(([y, h]) => {
-      px(319, y - (h >> 1), hiR ? RAMP[7] : RAMP[5], 3, h);
-      px(327, y - (h >> 1), hiR ? RAMP[6] : RAMP[5], 3, h);
-      px(322, y, RAMP[4], 5, 1);
+      px(RACK_X - 39, y - (h >> 1), hiR ? RAMP[7] : RAMP[5], 3, h);
+      px(RACK_X - 31, y - (h >> 1), hiR ? RAMP[6] : RAMP[5], 3, h);
+      px(RACK_X - 36, y, RAMP[4], 5, 1);
     });
     for (const sy of [130, 142]) {
-      px(338, sy, RAMP[4], 56, 1);
-      px(339, sy, RAMP[3], 1, FLOOR - sy);
-      px(392, sy, RAMP[3], 1, FLOOR - sy);
+      px(RACK_X - 20, sy, RAMP[4], 56, 1);
+      px(RACK_X - 19, sy, RAMP[3], 1, FLOOR - sy);
+      px(RACK_X + 34, sy, RAMP[3], 1, FLOOR - sy);
       for (let i = 0; i < 6; i += 1) {
-        const x = 342 + i * 8;
+        const x = RACK_X - 16 + i * 8;
         const sz = 3 + (i > 2 ? 1 : 0);
         px(x, sy - sz, hiR ? RAMP[7] : RAMP[5], 2, sz);
         px(x + 2, sy - 2, RAMP[4], 2, 1);
         px(x + 4, sy - sz, hiR ? RAMP[7] : RAMP[5], 2, sz);
       }
     }
-    px(340, 90, RAMP[hiR ? 6 : 4], 45, 27);
-    px(341, 91, RAMP[1], 43, 25);
+    px(RACK_X - 18, 90, RAMP[hiR ? 6 : 4], 45, 27);
+    px(RACK_X - 17, 91, RAMP[1], 43, 25);
     if (s.block) programBoard(s.block);
     else {
-      text("PROGRAMS", 347, 93, RAMP[6]);
-      for (let wk = 0; wk < 6; wk += 1) for (let d = 0; d < 3; d += 1) px(344 + wk * 7, 101 + d * 5, RAMP[3], 5, 3);
+      text("PROGRAMS", RACK_X - 11, 93, RAMP[6]);
+      for (let wk = 0; wk < 6; wk += 1) for (let d = 0; d < 3; d += 1) px(RACK_X - 14 + wk * 7, 101 + d * 5, RAMP[3], 5, 3);
     }
 
     // the locker room (Profile), banners in the rafters
     const hiP = at("profile");
     for (let i = 0; i < 8; i += 1) {
-      const x = 418 + i * 8;
+      const x = LOCKER_X - 32 + i * 8;
       const mine = i === 3;
       px(x, 112, mine ? RAMP[hiP ? 7 : 5] : RAMP[4], 7, 38);
       px(x + 1, 113, mine ? RAMP[3] : RAMP[2], 5, 36);
@@ -797,11 +802,11 @@ export function createArena(canvas, strip) {
         if (zz > 2.2) text("1", x + 3, 122.7, RAMP[1], 1 / 3);
       }
     }
-    px(428, 144, RAMP[5], 44, 2);
-    px(431, 146, RAMP[4], 1, 4);
-    px(468, 146, RAMP[4], 1, 4);
+    px(LOCKER_X - 22, 144, RAMP[5], 44, 2);
+    px(LOCKER_X - 19, 146, RAMP[4], 1, 4);
+    px(LOCKER_X + 18, 146, RAMP[4], 1, 4);
     banners(s.seats).forEach(({ label, earned }, i) => {
-      const x = 424 + i * 24;
+      const x = LOCKER_X - 26 + i * 24;
       const y = 63; // hang from the balcony front
       px(x, y, earned ? RAMP[hiP ? 6 : 4] : RAMP[3], 14, 15);
       px(x + 1, y + 1, RAMP[earned ? 2 : 1], 12, 12);
@@ -908,7 +913,7 @@ export function createArena(canvas, strip) {
     const wideTo = wantWide(now);
     ease.power += (wantPower - ease.power) * k;
     ease.board += (wantBoard - ease.board) * k;
-    // The board grows and shrinks with the drag too (Home <-> Analytics share a spot).
+    // Analytics' board charges and drains with the drag too.
     if (scrub) ease.board = wantBoard + ((scrub.place === "analytics" ? 1 : 0) - wantBoard) * scrub.t;
     ease.wide += (wideTo - ease.wide) * Math.min(1, k * 2.4);
     cam.ready = true;
@@ -940,14 +945,14 @@ export function createArena(canvas, strip) {
     syncDots();
   }
 
-  /* While an answer streams, the dots step: one redraw per step from a timer, only
-     while the chalkboard or the Coach strip is on screen. The only loop at rest. */
+  /* While an answer streams on the Coach page, the dots step: one redraw per step
+     from a timer, only while the hung board or the strip is on screen. The only loop at rest. */
   function syncDots() {
-    let need = !dead && thinking() && !prefersReducedMotion() && !document.hidden;
+    let need = !dead && s.facet === "coach" && thinking() && !prefersReducedMotion() && !document.hidden;
     if (need) {
       const v = view();
-      const boardSeen = !s.covered && v.x < 275 && v.x + W / zoom.z > 234;
-      need = boardSeen || (s.strip && (s.facet === "coach" || s.place === "coach"));
+      const boardSeen = !s.covered && v.x < 170 && v.x + W / zoom.z > 130;
+      need = boardSeen || s.strip;
     }
     if (need && !dots) dots = window.setInterval(kick, DOTS_MS);
     else if (!need && dots) {
@@ -1086,7 +1091,7 @@ export function createArena(canvas, strip) {
     },
     /** Look closer, centred on a world point. */
     look(point) {
-      zoom.focus = clampFocus(point);
+      zoom.focus = focusIn(point);
       zoomTo(ARENA_ZOOM);
     },
     /** Step back to the full view at 1x. */
@@ -1101,7 +1106,7 @@ export function createArena(canvas, strip) {
     },
     /** Drag while zoomed: the room follows the finger. `dx`/`dy` are fractions of the canvas since `from`. */
     pan(from, dx, dy) {
-      zoom.focus = clampFocus({ x: from.x - (dx * W) / zoom.z, y: from.y - (dy * H) / zoom.z });
+      zoom.focus = focusIn({ x: from.x - (dx * W) / zoom.z, y: from.y - (dy * H) / zoom.z });
       kick();
     },
     /** The world point under a spot on the canvas, given as fractions of its size. */
