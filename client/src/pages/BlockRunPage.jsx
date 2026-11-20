@@ -303,6 +303,12 @@ export function BlockRunPage() {
           sub={weekOfLabel}
           right={
             <div className="bk-run-header-right">
+              <Link
+                className="bk-run-edit-link"
+                to={`/analytics?block=${encodeURIComponent(payload.run.id)}`}
+              >
+                Analytics
+              </Link>
               <EditBlockLink blockId={payload.block?.id} />
               <div className="bk-run-menu">
                 <button

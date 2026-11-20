@@ -10733,3 +10733,249 @@ html[data-theme="dark"] .session-discard-confirm__discard {
 .analytics-ghost-diagram__key--actual {
   background: color-mix(in srgb, var(--color-interactive) 35%, transparent);
 }
+
+/* -- Block scope (BL4): progress ring, sets-of-planned, lift charts -- */
+
+.ba-progress {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.ba-progress-ring {
+  flex: none;
+}
+
+.ba-progress-ring__track {
+  stroke: var(--chart-track);
+}
+
+.ba-progress-ring__fill {
+  stroke: var(--chart-accent);
+  transition: stroke-dasharray var(--motion-base) var(--ease-standard);
+}
+
+.ba-progress-copy {
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Block scope chips: a long block name truncates instead of overflowing the pill. */
+.range-chip--scope {
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ba-progress-name {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  border: 1px dashed var(--color-border);
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.ba-progress-week {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.ba-sets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ba-sets-row {
+  display: grid;
+  grid-template-columns: 34px 1fr 58px;
+  gap: 10px;
+  align-items: center;
+}
+
+.ba-sets-label {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ba-sets-track {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--chart-track);
+  overflow: hidden;
+}
+
+.ba-sets-fill {
+  display: block;
+  height: 100%;
+  border-radius: 0 5px 5px 0;
+  background: var(--chart-accent);
+  max-width: 100%;
+  transition: width var(--mx-draw, 550ms) var(--mx-ease-draw, ease);
+}
+
+.ba-sets-fill--current {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--chart-accent) 0 4px,
+    color-mix(in srgb, var(--chart-accent) 55%, var(--color-surface-2)) 4px 8px
+  );
+}
+
+.ba-sets-count {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ba-lift-plot {
+  position: relative;
+  touch-action: pan-y;
+}
+
+.ba-lift-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ba-lift-grid {
+  stroke: var(--chart-hairline);
+  stroke-width: 1;
+}
+
+.ba-lift-base {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.ba-lift-ax {
+  fill: var(--color-text-secondary);
+  font-size: 11px;
+  font-family: var(--font-sans);
+}
+
+.ba-lift-plan {
+  stroke: var(--color-text-secondary);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.ba-lift-line {
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.ba-lift-line--left,
+.ba-lift-line--top {
+  stroke: var(--chart-accent);
+}
+
+.ba-lift-line--right {
+  stroke: var(--color-warn-accent);
+}
+
+.ba-lift-dot {
+  stroke-width: 2;
+}
+
+.ba-lift-dot--left,
+.ba-lift-dot--top {
+  fill: var(--color-surface-1);
+  stroke: var(--chart-accent);
+}
+
+.ba-lift-dot--right {
+  fill: var(--color-surface-1);
+  stroke: var(--color-warn-accent);
+}
+
+.ba-lift-crosshair {
+  stroke: var(--color-text-secondary);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+
+.ba-lift-tip {
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: min(300px, 92%);
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: var(--color-text);
+  color: var(--color-surface-1);
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+  white-space: normal;
+}
+
+.ba-lift-tip__title,
+.ba-lift-tip__line {
+  display: block;
+  white-space: nowrap;
+}
+
+.ba-lift-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.ba-lift-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ba-lift-swatch {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.ba-lift-swatch--left,
+.ba-lift-swatch--top {
+  background: var(--chart-accent);
+}
+
+.ba-lift-swatch--right {
+  background: var(--color-warn-accent);
+}
+
+.ba-lift-swatch--plan {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-text-secondary) 0 4px,
+    transparent 4px 7px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ba-sets-fill,
+  .ba-progress-ring__fill {
+    transition: none;
+  }
+}

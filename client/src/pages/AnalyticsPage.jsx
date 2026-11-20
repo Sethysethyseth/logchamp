@@ -32,6 +32,8 @@ import {
   MusclesEmptyGhost,
   StrengthEmptyGhost,
 } from "../components/analytics/EmptyStateGhosts.jsx";
+import { BlockScopeChips } from "../components/analytics/block/BlockScopeChips.jsx";
+import { BlockScopeView } from "../components/analytics/block/BlockScopeView.jsx";
 import { toDateOnlyString } from "../lib/dateOnly.js";
 import { localDayRange } from "../lib/dateRange.js";
 import { formatEffort } from "../lib/effortDisplay.js";
@@ -707,6 +709,13 @@ function DataQualitySection({ meta }) {
 
 export function AnalyticsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const blockParam = searchParams.get("block");
+  const blockId =
+    blockParam != null && blockParam !== "" && Number.isFinite(Number(blockParam))
+      ? Number(blockParam)
+      : null;
+  const inBlockScope = blockId != null;
+
   const [weeks, setWeeks] = useState(() => loadAnalyticsWeeks());
   const [summary, setSummary] = useState(() => peekAnalytics(loadAnalyticsWeeks()));
   /* The range the DISPLAYED summary belongs to. The content re-keys on it, so
@@ -717,6 +726,9 @@ export function AnalyticsPage() {
   const [indexReady, setIndexReady] = useState(false);
   const [loading, setLoading] = useState(() => peekAnalytics(loadAnalyticsWeeks()) == null);
   const [error, setError] = useState(null);
+  const [blockRuns, setBlockRuns] = useState([]);
+  const [blockSummary, setBlockSummary] = useState(null);
+  const [blockLoading, setBlockLoading] = useState(false);
   const [seenWeeks, setSeenWeeks] = useState(weeks);
   const [epoch, setEpoch] = useState(0);
   if (weeks !== seenWeeks) {
@@ -739,6 +751,29 @@ export function AnalyticsPage() {
   function selectWeeks(nextWeeks) {
     setWeeks(nextWeeks);
     saveAnalyticsWeeks(nextWeeks);
+  }
+
+  function selectBlock(nextId) {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (nextId == null) next.delete("block");
+        else next.set("block", String(nextId));
+        return next;
+      },
+      { replace: true }
+    );
+  }
+
+  function clearBlockParam() {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("block");
+        return next;
+      },
+      { replace: true }
+    );
   }
 
   function setView(nextView) {
@@ -789,7 +824,26 @@ export function AnalyticsPage() {
   useEffect(() => {
     let cancelled = false;
 
+    async function loadRuns() {
+      try {
+        const data = await analyticsApi.getBlockRuns();
+        if (!cancelled) setBlockRuns(Array.isArray(data?.runs) ? data.runs : []);
+      } catch {
+        if (!cancelled) setBlockRuns([]);
+      }
+    }
+
+    loadRuns();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
     async function load() {
+      if (inBlockScope) return;
       const hit = peekAnalytics(weeks);
       if (hit) {
         setSummary(hit);
@@ -818,11 +872,50 @@ export function AnalyticsPage() {
     return () => {
       cancelled = true;
     };
-  }, [weeks]);
+  }, [weeks, inBlockScope]);
 
   useEffect(() => {
-    if (summary) markEntrancePlayed();
-  }, [summary]);
+    let cancelled = false;
+
+    async function loadBlock() {
+      if (!inBlockScope) {
+        setBlockSummary(null);
+        setBlockLoading(false);
+        return;
+      }
+      setBlockLoading(true);
+      setError(null);
+      try {
+        const data = await analyticsApi.getBlockRunSummary(blockId);
+        if (!cancelled) {
+          setBlockSummary(data);
+          setBlockLoading(false);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        /* Missing / other-user / bad id: fall back to All training, no toast. */
+        if (err && (err.status === 404 || err.status === 400)) {
+          setBlockSummary(null);
+          setBlockLoading(false);
+          clearBlockParam();
+          return;
+        }
+        setError(err);
+        setBlockLoading(false);
+      }
+    }
+
+    loadBlock();
+    return () => {
+      cancelled = true;
+    };
+    // blockSummary intentionally omitted: keep previous dimmed while refreshing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockId, inBlockScope]);
+
+  useEffect(() => {
+    if (summary || blockSummary) markEntrancePlayed();
+  }, [summary, blockSummary]);
 
   /* A chart plays its entrance when it comes on screen, not when the page
      loads (Seth, Nov 16: under the Arena the charts start below the fold, so
@@ -830,7 +923,10 @@ export function AnalyticsPage() {
      open view holds its data draw (analytics-motion.css, [data-hold]) until
      its top is a quarter of the way up the screen. */
   const pageRef = useRef(null);
-  const hasSummary = Boolean(summary);
+  const hasSummary = Boolean(inBlockScope ? blockSummary : summary);
+  const holdKey = inBlockScope
+    ? `block:${blockId}:${blockSummary?.asOf ?? ""}`
+    : `all:${view}:${summaryWeeks}`;
   useEffect(() => {
     const page = pageRef.current;
     if (!page || !hasSummary || typeof IntersectionObserver === "undefined") return undefined;
@@ -850,11 +946,15 @@ export function AnalyticsPage() {
       io.observe(card);
     }
     return () => io.disconnect();
-  }, [hasSummary, view, summaryWeeks]);
+  }, [hasSummary, holdKey]);
 
   useEffect(() => {
+    if (inBlockScope) {
+      publishArenaFacts({ analytics: { weeks: null, summary: null } });
+      return;
+    }
     publishArenaFacts({ analytics: { weeks: summaryWeeks, summary } });
-  }, [summary, summaryWeeks]);
+  }, [summary, summaryWeeks, inBlockScope]);
 
   const isEmpty =
     summary &&
@@ -870,22 +970,36 @@ export function AnalyticsPage() {
     [summary, view]
   );
 
+  const showScopeChips = blockRuns.length > 0;
+  const showSkeleton =
+    (inBlockScope && blockLoading && !blockSummary) ||
+    (!inBlockScope && loading && !summary);
+
   return (
     <div ref={pageRef} className={`stack analytics-page${quiet ? " mx-quiet" : ""}`}>
       <div>
         <h1 className="page-title">Analytics</h1>
         <p className="muted analytics-intro">
-          Volume, strength trends, and balance from your logged sets.
+          {inBlockScope
+            ? "Only the workouts from your block, measured in block weeks."
+            : "Volume, strength trends, and balance from your logged sets."}
         </p>
       </div>
 
-      <RangeChips weeks={weeks} onSelect={selectWeeks} />
+      {showScopeChips ? (
+        <BlockScopeChips
+          runs={blockRuns}
+          selectedId={blockId}
+          onSelect={selectBlock}
+        />
+      ) : null}
+      {!inBlockScope ? <RangeChips weeks={weeks} onSelect={selectWeeks} /> : null}
 
       <ErrorMessage error={error} />
       {/* Skeleton only on first load, shown AT ONCE (no reveal delay) so the
           body never loads as a blank scene; it reserves the final layout.
           A range refetch dims the previous render in place instead. */}
-      {loading && !summary ? (
+      {showSkeleton ? (
         <LoadingState
           tone="skeleton"
           variant="analytics"
@@ -894,7 +1008,17 @@ export function AnalyticsPage() {
         />
       ) : null}
 
-      {!error && summary ? (
+      {inBlockScope && blockSummary ? (
+        <BlockScopeView
+          key={blockSummary.run?.id ?? blockId}
+          summary={blockSummary}
+          loading={blockLoading}
+        >
+          <ExecutionSection execution={blockSummary.onPlan?.fidelity ?? []} />
+        </BlockScopeView>
+      ) : null}
+
+      {!inBlockScope && !error && summary ? (
         isEmpty && view !== "exercises" ? (
           <Cascade key={summaryWeeks} className={`stack analytics-content mx-fade-in${loading ? " is-refreshing" : ""}`}>
             <AnalyticsViewTabs value={view} onChange={setView} />
