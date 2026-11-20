@@ -54,6 +54,18 @@
 >   week hatched, one chart per lift (per-side = Left/Right + dashed planned,
 >   tap for a 3-line tip), Chart/Table, Execution; All training restores
 >   today's page; block page header has an Analytics link that opens the scope.
+> - **bl5 LANDED** (auto rung): Appearance = Look + Customize. Gate notes:
+>   Preview does NOT show the Arena room header (contract asked for it;
+>   Cursor reported it); AnalyticsPage now exports its section components for
+>   the editor; SortableList latest-value refs trip react-hooks lint x2.
+> - **Smoke items carried (bl5):** Profile, Appearance has Look | Customize
+>   tabs; Look = Arena / Classic cards, Theme only under Classic, 5 accent
+>   swatches, a Customize row; Customize Home / Analytics: minus hides (grays,
+>   Hidden tag), plus shows, Start can't hide; hold a section ~1/3 s or the grip
+>   to lift and drag (FEEL on the phone: follow, glide, spring; a quick swipe
+>   still scrolls); Reset; Preview + Back to editing; your order and hidden
+>   sections show on Home / Analytics after leaving; hiding every Muscles card
+>   drops the Muscles tab; reduced motion = instant.
 > - **Smoke items carried (bl1):** five-tab swipe walks Home > Analytics >
 >   History > Library > Profile with the room following the finger; Analytics
 >   has its own standing board (SETS bars, view board fades in); no coach
