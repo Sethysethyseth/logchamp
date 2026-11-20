@@ -6,6 +6,8 @@ const {
   buildExerciseDetail,
 } = require("../analytics");
 const { buildUserExerciseIndex } = require("../analytics/userExercises");
+const { buildBlockSummary } = require("../analytics/blockSummary");
+const { blockWeekInclude } = require("../blocks/blockTemplateStore");
 
 // Matches client ExercisesView: active = trained within trailing 8 weeks.
 const ACTIVE_WINDOW_DAYS = 8 * 7;
@@ -210,6 +212,103 @@ async function loadSummary(userId, { from, to }) {
 }
 
 /**
+ * The authed user's block runs, newest first. Isolation: runs are reached
+ * only through `where: { userId }`; the template name comes through the run.
+ */
+async function loadBlockRuns(userId) {
+  const runs = await prisma.blockRun.findMany({
+    where: { userId },
+    orderBy: { startedAt: "desc" },
+    include: {
+      blockTemplate: {
+        select: { name: true, _count: { select: { weeks: true } } },
+      },
+    },
+  });
+  return {
+    runs: runs.map((run) => ({
+      id: run.id,
+      name: run.blockTemplate.name,
+      startedAt: run.startedAt.toISOString(),
+      endedAt: run.endedAt ? run.endedAt.toISOString() : null,
+      weeksTotal: run.blockTemplate._count.weeks,
+      active: run.endedAt == null,
+    })),
+  };
+}
+
+/**
+ * One run's block summary, or null when the run does not exist OR belongs
+ * to another user - the caller cannot tell the two apart (never leak
+ * existence). Cross-user isolation happens here and only here (same
+ * doctrine as loadSummary): the run is fetched with `where: { id, userId }`,
+ * the template only through that run, and every session and set only
+ * through `where: { userId, blockRunId }`.
+ */
+async function loadBlockSummary(userId, runId) {
+  const run = await prisma.blockRun.findFirst({
+    where: { id: runId, userId },
+    include: {
+      blockTemplate: { include: { weeks: blockWeekInclude } },
+    },
+  });
+  if (!run) return null;
+
+  const now = new Date();
+  const [sessions, userExerciseRows, offBlockCount] = await Promise.all([
+    prisma.workoutSession.findMany({
+      where: { userId, blockRunId: run.id },
+      select: {
+        id: true,
+        blockRunId: true,
+        blockWeekOrder: true,
+        blockWorkoutOrder: true,
+        performedAt: true,
+        completedAt: true,
+        sets: {
+          select: {
+            order: true,
+            weight: true,
+            reps: true,
+            rir: true,
+            rpe: true,
+            durationSec: true,
+            side: true,
+            sessionExercise: {
+              select: {
+                id: true,
+                exerciseName: true,
+                exerciseId: true,
+                userExerciseId: true,
+                plan: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.userExercise.findMany({ where: { userId } }),
+    prisma.workoutSession.count({
+      where: {
+        userId,
+        blockRunId: null,
+        completedAt: { not: null },
+        performedAt: { gte: run.startedAt, lte: run.endedAt ?? now },
+      },
+    }),
+  ]);
+
+  return buildBlockSummary({
+    run,
+    template: run.blockTemplate,
+    sessions,
+    userIndex: buildUserExerciseIndex(userExerciseRows),
+    offBlockCount,
+    now,
+  });
+}
+
+/**
  * Same all-time enriched sets + buildExerciseDetail path as the controller.
  * Returns null when no logged sets match the identity.
  */
@@ -282,6 +381,8 @@ async function loadRecentSessions(userId, { limit = 10 } = {}) {
 module.exports = {
   fetchAllTimeEnrichedSets,
   loadSummary,
+  loadBlockRuns,
+  loadBlockSummary,
   loadExerciseDetail,
   loadExerciseRoster,
   loadRecentSessions,

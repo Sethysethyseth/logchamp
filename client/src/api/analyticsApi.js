@@ -18,3 +18,11 @@ export function getExerciseDetail({ exerciseId, userExerciseId, from, to }) {
   if (to) params.set("to", to);
   return http(`/analytics/exercise?${params.toString()}`);
 }
+
+export function getBlockRuns() {
+  return http("/analytics/block-runs");
+}
+
+export function getBlockRunSummary(id) {
+  return http(`/analytics/block-run/${encodeURIComponent(id)}`);
+}

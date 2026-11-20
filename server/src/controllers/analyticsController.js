@@ -2,6 +2,8 @@ const {
   fetchAllTimeEnrichedSets,
   loadSummary,
   loadExerciseDetail,
+  loadBlockRuns,
+  loadBlockSummary,
 } = require("../ai/analyticsAccess");
 const { buildExerciseIndex } = require("../analytics");
 
@@ -153,8 +155,53 @@ async function getExerciseDetail(req, res, next) {
   }
 }
 
+const INTEGER_RE = /^-?\d+$/;
+const MAX_INT4 = 2147483647;
+
+async function getBlockRuns(req, res, next) {
+  try {
+    const userId = req.authUserId;
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    return res.json(await loadBlockRuns(userId));
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function getBlockRunSummary(req, res, next) {
+  try {
+    const userId = req.authUserId;
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const rawId = req.params && req.params.id;
+    if (typeof rawId !== "string" || !INTEGER_RE.test(rawId.trim())) {
+      return res.status(400).json({ error: "Block run id must be an integer" });
+    }
+    const runId = Number(rawId.trim());
+
+    // Out-of-range ids cannot exist; they take the same 404 as a missing run
+    // or another user's run, so the response never reveals which it was.
+    const summary =
+      runId > 0 && runId <= MAX_INT4
+        ? await loadBlockSummary(userId, runId)
+        : null;
+    if (summary === null) {
+      return res.status(404).json({ error: "Block run not found" });
+    }
+    return res.json(summary);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   getSummary,
   getExerciseIndex,
   getExerciseDetail,
+  getBlockRuns,
+  getBlockRunSummary,
 };
