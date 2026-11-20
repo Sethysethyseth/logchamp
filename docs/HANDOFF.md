@@ -14,10 +14,12 @@
 > - **Open:** block analytics placement (scope chip on Analytics vs its own
 >   page - mock shows the chip); dispatch channel (Cursor lanes live on
 >   Seth's PC, unreachable from a cloud session).
-> - **Next, same branch:** Appearance rework + a Customize tab (add / remove /
->   reorder Home and Analytics modules, with a preview). Prototyped as an
->   artifact first; its module list becomes the contract for the BL blocks,
->   so Due / Beat last time ship as Home modules rather than fixed rows.
+> - **Appearance rework + Customize tab: PROTOTYPED, not built.** Working
+>   prototype `docs/design/mocks/block-lens/customize.html` (hide / show /
+>   drag-reorder / preview Home and Analytics sections; Start a workout
+>   can't be hidden; Data quality one switch; device-local). Its contract
+>   table is the unit spec. Built with the new `docs/design/prototype-kit/`
+>   (real app CSS + markup from the smoke rig) - reuse it for prototypes.
 > - Units planned: BL1 arena in tab order, BL2 Home card, BL3 block summary
 >   engine + route (no schema change), BL4 block scope on Analytics.
 

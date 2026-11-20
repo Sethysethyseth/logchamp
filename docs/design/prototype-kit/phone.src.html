@@ -1,0 +1,461 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
+<style>/*APP_CSS*/</style><style>
+/* Layout: the working phone on the left, a short guide beside it (below it on a phone).
+   Everything the prototype adds is styled from the app's own tokens, so it relights
+   with every palette and with Classic light/dark. */
+html, body { background: var(--color-bg); }
+body { margin: 0; color: var(--color-text); font-family: var(--font-sans); }
+body::before { pointer-events: none; }
+.pk-page-unused { max-width: 1060px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 48px; display: grid; grid-template-columns: 412px minmax(0, 1fr); gap: 40px; align-items: start; position: relative; z-index: 1; }
+@media (max-width: 820px) { .pk-page { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+.pk-device { position: relative; width: 100%; max-width: 412px; height: min(860px, calc(100svh - 48px)); min-height: 560px; margin: 0 auto; border-radius: 28px; border: 1px solid var(--color-border); overflow: hidden; transform: translateZ(0); background: var(--color-bg); box-shadow: 0 30px 80px -40px color-mix(in srgb, var(--color-interactive) 55%, transparent); position: sticky; top: 16px; }
+@media (max-width: 820px) { .pk-device { position: relative; top: 0; height: min(820px, 86svh); } }
+.pk-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding-bottom: calc(var(--bottom-nav-height) + 20px); scrollbar-width: none; }
+.pk-scroll::-webkit-scrollbar { display: none; }
+.pk-device .bottom-nav { position: absolute; }
+.pk-device .container.main { padding-top: 14px; }
+.pk-arena { display: block; width: 100%; height: auto; border-bottom: 1px solid color-mix(in srgb, var(--color-interactive) 45%, var(--color-border)); }
+.pk-arena--rail { image-rendering: pixelated; }
+html:not([data-arena]) .pk-arena { display: none; }
+
+/* ---------- Appearance (reworked) ---------- */
+.ap-tabs { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: var(--color-surface-1); border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent); margin-bottom: 18px; }
+.ap-tabs button { position: relative; z-index: 1; min-height: 42px; border: 0; background: transparent; color: var(--color-text-secondary); font: 700 15px/1 var(--font-display); letter-spacing: .02em; border-radius: 10px; cursor: pointer; transition: color var(--motion-fast, 150ms) ease; }
+.ap-tabs button[aria-selected="true"] { color: var(--color-text); }
+.ap-tabs__ind { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 10px; background: var(--color-surface-2); border: 1px solid color-mix(in srgb, var(--color-interactive) 55%, var(--color-border)); transition: transform 260ms cubic-bezier(.2,.8,.2,1); }
+.ap-tabs[data-tab="customize"] .ap-tabs__ind { transform: translateX(100%); }
+.ap-panel { display: grid; gap: 18px; animation: apIn 240ms cubic-bezier(.2,.8,.2,1); }
+@keyframes apIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.ap-h { margin: 0 0 8px; padding: 0 2px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-secondary); }
+.ap-looks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ap-look { display: grid; gap: 8px; padding: 8px 8px 12px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent); background: var(--color-surface-1); color: var(--color-text); cursor: pointer; text-align: left; font: inherit; }
+.ap-look[aria-checked="true"] { border-color: var(--color-interactive); box-shadow: 0 0 0 1px var(--color-interactive) inset; }
+.ap-look__thumb { aspect-ratio: 16 / 10; border-radius: 9px; overflow: hidden; background: var(--color-surface-2); display: grid; }
+.ap-look__thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center 70%; display: block; max-width: 100%; }
+.ap-look__classic { display: grid; gap: 5px; padding: 10px; align-content: start; }
+.ap-look__classic i { display: block; height: 12px; border-radius: 4px; background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+.ap-look__classic i:first-child { width: 60%; background: var(--color-interactive); }
+.ap-look__classic i:nth-child(3) { width: 75%; }
+.ap-look b { font: 700 16px/1.1 var(--font-display); padding: 0 4px; }
+.ap-look span { font-size: 13px; color: var(--color-text-secondary); padding: 0 4px; line-height: 1.3; }
+.ap-note { margin: 0; font-size: 13px; color: var(--color-text-secondary); padding: 0 2px; }
+.ap-swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ap-swatch { display: grid; justify-items: center; gap: 6px; padding: 10px 2px 8px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent); background: var(--color-surface-1); color: var(--color-text-secondary); font: 600 12px/1 var(--font-sans); cursor: pointer; }
+.ap-swatch[aria-checked="true"] { color: var(--color-text); border-color: var(--color-interactive); }
+.ap-swatch i { width: 26px; height: 26px; border-radius: 50%; display: block; box-shadow: 0 0 0 3px var(--color-surface-1), 0 0 0 4px transparent; }
+.ap-swatch[aria-checked="true"] i { box-shadow: 0 0 0 3px var(--color-surface-1), 0 0 0 5px var(--color-interactive); }
+.ap-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 12px; background: var(--color-surface-1); border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent); }
+.ap-seg button { min-height: 38px; border: 0; border-radius: 9px; background: transparent; color: var(--color-text-secondary); font: 600 14px/1 var(--font-sans); cursor: pointer; }
+.ap-seg button[aria-checked="true"] { background: var(--color-surface-2); color: var(--color-text); box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-interactive) 50%, transparent) inset; }
+.ap-row-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent); background: var(--color-surface-1); color: var(--color-text); font: inherit; cursor: pointer; text-align: left; width: 100%; }
+.ap-row-link small { display: block; color: var(--color-text-secondary); font-size: 13px; margin-top: 2px; }
+
+/* ---------- Customize ---------- */
+.cz-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--color-surface-1); border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent); }
+.cz-switch button { min-height: 38px; border: 0; border-radius: 9px; background: transparent; color: var(--color-text-secondary); font: 700 14px/1 var(--font-display); cursor: pointer; }
+.cz-switch button[aria-selected="true"] { background: var(--color-surface-2); color: var(--color-text); }
+.cz-hint { display: flex; gap: 14px; flex-wrap: wrap; margin: 0; font-size: 13px; color: var(--color-text-secondary); }
+.cz-hint span { display: inline-flex; align-items: center; gap: 6px; }
+.cz-hint .cz-tg, .cz-hint .cz-grip { pointer-events: none; width: 24px; height: 24px; }
+.cz-canvas { display: grid; gap: 14px; padding: 12px 10px; border-radius: 16px; border: 1px dashed color-mix(in srgb, var(--color-interactive) 40%, var(--color-border)); background: color-mix(in srgb, var(--color-bg) 70%, transparent); }
+.cz-list { display: grid; gap: 14px; }
+.cz-group { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-secondary); padding: 2px 4px 0; }
+.cz-mod { position: relative; border-radius: 14px; transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
+.cz-mod.is-dragging { z-index: 3; transition: none; }
+.cz-mod.is-dragging .cz-body { box-shadow: 0 18px 40px -14px rgba(0,0,0,.7), 0 0 0 2px var(--color-interactive); border-radius: 14px; }
+.cz-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.cz-name { flex: 1; min-width: 0; font: 700 13px/1.2 var(--font-display); letter-spacing: .02em; color: var(--color-text); }
+.cz-name small { font: 500 12px/1 var(--font-sans); color: var(--color-text-secondary); margin-left: 6px; letter-spacing: 0; }
+.cz-grip, .cz-tg { flex: none; display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent); background: var(--color-surface-1); color: var(--color-text-secondary); cursor: pointer; padding: 0; }
+.cz-grip { cursor: grab; touch-action: none; }
+.cz-grip:active { cursor: grabbing; }
+.cz-tg { border-color: color-mix(in srgb, var(--color-interactive) 55%, var(--color-border)); color: var(--color-interactive); }
+.cz-tg[aria-pressed="false"] { background: var(--color-interactive); color: var(--color-bg); border-color: var(--color-interactive); }
+.cz-tg[disabled] { cursor: default; color: var(--color-text-secondary); border-color: color-mix(in srgb, var(--color-border) 70%, transparent); }
+.cz-grip svg, .cz-tg svg { width: 18px; height: 18px; }
+.cz-body { pointer-events: none; transition: filter 260ms ease, opacity 260ms ease; }
+.cz-mod.is-off .cz-body { filter: grayscale(1) brightness(.85); opacity: .33; }
+.cz-mod.is-off .cz-name { color: var(--color-text-secondary); }
+.cz-off-tag { display: none; font: 600 11px/1 var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-secondary); border: 1px dashed var(--color-border); border-radius: 999px; padding: 4px 7px; }
+.cz-mod.is-off .cz-off-tag { display: inline-block; }
+.cz-dock { position: sticky; bottom: calc(var(--bottom-nav-height) + 10px); z-index: 4; display: grid; grid-template-columns: auto 1fr; gap: 8px; padding: 8px; border-radius: 16px; background: color-mix(in srgb, var(--color-surface-1) 82%, transparent); border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent); backdrop-filter: blur(10px); }
+.cz-dock .btn { margin: 0; }
+.cz-reset { min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--color-border); background: transparent; color: var(--color-text-secondary); font: 600 14px/1 var(--font-sans); cursor: pointer; }
+.cz-preview { min-height: 44px; border-radius: 12px; border: 0; background: var(--color-interactive); color: var(--color-bg); font: 700 15px/1 var(--font-display); letter-spacing: .02em; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.cz-empty { padding: 14px; border-radius: 12px; border: 1px dashed var(--color-border); color: var(--color-text-secondary); font-size: 13px; text-align: center; }
+
+/* Preview overlay: the screen exactly as it will look, nothing grayed */
+.pv { position: absolute; inset: 0; z-index: 8; background: var(--color-bg); animation: pvIn 280ms cubic-bezier(.2,.8,.2,1); }
+@keyframes pvIn { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
+.pv[hidden] { display: none; }
+.pv__bar { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 9; display: inline-flex; align-items: center; gap: 10px; padding: 6px 6px 6px 14px; border-radius: 999px; background: color-mix(in srgb, var(--color-surface-1) 86%, transparent); border: 1px solid color-mix(in srgb, var(--color-interactive) 50%, var(--color-border)); backdrop-filter: blur(10px); font: 600 13px/1 var(--font-sans); color: var(--color-text); white-space: nowrap; box-shadow: 0 10px 30px -12px rgba(0,0,0,.7); }
+.pv__bar button { min-height: 34px; padding: 0 12px; border-radius: 999px; border: 0; background: var(--color-interactive); color: var(--color-bg); font: 700 13px/1 var(--font-display); cursor: pointer; }
+
+/* Other tabs in this prototype */
+.pk-stub { display: grid; gap: 8px; padding: 18px; }
+
+/* ---------- Guide beside the phone ---------- */
+.pk-guide { display: grid; gap: 22px; min-width: 0; padding-top: 4px; }
+.pk-guide h1 { margin: 0; font: 700 clamp(28px, 5vw, 40px)/1.05 var(--font-display); letter-spacing: -.01em; text-wrap: balance; }
+.pk-guide h2 { margin: 0; font: 700 18px/1.2 var(--font-display); }
+.pk-guide p, .pk-guide li { margin: 0; color: var(--color-text-secondary); max-width: 62ch; line-height: 1.55; font-size: 15px; }
+.pk-guide b { color: var(--color-text); }
+.pk-guide ol, .pk-guide ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.pk-eyebrow { font: 700 12px/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--color-interactive); }
+.pk-sec { display: grid; gap: 10px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent); }
+.pk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pk-chip { display: inline-flex; align-items: center; gap: 6px; font: 600 13px/1 var(--font-sans); padding: 6px 9px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-interactive) 45%, var(--color-border)); color: var(--color-text); }
+.pk-chip.is-off { color: var(--color-text-secondary); border-style: dashed; border-color: var(--color-border); text-decoration: line-through; }
+.pk-chip i { font-style: normal; font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
+.pk-tbl { overflow-x: auto; border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent); border-radius: 12px; }
+.pk-tbl table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 14px; }
+.pk-tbl th, .pk-tbl td { text-align: left; padding: 9px 12px; border-top: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent); vertical-align: top; color: var(--color-text-secondary); }
+.pk-tbl th { border-top: 0; font: 700 11px/1.2 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; background: var(--color-surface-1); }
+.pk-tbl td:first-child { color: var(--color-text); white-space: nowrap; }
+.pk-tbl code, .pk-guide code { font: 13px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--color-text); }
+.pk-btn { justify-self: start; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-surface-1); color: var(--color-text); font: 600 14px/1 var(--font-sans); cursor: pointer; }
+.cz-mod:focus-within .cz-grip:focus-visible, .cz-tg:focus-visible, .ap-tabs button:focus-visible, .pk-btn:focus-visible { outline: 2px solid var(--color-interactive); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .cz-mod, .ap-tabs__ind, .ap-panel, .pv, .cz-body { transition: none !important; animation: none !important; } }
+
+/* inside the phone frame: the body is the screen */
+html, body { min-height: 100%; }
+body { padding-bottom: calc(var(--bottom-nav-height) + 20px); }
+.pk-device, .pk-scroll { all: unset; }
+.pv { position: fixed; inset: 0; overflow-y: auto; }
+.pv .pk-scroll { display: block; }
+</style></head><body>
+<div id="root"><div id="scroll"></div>
+<div class="pv" id="pv" hidden><div class="pv__bar"><span>Preview</span><button type="button" id="pv-done">Back to editing</button></div><div id="pv-scroll"></div></div>
+<div id="nav-slot"></div></div>
+<script>
+(() => {
+  const M = /*MODULES_JSON*/null;
+  const IMG = /*IMG_JSON*/null;
+  const root = document.documentElement;
+  const $ = (s, el = document) => el.querySelector(s);
+
+  /* ---------- module catalogue (the contract) ---------- */
+  const card = (title, aside, body) =>
+    `<section class="card weekly-report"><div class="weekly-report__head row"><h2 class="weekly-report__title">${title}</h2>${aside ? `<span class="weekly-report__link">${aside}</span>` : ""}</div>${body}</section>`;
+  const statPR = `<div class="weekly-report__stat"><span class="weekly-report__stat-label muted small">PRs</span><span class="weekly-report__stat-value">2</span><span class="weekly-report__stat-delta muted small">this week</span></div>`;
+  const ROW = "display:grid;grid-template-columns:104px 1fr 44px;gap:10px;align-items:center;font-size:15px";
+  const TRACK = "height:8px;border-radius:4px;background:var(--color-surface-2);overflow:hidden";
+  const due = [["Calves", 12], ["Biceps", 9], ["Forearms", 6]];
+  const beat = [["Barbell Deadlift", 345, 3], ["Barbell Squat", 260, 5], ["Romanian Deadlift", 220, 8]];
+  const HOME = [
+    { id: "start", name: "Start a workout", locked: true, html: M.home.start },
+    { id: "upnext", name: "Next in your block", note: "only while a block runs", html: `<section class="card bk-up-next"><div class="bk-up-next__top"><p class="bk-up-next__eyebrow">NEXT IN YOUR BLOCK</p><span class="bk-up-next__view">View block ›</span></div><h2 class="bk-up-next__title">Lower B</h2><p class="bk-up-next__block muted small">Strength 6 · Week 5 of 6</p><div class="bk-up-next__strip" role="img" aria-label="Week 5 of 6"><span class="bk-up-next__seg bk-up-next__seg--done"></span><span class="bk-up-next__seg bk-up-next__seg--done"></span><span class="bk-up-next__seg bk-up-next__seg--done"></span><span class="bk-up-next__seg bk-up-next__seg--done"></span><span class="bk-up-next__seg bk-up-next__seg--current"></span><span class="bk-up-next__seg bk-up-next__seg--todo"></span></div><p class="bk-up-next__exercises muted small"><span class="bk-up-next__ex-names">Barbell Squat, Romanian Deadlift, Leg Press</span> <span class="bk-up-next__ex-more">+2 · 18 sets</span></p><button type="button" class="btn bk-up-next__start">Start Lower B</button></section>` },
+    { id: "week", name: "This week", html: card("This week", "Analytics →", M.home.weekStrip + `<div class="weekly-report__stats" style="grid-template-columns:1fr 1fr">${M.home.stat0}${statPR}</div>`) },
+    { id: "beat", name: "Beat last time", html: card("Beat last time", "Lower · up next", `<div style="display:grid;gap:8px">${beat.map(([n, w, r]) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border:1px solid var(--color-border);border-radius:10px;background:var(--color-surface-2);font-size:15px"><span>${n}</span><span><b style="font-family:var(--font-display)">${w} × ${r}</b><span style="color:var(--color-interactive);font-weight:600;margin-left:6px">→ ${w} × ${r + 1}</span></span></div>`).join("")}</div>`) },
+    { id: "due", name: "Due", off: true, html: card("Due", "longest since trained", `<div style="display:grid;gap:8px">${due.map(([m, d]) => `<div style="${ROW}"><span>${m}</span><span style="${TRACK}"><span style="display:block;height:100%;width:${Math.round((100 * d) / due[0][1])}%;background:var(--color-interactive);border-radius:0 4px 4px 0"></span></span><span style="text-align:right;color:var(--color-text-secondary);font-variant-numeric:tabular-nums">${d} d</span></div>`).join("")}</div>`) },
+    { id: "highlights", name: "Highlights", note: "PRs, movers, execution", html: card("Highlights", "last 7 days", M.home.digest) },
+    { id: "recent", name: "Recent workouts", html: M.home.recent },
+  ];
+  const A = M.analytics;
+  const findCard = (v, re) => (A[v].cards.find((c) => re.test(c.title)) || {}).html || "";
+  const ATOP = [
+    { id: "tiles", name: "Headline numbers", html: A.muscles.tiles },
+    { id: "coach", name: "Ask the coach", html: A.muscles.coach },
+  ];
+  const VIEWS = [
+    { key: "muscles", label: "Muscles" },
+    { key: "strength", label: "Strength" },
+    { key: "exercises", label: "Exercises" },
+    { key: "execution", label: "Execution" },
+  ];
+  const ACARDS = {
+    volume: { name: "Weekly volume by muscle", view: "muscles", html: findCard("muscles", /volume/i) },
+    balance: { name: "Balance", view: "muscles", html: findCard("muscles", /balance/i) },
+    trends: { name: "Strength trends", view: "strength", html: findCard("strength", /strength trends/i) },
+    explorer: { name: "Exercise explorer", view: "exercises", html: A.exercises.cards[0].html },
+    execution: { name: "Execution", view: "execution", html: findCard("execution", /execution/i) },
+    quality: { name: "Data quality", shared: true, html: findCard("muscles", /data quality/i) },
+  };
+  const DEFAULT = () => ({
+    home: HOME.map((m) => m.id),
+    atop: ATOP.map((m) => m.id),
+    views: { muscles: ["volume", "balance", "quality"], strength: ["trends", "quality"], exercises: ["explorer"], execution: ["execution", "quality"] },
+    off: HOME.filter((m) => m.off).map((m) => m.id),
+  });
+  const KEY = "logchamp-proto-layout-v1";
+  let L = DEFAULT();
+  try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.home && s.views) L = Object.assign(DEFAULT(), s); } catch (e) { /* storage blocked */ }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(L)); } catch (e) { /* storage blocked */ } renderSummary(); };
+  const isOff = (id) => L.off.includes(id);
+
+  /* ---------- look state ---------- */
+  const LOOK_KEY = "logchamp-proto-look-v1";
+  let look = { arena: true, palette: "champ", theme: "dark" };
+  try { Object.assign(look, JSON.parse(localStorage.getItem(LOOK_KEY) || "{}")); } catch (e) { /* */ }
+  const HUE = { champ: 0, iron: 165, forest: -95, crimson: 125, chill: -22 };
+  function applyLook() {
+    const dark = look.arena || look.theme === "dark" || (look.theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+    root.setAttribute("data-theme", dark ? "dark" : "light");
+    root.setAttribute("data-palette", look.palette);
+    if (look.arena) { root.setAttribute("data-arena", ""); root.setAttribute("data-arena-mode", "rail"); }
+    else { root.removeAttribute("data-arena"); root.removeAttribute("data-arena-mode"); }
+    root.style.setProperty("--pk-hue", `${HUE[look.palette] || 0}deg`);
+    try { localStorage.setItem(LOOK_KEY, JSON.stringify(look)); } catch (e) { /* */ }
+  }
+  const arenaImg = (k, rail) => `<img class="pk-arena${rail ? " pk-arena--rail" : ""}" src="${IMG[k]}" alt="" style="filter:hue-rotate(var(--pk-hue))${look.palette === "chill" ? " saturate(.6)" : ""}">`;
+
+  /* ---------- routing inside the phone ---------- */
+  let route = "profile";
+  let apTab = "look";
+  let czScreen = "home";
+  let aView = "muscles";
+  const scroll = $("#scroll");
+  const doc = document.scrollingElement;
+
+  function nav() {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = M.nav;
+    const n = tmp.firstElementChild;
+    const keys = ["home", "analytics", "history", "library", "profile"];
+    [...n.querySelectorAll(".bottom-nav__item")].forEach((a, i) => {
+      a.classList.toggle("active", keys[i] === route);
+      if (keys[i] === route) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+      a.dataset.go = keys[i];
+      a.setAttribute("href", "#");
+    });
+    const ind = n.querySelector(".mx-slide-ind");
+    if (ind) ind.remove();
+    $("#nav-slot").replaceChildren(n);
+  }
+  $("#nav-slot").addEventListener("click", (e) => { const a = e.target.closest("[data-go]"); if (!a) return; e.preventDefault(); go(a.dataset.go); });
+  function go(r) { route = r; render(); doc.scrollTop = 0; }
+
+  /* Anything captured from the app that would navigate stays put. */
+  document.addEventListener("click", (e) => { const a = e.target.closest("a"); if (a && !a.dataset.go) e.preventDefault(); });
+
+  /* ---------- screens ---------- */
+  function homeHTML(edit) {
+    const list = L.home.map((id) => HOME.find((m) => m.id === id)).filter(Boolean);
+    const body = edit ? `<div class="cz-list" data-list="home">${list.map((m) => wrap(m, m.html)).join("")}</div>` : list.filter((m) => !isOff(m.id)).map((m) => m.html).join("");
+    return `<div class="stack workout-tab">${edit ? "" : M.home.masthead}${body}</div>`;
+  }
+  function liveViews() { return VIEWS.filter((v) => L.views[v.key].some((id) => !isOff(id))); }
+  function tabsHTML(views, active) {
+    return `<div class="analytics-view-tabs mx-slide-host" role="tablist">${views.map((v) => `<button type="button" role="tab" class="analytics-view-tab${v.key === active ? " is-active" : ""}" aria-selected="${v.key === active}" data-view="${v.key}">${v.label}</button>`).join("")}</div>`;
+  }
+  function analyticsHTML(edit) {
+    const top = L.atop.map((id) => ATOP.find((m) => m.id === id));
+    const views = edit ? VIEWS : liveViews();
+    if (!views.some((v) => v.key === aView)) aView = (views[0] || VIEWS[0]).key;
+    const cards = L.views[aView].map((id) => Object.assign({ id }, ACARDS[id]));
+    const topHTML = edit ? `<div class="cz-list" data-list="atop">${top.map((m) => wrap(m, m.html)).join("")}</div>` : top.filter((m) => !isOff(m.id)).map((m) => m.html).join("");
+    const viewHTML = edit
+      ? `<div class="cz-list" data-list="view:${aView}">${cards.map((m) => wrap(m, m.html, m.shared ? "every view" : "")).join("")}</div>`
+      : cards.filter((m) => !isOff(m.id)).map((m) => m.html).join("") || `<div class="cz-empty">Everything on this view is hidden.</div>`;
+    const head = edit ? "" : A.muscles.head + A.muscles.range;
+    return `<div class="stack analytics-page">${head}<div class="stack analytics-content">${edit ? `<div class="cz-group">Top of the page</div>` : ""}${topHTML}${edit ? `<div class="cz-group">Views · tap a tab to edit its cards</div>` : ""}${views.length ? tabsHTML(views, aView) : ""}<div class="stack analytics-view">${viewHTML}</div></div></div>`;
+  }
+  const ICON = {
+    grip: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`,
+    minus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg>`,
+    plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg>`,
+    lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`,
+    eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="18" height="18"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  };
+  function wrap(m, html, tag) {
+    const off = isOff(m.id);
+    const tg = m.locked
+      ? `<button type="button" class="cz-tg" disabled title="Always on Home" aria-label="${m.name} is always shown">${ICON.lock}</button>`
+      : `<button type="button" class="cz-tg" data-toggle="${m.id}" aria-pressed="${!off}" aria-label="${off ? "Show" : "Hide"} ${m.name}">${off ? ICON.plus : ICON.minus}</button>`;
+    return `<div class="cz-mod${off ? " is-off" : ""}" data-id="${m.id}"><div class="cz-bar"><button type="button" class="cz-grip" aria-label="Move ${m.name}. Use arrow keys">${ICON.grip}</button><span class="cz-name">${m.name}${tag || m.note ? `<small>${tag || m.note}</small>` : ""}</span><span class="cz-off-tag">Hidden</span>${tg}</div><div class="cz-body" aria-hidden="${off}">${html}</div></div>`;
+  }
+
+  function appearanceHTML() {
+    const sw = { champ: "#8b9bff", iron: "#fbbf24", forest: "#4ade80", crimson: "#f87171", chill: "#86a8d8" };
+    const look_ = `<div class="ap-panel" role="tabpanel" aria-label="Look">
+      <div><h2 class="ap-h">Look</h2>
+        <div class="ap-looks" role="radiogroup" aria-label="Look">
+          <button type="button" class="ap-look" role="radio" aria-checked="${look.arena}" data-look="arena"><span class="ap-look__thumb"><img src="${IMG.home}" alt="" style="filter:hue-rotate(var(--pk-hue))"></span><b>Arena</b><span>The new look, with its own lighting. Always dark.</span></button>
+          <button type="button" class="ap-look" role="radio" aria-checked="${!look.arena}" data-look="classic"><span class="ap-look__thumb"><span class="ap-look__classic"><i></i><i></i><i></i><i></i></span></span><b>Classic</b><span>The look from before, light or dark.</span></button>
+        </div></div>
+      ${look.arena ? "" : `<div><h2 class="ap-h">Theme</h2><div class="ap-seg" role="radiogroup" aria-label="Theme">${["light", "dark", "system"].map((t) => `<button type="button" role="radio" aria-checked="${look.theme === t}" data-theme-pick="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join("")}</div></div>`}
+      <div><h2 class="ap-h">Accent color</h2><div class="ap-swatches" role="radiogroup" aria-label="Accent color">${Object.entries(sw).map(([k, c]) => `<button type="button" class="ap-swatch" role="radio" aria-checked="${look.palette === k}" data-pal="${k}"><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)}</button>`).join("")}</div></div>
+      <p class="ap-note">Everything works the same in both looks. This device only.</p>
+      <div><h2 class="ap-h">Layout</h2><button type="button" class="ap-row-link" data-open-customize><span><b>Customize Home and Analytics</b><small>Hide, show and reorder what's on each screen</small></span><span aria-hidden="true">›</span></button></div>
+    </div>`;
+    const cz = `<div class="ap-panel" role="tabpanel" aria-label="Customize">
+      <div class="cz-switch" role="tablist" aria-label="Screen">${["home", "analytics"].map((s) => `<button type="button" role="tab" aria-selected="${czScreen === s}" data-cz="${s}">${s === "home" ? "Home" : "Analytics"}</button>`).join("")}</div>
+      <p class="cz-hint"><span><span class="cz-tg">${ICON.minus}</span>hide</span><span><span class="cz-tg" style="background:var(--color-interactive);color:var(--color-bg)">${ICON.plus}</span>show</span><span><span class="cz-grip">${ICON.grip}</span>drag to move</span></p>
+      <div class="cz-canvas">${czScreen === "home" ? homeHTML(true) : analyticsHTML(true)}</div>
+      <div class="cz-dock"><button type="button" class="cz-reset" data-reset="${czScreen}">Reset</button><button type="button" class="cz-preview" data-preview>${ICON.eye}Preview ${czScreen === "home" ? "Home" : "Analytics"}</button></div>
+    </div>`;
+    return `<div class="settings-page stack"><span class="settings-page-back">← Profile</span><header class="settings-page-header"><h1 class="settings-page-title">Appearance</h1></header>
+      <div class="ap-tabs" role="tablist" data-tab="${apTab}"><span class="ap-tabs__ind" aria-hidden="true"></span><button type="button" role="tab" aria-selected="${apTab === "look"}" data-ap="look">Look</button><button type="button" role="tab" aria-selected="${apTab === "customize"}" data-ap="customize">Customize</button></div>
+      ${apTab === "look" ? look_ : cz}</div>`;
+  }
+
+  function pageHTML(r, edit) {
+    if (r === "home") return arenaImg("home") + `<main class="container main"><div class="mx-route">${homeHTML(false)}</div></main>`;
+    if (r === "analytics") return arenaImg("analytics") + `<main class="container main"><div class="mx-route">${analyticsHTML(false)}</div></main>`;
+    if (r === "profile") return arenaImg("profile", true) + `<main class="container main"><div class="mx-route">${appearanceHTML()}</div></main>`;
+    return arenaImg(r) + `<main class="container main"><div class="mx-route"><div class="card pk-stub"><h2 class="weekly-report__title">${r === "history" ? "History" : "Library"}</h2><p class="muted small" style="margin:0">Not part of this prototype. Home, Analytics and Profile › Appearance work.</p></div></div></main>`;
+  }
+
+  function render(keep) {
+    const top = doc.scrollTop;
+    scroll.innerHTML = pageHTML(route);
+    nav();
+    if (keep) doc.scrollTop = top;
+    renderSummary();
+  }
+
+  /* ---------- interactions ---------- */
+  scroll.addEventListener("click", (e) => {
+    const t = e.target;
+    let b;
+    if ((b = t.closest("[data-ap]"))) { apTab = b.dataset.ap; return render(true); }
+    if ((b = t.closest("[data-open-customize]"))) { apTab = "customize"; return render(true); }
+    if ((b = t.closest("[data-look]"))) { look.arena = b.dataset.look === "arena"; applyLook(); return render(true); }
+    if ((b = t.closest("[data-theme-pick]"))) { look.theme = b.dataset.themePick; applyLook(); return render(true); }
+    if ((b = t.closest("[data-pal]"))) { look.palette = b.dataset.pal; applyLook(); return render(true); }
+    if ((b = t.closest("[data-cz]"))) { czScreen = b.dataset.cz; return render(true); }
+    if ((b = t.closest("[data-view]"))) { aView = b.dataset.view; return render(true); }
+    if ((b = t.closest("[data-toggle]"))) {
+      const id = b.dataset.toggle;
+      L.off = isOff(id) ? L.off.filter((x) => x !== id) : [...L.off, id];
+      save();
+      const mod = b.closest(".cz-mod");
+      const off = isOff(id);
+      document.querySelectorAll(`.cz-mod[data-id="${id}"]`).forEach((m) => m.classList.toggle("is-off", off));
+      b.setAttribute("aria-pressed", String(!off));
+      b.setAttribute("aria-label", `${off ? "Show" : "Hide"} ${mod.querySelector(".cz-name").firstChild.textContent}`);
+      b.innerHTML = off ? ICON.plus : ICON.minus;
+      mod.querySelector(".cz-body").setAttribute("aria-hidden", String(off));
+      return;
+    }
+    if ((b = t.closest("[data-reset]"))) {
+      const d = DEFAULT();
+      if (b.dataset.reset === "home") { L.home = d.home; L.off = L.off.filter((id) => !HOME.some((m) => m.id === id)).concat(d.off); }
+      else { L.atop = d.atop; L.views = d.views; L.off = L.off.filter((id) => HOME.some((m) => m.id === id)); }
+      save(); return render(true);
+    }
+    if ((b = t.closest("[data-preview]"))) return openPreview();
+    /* the captured range chips and analytics tabs: just move the highlight */
+    if ((b = t.closest(".range-chip"))) { b.parentElement.querySelectorAll(".range-chip").forEach((c) => c.classList.toggle("is-active", c === b)); }
+  });
+
+  const pv = $("#pv");
+  function openPreview() {
+    $("#pv-scroll").innerHTML = czScreen === "home"
+      ? arenaImg("home") + `<main class="container main" style="padding-top:58px"><div class="mx-route">${homeHTML(false)}</div></main>`
+      : arenaImg("analytics") + `<main class="container main" style="padding-top:58px"><div class="mx-route">${analyticsHTML(false)}</div></main>`;
+    pv.scrollTop = 0;
+    pv.hidden = false;
+    $("#pv-done").focus();
+  }
+  $("#pv-done").addEventListener("click", () => { pv.hidden = true; render(true); });
+  $("#pv-scroll").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-view]");
+    if (b) { aView = b.dataset.view; openPreview(); }
+  });
+
+  /* ---------- drag to reorder (pointer: touch + mouse), arrows on the grip ---------- */
+  let drag = null;
+  function listOrder(list) { return [...list.querySelectorAll(":scope > .cz-mod")].map((m) => m.dataset.id); }
+  function commit(list) {
+    const k = list.dataset.list;
+    const order = listOrder(list);
+    if (k === "home") L.home = order;
+    else if (k === "atop") L.atop = order;
+    else L.views[k.slice(5)] = order;
+    save();
+  }
+  function flip(list, change) {
+    const mods = [...list.querySelectorAll(":scope > .cz-mod")];
+    const before = new Map(mods.map((m) => [m, m.getBoundingClientRect().top]));
+    change();
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    mods.forEach((m) => {
+      if (drag && m === drag.mod) return;
+      const d = before.get(m) - m.getBoundingClientRect().top;
+      if (!d) return;
+      m.style.transition = "none";
+      m.style.transform = `translateY(${d}px)`;
+      requestAnimationFrame(() => { m.style.transition = ""; m.style.transform = ""; });
+    });
+  }
+  scroll.addEventListener("pointerdown", (e) => {
+    const g = e.target.closest(".cz-grip");
+    if (!g || e.button > 0) return;
+    const mod = g.closest(".cz-mod");
+    const list = mod.parentElement;
+    e.preventDefault();
+    g.setPointerCapture(e.pointerId);
+    drag = { g, mod, list, id: e.pointerId, lastY: e.clientY };
+    mod.classList.add("is-dragging");
+    tickScroll();
+  });
+  scroll.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.lastY = e.clientY;
+    place();
+  });
+  function place() {
+    const { mod, list } = drag;
+    const y = drag.lastY;
+    const sibs = [...list.querySelectorAll(":scope > .cz-mod")].filter((m) => m !== mod);
+    let before = null;
+    for (const s of sibs) { const r = s.getBoundingClientRect(); if (y < r.top + r.height / 2) { before = s; break; } }
+    if (before !== mod.nextElementSibling) flip(list, () => list.insertBefore(mod, before));
+  }
+  function endDrag(e) {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    const { mod, list } = drag;
+    mod.classList.remove("is-dragging");
+    mod.style.transform = "";
+    drag = null;
+    commit(list);
+  }
+  scroll.addEventListener("pointerup", endDrag);
+  scroll.addEventListener("pointercancel", endDrag);
+  function tickScroll() {
+    if (!drag) return;
+    const H = window.innerHeight;
+    const edge = 70;
+    const v = drag.lastY < edge ? -(edge - drag.lastY) / 5 : drag.lastY > H - edge - 60 ? (drag.lastY - (H - edge - 60)) / 5 : 0;
+    if (v) { doc.scrollTop += v; place(); }
+    requestAnimationFrame(tickScroll);
+  }
+  scroll.addEventListener("keydown", (e) => {
+    const g = e.target.closest(".cz-grip");
+    if (!g || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    e.preventDefault();
+    const mod = g.closest(".cz-mod");
+    const list = mod.parentElement;
+    const sib = e.key === "ArrowUp" ? mod.previousElementSibling : mod.nextElementSibling;
+    if (!sib || !sib.classList.contains("cz-mod")) return;
+    flip(list, () => (e.key === "ArrowUp" ? list.insertBefore(mod, sib) : list.insertBefore(sib, mod)));
+    commit(list);
+    g.focus();
+  });
+
+  /* ---------- guide: live summary + contract ---------- */
+  const ROWS = [
+    ...HOME.map((m) => [`home.${m.id}`, m.name, m.locked ? "On, can't hide" : m.off ? "Off" : "On", m.note || ""]),
+    ...ATOP.map((m) => [`analytics.${m.id}`, m.name, "On", "top of the page"]),
+    ...Object.entries(ACARDS).map(([id, c]) => [`analytics.${id}`, c.name, "On", c.shared ? "one switch for every view" : `${c.view} view`]),
+  ];
+  const CAT = {
+    home: HOME.map(({ id, name }) => ({ id, name })),
+    atop: ATOP.map(({ id, name }) => ({ id, name })),
+    acards: Object.entries(ACARDS).map(([id, c]) => ({ id, name: c.name })),
+    views: VIEWS,
+    rows: ROWS,
+  };
+  function renderSummary() {
+    try { parent.postMessage({ type: "layout", L, cat: CAT }, "*"); } catch (e) { /* no parent */ }
+  }
+  window.addEventListener("message", (e) => {
+    if (e.data && e.data.type === "reset") { L = DEFAULT(); save(); render(true); }
+  });
+
+  applyLook();
+  render();
+})();
+</script></body></html>

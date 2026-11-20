@@ -14,6 +14,10 @@ Arena, champ, seeded smoke account - test data, not Seth's).
 - `preview.html` - the visual preview: draggable swipe sequence (today vs
   new room), each tab's place, the Home and block-analytics mock-ups.
   Open it from this folder; it loads `frames/` and `mock/` relatively.
+- `customize.html` - working prototype of Profile > Appearance (Look +
+  Customize: hide / show / drag-reorder / preview Home and Analytics
+  sections). Built by `docs/design/prototype-kit/`; its contract table
+  (module ids, defaults, rules) is the spec for the Customize unit.
 - `arena-in-tab-order.prototype.diff` - BL1's starting point. Applies to
   `client/src/components/arena/` at the commit it was made on and RUNS
   (build green; the frames in `frames/new` and `mock/new-*` are this diff).
